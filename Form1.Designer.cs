@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.textBox6 = new System.Windows.Forms.TextBox();
@@ -45,17 +46,18 @@
             this.label3 = new System.Windows.Forms.Label();
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBox8 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.logBox = new System.Windows.Forms.RichTextBox();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.button7 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -63,22 +65,35 @@
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.button8 = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // memGrpBox
             // 
+            this.memGrpBox.Controls.Add(this.richTextBox2);
             this.memGrpBox.Location = new System.Drawing.Point(169, 12);
             this.memGrpBox.Name = "memGrpBox";
             this.memGrpBox.Size = new System.Drawing.Size(716, 587);
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory Map";
+            // 
+            // richTextBox2
+            // 
+            this.richTextBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox2.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBox2.Location = new System.Drawing.Point(3, 16);
+            this.richTextBox2.Name = "richTextBox2";
+            this.richTextBox2.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.richTextBox2.Size = new System.Drawing.Size(710, 568);
+            this.richTextBox2.TabIndex = 0;
+            this.richTextBox2.Text = "";
             // 
             // regGrpBox
             // 
@@ -234,14 +249,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Machine";
             // 
-            // button1
+            // button6
             // 
-            this.button1.Location = new System.Drawing.Point(7, 20);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(138, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Load File into Memory...";
-            this.button1.UseVisualStyleBackColor = true;
+            this.button6.Location = new System.Drawing.Point(6, 78);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(139, 23);
+            this.button6.TabIndex = 2;
+            this.button6.Text = "Manage Devices...";
+            this.button6.UseVisualStyleBackColor = true;
             // 
             // button2
             // 
@@ -251,6 +266,15 @@
             this.button2.TabIndex = 1;
             this.button2.Text = "Save Memory to File...";
             this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(7, 20);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(138, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "Load File into Memory...";
+            this.button1.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
@@ -262,45 +286,20 @@
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Location = new System.Drawing.Point(891, 250);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(151, 189);
+            this.groupBox2.Size = new System.Drawing.Size(151, 166);
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Program Counter";
             // 
-            // label2
+            // checkBox4
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 21);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(21, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "PC";
-            // 
-            // textBox8
-            // 
-            this.textBox8.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox8.Location = new System.Drawing.Point(30, 16);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(71, 24);
-            this.textBox8.TabIndex = 17;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(9, 110);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(136, 23);
-            this.button3.TabIndex = 18;
-            this.button3.Text = "Step (F10)";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(9, 52);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(136, 23);
-            this.button4.TabIndex = 19;
-            this.button4.Text = "Run (F5)";
-            this.button4.UseVisualStyleBackColor = true;
+            this.checkBox4.AutoSize = true;
+            this.checkBox4.Location = new System.Drawing.Point(9, 139);
+            this.checkBox4.Name = "checkBox4";
+            this.checkBox4.Size = new System.Drawing.Size(134, 17);
+            this.checkBox4.TabIndex = 6;
+            this.checkBox4.Text = "Disable All Breakpoints";
+            this.checkBox4.UseVisualStyleBackColor = true;
             // 
             // button5
             // 
@@ -311,32 +310,59 @@
             this.button5.Text = "Break (F6)";
             this.button5.UseVisualStyleBackColor = true;
             // 
-            // button6
+            // button4
             // 
-            this.button6.Location = new System.Drawing.Point(6, 78);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(139, 23);
-            this.button6.TabIndex = 2;
-            this.button6.Text = "Manage Devices...";
-            this.button6.UseVisualStyleBackColor = true;
+            this.button4.Location = new System.Drawing.Point(9, 52);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(136, 23);
+            this.button4.TabIndex = 19;
+            this.button4.Text = "Run (F5)";
+            this.button4.UseVisualStyleBackColor = true;
             // 
-            // richTextBox1
+            // button3
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(0, 605);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(1051, 127);
-            this.richTextBox1.TabIndex = 4;
-            this.richTextBox1.Text = "";
+            this.button3.Location = new System.Drawing.Point(9, 110);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(136, 23);
+            this.button3.TabIndex = 18;
+            this.button3.Text = "Step (F10)";
+            this.button3.UseVisualStyleBackColor = true;
             // 
-            // statusStrip1
+            // textBox8
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.textBox8.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBox8.Location = new System.Drawing.Point(30, 16);
+            this.textBox8.Name = "textBox8";
+            this.textBox8.Size = new System.Drawing.Size(71, 24);
+            this.textBox8.TabIndex = 17;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 21);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(21, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "PC";
+            // 
+            // logBox
+            // 
+            this.logBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.logBox.Location = new System.Drawing.Point(0, 605);
+            this.logBox.Name = "logBox";
+            this.logBox.ReadOnly = true;
+            this.logBox.Size = new System.Drawing.Size(1051, 127);
+            this.logBox.TabIndex = 4;
+            this.logBox.Text = "";
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 735);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1051, 22);
-            this.statusStrip1.TabIndex = 5;
-            this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip.Location = new System.Drawing.Point(0, 735);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(1051, 22);
+            this.statusStrip.TabIndex = 5;
             // 
             // toolStripStatusLabel1
             // 
@@ -405,15 +431,9 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Breakpoint";
             // 
-            // checkBox4
+            // openFileDialog
             // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Location = new System.Drawing.Point(9, 139);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(134, 17);
-            this.checkBox4.TabIndex = 6;
-            this.checkBox4.Text = "Disable All Breakpoints";
-            this.checkBox4.UseVisualStyleBackColor = true;
+            this.openFileDialog.Filter = "SIC/XE code|*.obj|Binary image|*.bin|All files|*.*";
             // 
             // Form1
             // 
@@ -422,21 +442,23 @@
             this.ClientSize = new System.Drawing.Size(1051, 757);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.button7);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.statusStrip);
+            this.Controls.Add(this.logBox);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.regGrpBox);
             this.Controls.Add(this.memGrpBox);
             this.Name = "Form1";
             this.Text = "Virtual SIC";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.memGrpBox.ResumeLayout(false);
             this.regGrpBox.ResumeLayout(false);
             this.regGrpBox.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
@@ -472,8 +494,8 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.TextBox textBox8;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.RichTextBox richTextBox1;
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.RichTextBox logBox;
+        private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.CheckBox checkBox4;
@@ -482,6 +504,8 @@
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.RichTextBox richTextBox2;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
     }
 }
 

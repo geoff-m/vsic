@@ -17,6 +17,8 @@ namespace sicsim
             InitializeComponent();
         }
 
+
+
         #region unused
         //Label[] registerLabels;
         //TextBox[] registerTboxes;
@@ -57,5 +59,55 @@ namespace sicsim
         //}
         #endregion
 
+        Session sess;
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Log("Creating new machine...");
+
+            new Task(() =>
+            {
+                sess = new Session();
+
+                Log("Done.");
+                SetStatusMessage("Ready");
+            }).Start();
+        }
+
+
+        readonly Color COLOR_DEFAULT = Color.Black;
+        readonly Color COLOR_ERROR = Color.DarkRed;
+        private void Log(string str, params object[] args)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() =>Log(str, args)));
+                return;
+            }
+            logBox.SelectionColor = COLOR_DEFAULT;
+            logBox.AppendText(string.Format(str, args));
+            logBox.AppendText("\n");
+        }
+
+        private void LogError(string str, params object[] args)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => Log(str, args)));
+                return;
+            }
+            logBox.SelectionColor = COLOR_ERROR;
+            logBox.AppendText(string.Format(str, args));
+            logBox.AppendText("\n");
+        }
+
+        public void SetStatusMessage(string str, params object[] args)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => SetStatusMessage(str, args)));
+                return;
+            }
+            toolStripStatusLabel1.Text = string.Format(str, args);
+        }
     }
 }

@@ -9,24 +9,34 @@ namespace sicsim
         public const int SIC_MEMORY_MAXIMUM = 0x8000; // 32K
         public const int SICXE_MEMORY_MAXIMUM = 0x100000; // 1M
 
-        public int ProgramCounter
+        readonly Word MEMORY_INITIAL_VALUE = (Word)0xffffff;
+
+        public Word ProgramCounter
         {
             get;
             private set;
         }
 
         private Word[] memory;
-        Word regA, regB, regL, regS,regT, regX;
+        Word regA, regB, regL, regS, regT, regX;
 
         public Machine(int memorySize = SICXE_MEMORY_MAXIMUM)
         {
             memory = new Word[memorySize];
 
-            Word MEMORY_INITIAL_VALUE = (Word)0xffffff;
             for (int i = 0; i < memory.Length; ++i)
             {
                 memory[i] = MEMORY_INITIAL_VALUE;
             }
+
+            regA = MEMORY_INITIAL_VALUE;
+            regB = MEMORY_INITIAL_VALUE;
+            regL = MEMORY_INITIAL_VALUE;
+            regS = MEMORY_INITIAL_VALUE;
+            regT = MEMORY_INITIAL_VALUE;
+            regX = MEMORY_INITIAL_VALUE;
+
+            ProgramCounter = (Word)0;
         }
 
         /// <summary>
@@ -75,10 +85,12 @@ namespace sicsim
             return stop - address;
         }
 
-        public RunResult Run(int address)
+        public RunResult Run(Word address)
         {
-            if (address < 0 || address >= memory.Length)
+            int addr = (int)address;
+            if (addr < 0 || addr >= memory.Length)
                 throw new ArgumentException("Address is out of range.", nameof(address));
+
             ProgramCounter = address;
             return Run();
         }
@@ -95,7 +107,7 @@ namespace sicsim
 
         public RunResult Step()
         {
-            // [Execute the instruction at PC.]
+            // todo: Execute the instruction at PC.
 
             return RunResult.None; // if no error occurs.
         }
@@ -107,19 +119,18 @@ namespace sicsim
             IllegalInstruction = 2,
             HardwareFault = 3
         }
-    
+
 
         #region Helper functions
-        private Word ReadWord(int address, AddressingMode mode)
+        private Word ReadWord(Word address, AddressingMode mode)
         {
             if (mode == AddressingMode.Immediate)
-                return (Word)address;
-            //return Word.FromArray(memory, DecodeAddress(address, mode));
-            return memory[DecodeAddress(address, mode)];
+                return address;
+            return memory[(int)DecodeAddress(address, mode)];
         }
 
         // Helper function for ReadWord and WriteWord.
-        private int DecodeAddress(int address, AddressingMode mode)
+        private Word DecodeAddress(Word address, AddressingMode mode)
         {
             switch (mode)
             {
@@ -128,9 +139,9 @@ namespace sicsim
                 case AddressingMode.Simple: // todo: In Machine, replace this with Direct. "Simple" should be disallowed here.
                     return address;
                 case AddressingMode.Indirect:
-                    return address + (int)regX;
+                    return address + regX;
                 case AddressingMode.RelativeToBase:
-                    return address + (int)regB;
+                    return address + regB;
                 case AddressingMode.RelativeToProgramCounter:
                     return address + ProgramCounter;
                 default:
@@ -138,17 +149,13 @@ namespace sicsim
             }
         }
 
-        private void WriteWord(Word w, int address, AddressingMode mode)
+        private void WriteWord(Word w, Word address, AddressingMode mode)
         {
             if (mode != AddressingMode.Immediate)
             {
                 address = DecodeAddress(address, mode);
             }
-            memory[address] = w;
-            //address *= 3; // to convert from word index to byte index.
-            //memory[address] = w.Low;
-            //memory[address + 1] = w.Middle;
-            //memory[address + 2] = w.High;
+            memory[(int)address] = w;
         }
 
         /// <summary>
@@ -158,16 +165,9 @@ namespace sicsim
         /// <param name="count">The number of words to print.</param>
         public void PrintWords(int startAddress, int count)
         {
-            //startAddress *= 3;
-            //count *= 3;
             int stop = startAddress + count;
-            for (int wordIdx = startAddress; wordIdx < stop; wordIdx += 4) // += 12
+            for (int wordIdx = startAddress; wordIdx < stop; wordIdx += 4)
             {
-                //Console.WriteLine("0x{0:X}: \t{1,5} {2,5} {3,5} {4,5}", wordIdx,
-                //    (int)Word.FromArray(memory, wordIdx),
-                //    (int)Word.FromArray(memory, wordIdx + 3),
-                //    (int)Word.FromArray(memory, wordIdx + 6),
-                //    (int)Word.FromArray(memory, wordIdx + 9));
                 Console.WriteLine("0x{0:X}: \t{1,8} {2,8} {3,8} {4,8}", wordIdx,
                  (int)memory[wordIdx],
                  (int)memory[wordIdx + 1],
