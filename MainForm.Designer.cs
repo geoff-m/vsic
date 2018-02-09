@@ -1,6 +1,6 @@
 ﻿namespace sicsim
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
-            this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.textBox6 = new System.Windows.Forms.TextBox();
@@ -70,10 +69,12 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.machineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadOBJToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadOBJToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new sicsim.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -84,27 +85,17 @@
             // 
             // memGrpBox
             // 
-            this.memGrpBox.Controls.Add(this.richTextBox2);
+            this.memGrpBox.Controls.Add(this.hexDisplay);
             this.memGrpBox.Location = new System.Drawing.Point(163, 27);
             this.memGrpBox.Name = "memGrpBox";
             this.memGrpBox.Size = new System.Drawing.Size(716, 572);
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
-            this.memGrpBox.Text = "Memory Map";
-            // 
-            // richTextBox2
-            // 
-            this.richTextBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox2.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.richTextBox2.Location = new System.Drawing.Point(3, 16);
-            this.richTextBox2.Name = "richTextBox2";
-            this.richTextBox2.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBox2.Size = new System.Drawing.Size(710, 553);
-            this.richTextBox2.TabIndex = 0;
-            this.richTextBox2.Text = "";
+            this.memGrpBox.Text = "Memory";
             // 
             // regGrpBox
             // 
+            this.regGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.regGrpBox.Controls.Add(this.label8);
             this.regGrpBox.Controls.Add(this.textBox6);
             this.regGrpBox.Controls.Add(this.textBox7);
@@ -247,6 +238,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.checkBox4);
             this.groupBox2.Controls.Add(this.button5);
             this.groupBox2.Controls.Add(this.button4);
@@ -316,6 +308,8 @@
             // 
             // logBox
             // 
+            this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.logBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.logBox.Location = new System.Drawing.Point(0, 605);
             this.logBox.Name = "logBox";
@@ -341,7 +335,7 @@
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(12, 27);
+            this.button7.Location = new System.Drawing.Point(12, 265);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(139, 23);
             this.button7.TabIndex = 3;
@@ -389,6 +383,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox3.Controls.Add(this.checkBox1);
             this.groupBox3.Controls.Add(this.checkBox2);
             this.groupBox3.Controls.Add(this.checkBox3);
@@ -402,7 +397,7 @@
             // 
             // openMemoryDialog
             // 
-            this.openMemoryDialog.Filter = "SIC/XE code|*.obj|Binary image|*.bin|All files|*.*";
+            this.openMemoryDialog.Filter = "Binary image|*.bin|All files|*.*";
             // 
             // menuStrip
             // 
@@ -430,31 +425,31 @@
             // loadSessionToolStripMenuItem
             // 
             this.loadSessionToolStripMenuItem.Name = "loadSessionToolStripMenuItem";
-            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.loadSessionToolStripMenuItem.Text = "New";
             // 
             // saveSessionToolStripMenuItem
             // 
             this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.saveSessionToolStripMenuItem.Text = "Load...";
             // 
             // revertToolStripMenuItem
             // 
             this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-            this.revertToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.revertToolStripMenuItem.Text = "Revert";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             // 
             // machineToolStripMenuItem
@@ -468,6 +463,12 @@
             this.machineToolStripMenuItem.Size = new System.Drawing.Size(65, 20);
             this.machineToolStripMenuItem.Text = "Machine";
             // 
+            // loadOBJToolStripMenuItem
+            // 
+            this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.loadOBJToolStripMenuItem.Text = "Load OBJ...";
+            // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
@@ -478,26 +479,44 @@
             // saveMemoryToolStripMenuItem
             // 
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
             // 
             // manageDevicesToolStripMenuItem
             // 
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
             // 
-            // loadOBJToolStripMenuItem
+            // groupBox1
             // 
-            this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.loadOBJToolStripMenuItem.Text = "Load OBJ...";
+            this.groupBox1.Location = new System.Drawing.Point(12, 27);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(139, 232);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Memory Map";
             // 
-            // Form1
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hexDisplay.FontSize = 10F;
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 0;
+            this.hexDisplay.WordDigits = 6;
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1051, 757);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.button7);
             this.Controls.Add(this.statusStrip);
@@ -507,9 +526,10 @@
             this.Controls.Add(this.regGrpBox);
             this.Controls.Add(this.memGrpBox);
             this.MainMenuStrip = this.menuStrip;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Virtual SIC";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Resize += new System.EventHandler(this.OnResize);
             this.memGrpBox.ResumeLayout(false);
             this.regGrpBox.ResumeLayout(false);
             this.regGrpBox.PerformLayout();
@@ -560,7 +580,6 @@
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.RichTextBox richTextBox2;
         private System.Windows.Forms.OpenFileDialog openMemoryDialog;
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
@@ -574,6 +593,8 @@
         private System.Windows.Forms.ToolStripMenuItem saveMemoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manageDevicesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadOBJToolStripMenuItem;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private HexDisplay hexDisplay;
     }
 }
 

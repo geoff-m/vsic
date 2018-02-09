@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace sicsim
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form, ILogSink
     {
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -67,6 +67,7 @@ namespace sicsim
                 sess = new Session();
 
                 Log("Done.");
+                UpdateMachineDisplay();
                 SetStatusMessage("Ready");
             }).Start();
         }
@@ -74,11 +75,11 @@ namespace sicsim
         #region Logging
         readonly Color COLOR_DEFAULT = Color.Black;
         readonly Color COLOR_ERROR = Color.DarkRed;
-        private void Log(string str, params object[] args)
+        public void Log(string str, params object[] args)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() =>Log(str, args)));
+                Invoke(new Action(() => Log(str, args)));
                 return;
             }
             logBox.SelectionColor = COLOR_DEFAULT;
@@ -86,7 +87,7 @@ namespace sicsim
             logBox.AppendText("\n");
         }
 
-        private void LogError(string str, params object[] args)
+        public void LogError(string str, params object[] args)
         {
             if (InvokeRequired)
             {
@@ -109,13 +110,60 @@ namespace sicsim
         }
         #endregion Logging
 
+        /// <summary>
+        /// Represents the address of the byte indicated by the cursor in the memory view.
+        /// </summary>
+        int cursorLocation; // todo: implement me.
+        // Load the binary file into memory at the cursor.
         private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var res = openMemoryDialog.ShowDialog();
             if (res == DialogResult.OK)
             {
-                
+                try
+                {
+                    sess.LoadMemory(openMemoryDialog.FileName, (Word)cursorLocation);
+                }
+                catch (ArgumentException argex)
+                {
+                    LogError("Error loading file: {0}", argex.Message);
+#if DEBUG
+                    throw;
+#else
+                    return;
+#endif
+                }
+                UpdateMachineDisplay();
             }
+        }
+
+        int linesToDisplay = 200;
+        private void InitializeMachineDisplay()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => InitializeMachineDisplay()));
+                return;
+            }
+            hexDisplay.Data = sess.Machine.Memory;
+        }
+
+        bool everUpdated = false;
+        private void UpdateMachineDisplay()
+        {
+            if (!everUpdated)
+            {
+                InitializeMachineDisplay();
+                return;
+            }
+
+            // do update.
+        }
+
+        private void OnResize(object sender, EventArgs e)
+        {
+            memGrpBox.Width = regGrpBox.Location.X - memGrpBox.Location.X;
+            memGrpBox.Height = logBox.Location.Y - memGrpBox.Location.Y;
         }
     }
 }

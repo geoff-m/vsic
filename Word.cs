@@ -8,11 +8,46 @@ namespace sicsim
 {
     public struct Word
     {
-        public static Word FromArray(byte[] array, int start)
+        /// <summary>
+        /// Extracts a three-byte Word from the given location in the given array.
+        /// </summary>
+        public static Word FromArray(byte[] array, int startIndex)
         {
-            return new Word(array[start],
-                array[start + 1],
-                array[start + 2]);
+            return new Word(array[startIndex],
+                array[startIndex + 1],
+                array[startIndex + 2]);
+        }
+
+        /// <summary>
+        /// Converts a byte array to a Word array.
+        /// </summary>
+        /// <param name="array">The array whose bytes will be converted to Words. If the length is not a multiple of three, the result will be padded with high bits.</param>
+        /// <param name="offset">The index in the array to start from.</param>
+        /// <param name="length">The number of elements in the array to consider.</param>
+        public static Word[] FromArray(byte[] array, int offset, int length)
+        {
+            int len = array.Length;
+            int fullWords = len / 3;
+            int bytesInFullWords = 3 * fullWords;
+            int extraBytes = len % 3;
+            int rlen = extraBytes == 0 ? fullWords : fullWords + 1;
+            var ret = new Word[rlen];
+            int wi = 0;
+            int i;
+            for (i = 0; i < bytesInFullWords; i += 3)
+            {
+                ret[wi++] = new Word(array[i], array[i + 1], array[i + 2]);
+            }
+            switch (extraBytes)
+            {
+                case 1:
+                    ret[rlen - 1] = new Word(array[i], 0xff, 0xff);
+                    break;
+                case 2:
+                    ret[len - 1] = new Word(array[i], array[i + 1], 0xff);
+                    break;
+            }
+            return ret;
         }
 
         public static explicit operator Word(int n)
@@ -32,17 +67,22 @@ namespace sicsim
             return (Word)((int)x + (int)y);
         }
 
+        public byte Low, Middle, High;
         public Word(byte low, byte middle, byte high)
         {
             Low = low;
             Middle = middle;
             High = high;
         }
-        public byte Low, Middle, High;
 
         public override string ToString()
         {
             return ((int)this).ToString();
+        }
+
+        public string ToString(string format)
+        {
+            return ((int)this).ToString(format);
         }
     }
 }

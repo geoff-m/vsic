@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace sicsim
 {
@@ -9,7 +10,8 @@ namespace sicsim
         public const int SIC_MEMORY_MAXIMUM = 0x8000; // 32K
         public const int SICXE_MEMORY_MAXIMUM = 0x100000; // 1M
 
-        readonly Word MEMORY_INITIAL_VALUE = (Word)0xffffff;
+        const byte MEMORY_INITIAL_VALUE = 0xff;
+        readonly Word REG_INITIAL_VALUE = (Word)0xffffff;
 
         public Word ProgramCounter
         {
@@ -17,25 +19,38 @@ namespace sicsim
             private set;
         }
 
-        private Word[] memory;
+        /// <summary>
+        /// Gets the machine's memory size in bytes.
+        /// </summary>
+        public int MemorySize
+        { get; } // a readonly property
+
+        private byte[] memory;
         Word regA, regB, regL, regS, regT, regX;
+
+        public Stream Memory
+        {
+            get;
+            private set;
+        }
 
         public Machine(int memorySize = SICXE_MEMORY_MAXIMUM)
         {
-            memory = new Word[memorySize];
+            memory = new byte[memorySize];
+            Memory = new MemoryStream(memory, true);
+            MemorySize = memory.Length;
 
             for (int i = 0; i < memory.Length; ++i)
             {
                 memory[i] = MEMORY_INITIAL_VALUE;
             }
 
-            regA = MEMORY_INITIAL_VALUE;
-            regB = MEMORY_INITIAL_VALUE;
-            regL = MEMORY_INITIAL_VALUE;
-            regS = MEMORY_INITIAL_VALUE;
-            regT = MEMORY_INITIAL_VALUE;
-            regX = MEMORY_INITIAL_VALUE;
-
+            regA = REG_INITIAL_VALUE;
+            regB = REG_INITIAL_VALUE;
+            regL = REG_INITIAL_VALUE;
+            regS = REG_INITIAL_VALUE;
+            regT = REG_INITIAL_VALUE;
+            regX = REG_INITIAL_VALUE;
             ProgramCounter = (Word)0;
         }
 
@@ -45,7 +60,7 @@ namespace sicsim
         /// </summary>
         /// <param name="data">The data to copy.</param>
         /// <param name="address">The destination address.</param>
-        public void DMAWrite(Word[] data, int address)
+        public void DMAWrite(byte[] data, int address)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -54,7 +69,8 @@ namespace sicsim
             if (address + data.Length > memory.Length)
                 throw new ArgumentException("Write would go past end of memory.");
 
-            Buffer.BlockCopy(data, 0, memory, address, data.Length);
+            //Array.ConstrainedCopy(data, 0, memory, 0, data.Length);
+            Buffer.BlockCopy(data, 0, memory, 0, data.Length);
         }
 
         /// <summary>
@@ -64,12 +80,12 @@ namespace sicsim
         /// <param name="length">The maximum number of words to read.</param>
         /// <param name="address">The memory address to begin copying.</param>
         /// <returns>The number of words that were read.</returns>
-        public int DMARead(Word[] buffer, int length, int address)
+        public int DMARead(byte[] buffer, int length, int address)
         {
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
             if (length > buffer.Length)
-                throw new ArgumentException("The given buffer is too small.");
+                throw new ArgumentException("Length argument must not exceed that of the given buffer.");
             if (length < 0)
                 throw new ArgumentException("Length must be nonnegative.", nameof(length));
             if (address >= memory.Length)
@@ -126,7 +142,9 @@ namespace sicsim
         {
             if (mode == AddressingMode.Immediate)
                 return address;
-            return memory[(int)DecodeAddress(address, mode)];
+            //return memory[(int)DecodeAddress(address, mode)];
+            address = DecodeAddress(address, mode);
+            return Word.FromArray(memory, (int)address);
         }
 
         // Helper function for ReadWord and WriteWord.
@@ -155,7 +173,11 @@ namespace sicsim
             {
                 address = DecodeAddress(address, mode);
             }
-            memory[(int)address] = w;
+            //memory[(int)address] = w;
+            int addr = (int)address;
+            memory[addr] = w.High;
+            memory[addr + 1] = w.Middle;
+            memory[addr + 2] = w.Low;
         }
 
         /// <summary>
