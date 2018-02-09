@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Diagnostics;
 
 namespace sicsim
 {
@@ -126,11 +127,9 @@ namespace sicsim
             float addrH = addressSize.Height;
             float addrW = addressSize.Width;
             textLineSpacing = 0.05f * addrH;
-            // addrH * lines + lineSpacing * (lines - 1) = BOUNDS.Height - textYoffset
-            // addrH * lines + 0.1f * addrH * (lines - 1) = BOUNDS.Height - textYoffset
-            // addrH * lines + 0.1f * addrH * lines - 0.1f * addrH = BOUNDS.Height - textYoffset
-            // lines * (addrH + 0.1f * addrH - 0.1f * addrH) = BOUNDS.Height - textYoffset
-            lineCount = (int)((BOUNDS.Height - textYoffset) / (addrH + 0.1f * addrH - 0.1f * addrH));
+            // addrH * lineCount + lineSpacing * (lineCount - 1) = BOUNDS.Height - textYoffset
+            // lineCount * (addrH + lineSpacing - 1) = BOUNDS.Height - textYoffset
+            lineCount = (int)((BOUNDS.Height - 1 - textYoffset) / (addrH + textLineSpacing - 1));
             textHeight = addrH;
 
             dataXoffset = addressX + addrW + addressDataGap;
@@ -171,12 +170,21 @@ namespace sicsim
             int bytesPerLine = wordsPerLine * 3;
             int lineAddress = startAddress;
             var lineBytes = new byte[bytesPerLine];
+            Data.Position = StartAddress; // Reset the stream to the beginning of the window.
             for (int line = 0; line < lineCount; ++line)
             {
                 float y = textYoffset + line * (textLineSpacing + textHeight); // caching the Y offset of this line.
 
                 g.DrawString(lineAddress.ToString(addressFormatString), font, Brushes.DarkSlateGray, addressX, y);
+
+
+                // FOR DEBUG
                 //g.DrawString($"{line}of{lineCount}", font, Brushes.DarkSlateGray, addressX, y);
+                //var strSz = g.MeasureString(lineAddress.ToString(addressFormatString), font);
+                //g.DrawRectangle(Pens.Red, addressX, y, strSz.Width, strSz.Height);
+
+                var bounds = g.VisibleClipBounds;
+                g.DrawRectangle(Pens.Purple, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
 
                 int bytesRead = Data.Read(lineBytes, 0, bytesPerLine);
 
@@ -190,7 +198,7 @@ namespace sicsim
                         g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
                     }
                 }
-                
+
                 lineAddress += bytesPerLine;
             }
 

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{49EA4E24-A1DD-4F0F-8EC5-7F5636BF4FBD}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>sicsim</RootNamespace>
-    <AssemblyName>sicsim</AssemblyName>
+    <RootNamespace>vsic</RootNamespace>
+    <AssemblyName>vsic</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -90,6 +90,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

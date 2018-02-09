@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new sicsim.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.regSTB = new System.Windows.Forms.TextBox();
@@ -49,7 +50,7 @@
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
-            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.pcTB = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
@@ -74,7 +75,8 @@
             this.saveMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new sicsim.HexDisplay();
+            this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -92,6 +94,22 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.FontSize = 10F;
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 0;
+            this.hexDisplay.WordDigits = 6;
             // 
             // regGrpBox
             // 
@@ -243,7 +261,7 @@
             this.groupBox2.Controls.Add(this.button5);
             this.groupBox2.Controls.Add(this.button4);
             this.groupBox2.Controls.Add(this.button3);
-            this.groupBox2.Controls.Add(this.textBox8);
+            this.groupBox2.Controls.Add(this.pcTB);
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Location = new System.Drawing.Point(888, 247);
             this.groupBox2.Name = "groupBox2";
@@ -264,6 +282,7 @@
             // 
             // button5
             // 
+            this.button5.Enabled = false;
             this.button5.Location = new System.Drawing.Point(9, 81);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(136, 23);
@@ -289,13 +308,13 @@
             this.button3.Text = "Step (F10)";
             this.button3.UseVisualStyleBackColor = true;
             // 
-            // textBox8
+            // pcTB
             // 
-            this.textBox8.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox8.Location = new System.Drawing.Point(30, 16);
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new System.Drawing.Size(71, 24);
-            this.textBox8.TabIndex = 17;
+            this.pcTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.pcTB.Location = new System.Drawing.Point(30, 16);
+            this.pcTB.Name = "pcTB";
+            this.pcTB.Size = new System.Drawing.Size(71, 24);
+            this.pcTB.TabIndex = 17;
             // 
             // label2
             // 
@@ -321,7 +340,9 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
+            this.toolStripStatusLabel1,
+            this.cursorPositionLabel,
+            this.selectedBytesLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 735);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1051, 22);
@@ -330,8 +351,10 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(59, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(873, 17);
+            this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Loading...";
+            this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // button7
             // 
@@ -378,7 +401,7 @@
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(127, 23);
             this.button8.TabIndex = 0;
-            this.button8.Text = "Toggle (F9)";
+            this.button8.Text = "Set (F9)";
             this.button8.UseVisualStyleBackColor = true;
             // 
             // groupBox3
@@ -497,19 +520,19 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Memory Map";
             // 
-            // hexDisplay
+            // cursorPositionLabel
             // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hexDisplay.FontSize = 10F;
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 0;
-            this.hexDisplay.WordDigits = 6;
+            this.cursorPositionLabel.Name = "cursorPositionLabel";
+            this.cursorPositionLabel.Size = new System.Drawing.Size(36, 17);
+            this.cursorPositionLabel.Text = "0x100";
+            this.cursorPositionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // selectedBytesLabel
+            // 
+            this.selectedBytesLabel.Name = "selectedBytesLabel";
+            this.selectedBytesLabel.Size = new System.Drawing.Size(96, 17);
+            this.selectedBytesLabel.Text = "56 bytes selected";
+            this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // MainForm
             // 
@@ -568,7 +591,7 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.TextBox textBox8;
+        private System.Windows.Forms.TextBox pcTB;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.StatusStrip statusStrip;
@@ -595,6 +618,8 @@
         private System.Windows.Forms.ToolStripMenuItem loadOBJToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupBox1;
         private HexDisplay hexDisplay;
+        private System.Windows.Forms.ToolStripStatusLabel cursorPositionLabel;
+        private System.Windows.Forms.ToolStripStatusLabel selectedBytesLabel;
     }
 }
 

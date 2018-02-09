@@ -1,15 +1,16 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("sicsim")]
+[assembly: AssemblyTitle("vsic")]
 [assembly: AssemblyDescription("A graphical, interactive simulator for SIC/XE")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("sicsim")]
+[assembly: AssemblyProduct("Visual SIC Simulator")]
 [assembly: AssemblyCopyright("Copyright ©  2018 Geoff McQueen")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -33,4 +34,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.*")]
+[assembly: NeutralResourcesLanguage("en")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]

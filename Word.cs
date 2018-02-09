@@ -26,10 +26,9 @@ namespace sicsim
         /// <param name="length">The number of elements in the array to consider.</param>
         public static Word[] FromArray(byte[] array, int offset, int length)
         {
-            int len = array.Length;
-            int fullWords = len / 3;
+            int fullWords = length / 3;
             int bytesInFullWords = 3 * fullWords;
-            int extraBytes = len % 3;
+            int extraBytes = length % 3;
             int rlen = extraBytes == 0 ? fullWords : fullWords + 1;
             var ret = new Word[rlen];
             int wi = 0;
@@ -44,7 +43,7 @@ namespace sicsim
                     ret[rlen - 1] = new Word(array[i], 0xff, 0xff);
                     break;
                 case 2:
-                    ret[len - 1] = new Word(array[i], array[i + 1], 0xff);
+                    ret[length - 1] = new Word(array[i], array[i + 1], 0xff);
                     break;
             }
             return ret;

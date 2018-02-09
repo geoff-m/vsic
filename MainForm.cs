@@ -110,10 +110,6 @@ namespace sicsim
         }
         #endregion Logging
 
-        /// <summary>
-        /// Represents the address of the byte indicated by the cursor in the memory view.
-        /// </summary>
-        int cursorLocation; // todo: implement me.
         // Load the binary file into memory at the cursor.
         private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -122,7 +118,8 @@ namespace sicsim
             {
                 try
                 {
-                    sess.LoadMemory(openMemoryDialog.FileName, (Word)cursorLocation);
+                    //sess.LoadMemory(openMemoryDialog.FileName, (Word)cursorLocation);
+                    sess.LoadMemory(openMemoryDialog.FileName, (Word)0);
                 }
                 catch (ArgumentException argex)
                 {
@@ -137,7 +134,6 @@ namespace sicsim
             }
         }
 
-        int linesToDisplay = 200;
         private void InitializeMachineDisplay()
         {
             hexDisplay.Data = sess.Machine.Memory;
@@ -163,8 +159,9 @@ namespace sicsim
             regTTB.Text = m.RegisterT.ToString("X6");
             regXTB.Text = m.RegisterX.ToString("X6");
             regLTB.Text = m.RegisterL.ToString("X6");
+            pcTB.Text = m.ProgramCounter.ToString("X6");
 
-
+            hexDisplay.Invalidate();
             everUpdated = true;
         }
 

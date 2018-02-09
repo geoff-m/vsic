@@ -22,7 +22,7 @@ namespace sicsim
         /// </summary>
         public Session()
         {
-            Machine = new Machine();
+            Machine = new Machine(100);
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
             Logger = new NullLog();
         }
