@@ -28,6 +28,42 @@ namespace sicsim
         private byte[] memory;
         Word regA, regB, regL, regS, regT, regX;
 
+        public Word RegisterA
+        {
+            get { return regA; }
+            set { regA = value; }
+        }
+
+        public Word RegisterB
+        {
+            get { return regB; }
+            set { regB = value; }
+        }
+
+        public Word RegisterL
+        {
+            get { return regL; }
+            set { regL = value; }
+        }
+
+        public Word RegisterS
+        {
+            get { return regS; }
+            set { regS = value; }
+        }
+
+        public Word RegisterT
+        {
+            get { return regT; }
+            set { regT = value; }
+        }
+
+        public Word RegisterX
+        {
+            get { return regX; }
+            set { regX = value; }
+        }
+
         public Stream Memory
         {
             get;

@@ -16,6 +16,7 @@ namespace sicsim
         public HexDisplay()
         {
             InitializeComponent();
+            DoubleBuffered = true;
         }
 
         public Stream Data
@@ -143,6 +144,8 @@ namespace sicsim
             // BOUNDS.Width - (addressX + addrW + addressDataGap) - dataXendPadding + wordXgap = wordsPerLine * (wordW + wordXgap)
             // wordsPerLine = (BOUNDS.Width - (addressX + addrW + addressDataGap) - dataXendPadding + wordXgap) / (wordW + wordXgap)
             wordsPerLine = (int)((BOUNDS.Width - (addressX + addrW + addressDataGap) - dataXendPadding + wordXgap) / (wordWidth + wordXgap));
+            if (wordsPerLine < 0)
+                wordsPerLine = 0;
 
             doRecalc = false;
         }
@@ -172,18 +175,22 @@ namespace sicsim
             {
                 float y = textYoffset + line * (textLineSpacing + textHeight); // caching the Y offset of this line.
 
-                //g.DrawString(lineAddress.ToString(addressFormatString), font, Brushes.DarkSlateGray, addressX, y);
-                g.DrawString($"{line} of {lineCount}", font, Brushes.DarkSlateGray, addressX, y);
+                g.DrawString(lineAddress.ToString(addressFormatString), font, Brushes.DarkSlateGray, addressX, y);
+                //g.DrawString($"{line}of{lineCount}", font, Brushes.DarkSlateGray, addressX, y);
 
                 int bytesRead = Data.Read(lineBytes, 0, bytesPerLine);
 
                 var lineWords = Word.FromArray(lineBytes, 0, bytesRead);
-                g.DrawString(lineWords[0].ToString(wordFormatString), font, Brushes.Black, dataXoffset, y);
-                for (int wordIdx = 1; wordIdx < lineWords.Length; ++wordIdx)
+                int lineWordCount = lineWords.Length; // The actual number of words we have to display on this line.
+                if (lineWordCount > 0)
                 {
-                    g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
+                    g.DrawString(lineWords[0].ToString(wordFormatString), font, Brushes.Black, dataXoffset, y);
+                    for (int wordIdx = 1; wordIdx < lineWordCount; ++wordIdx)
+                    {
+                        g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
+                    }
                 }
-
+                
                 lineAddress += bytesPerLine;
             }
 

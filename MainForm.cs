@@ -140,24 +140,32 @@ namespace sicsim
         int linesToDisplay = 200;
         private void InitializeMachineDisplay()
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => InitializeMachineDisplay()));
-                return;
-            }
             hexDisplay.Data = sess.Machine.Memory;
         }
 
         bool everUpdated = false;
         private void UpdateMachineDisplay()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateMachineDisplay()));
+                return;
+            }
             if (!everUpdated)
             {
                 InitializeMachineDisplay();
-                return;
             }
-
             // do update.
+            var m = sess.Machine;
+            regATB.Text = m.RegisterA.ToString("X6");
+            regBTB.Text = m.RegisterB.ToString("X6");
+            regSTB.Text = m.RegisterS.ToString("X6");
+            regTTB.Text = m.RegisterT.ToString("X6");
+            regXTB.Text = m.RegisterX.ToString("X6");
+            regLTB.Text = m.RegisterL.ToString("X6");
+
+
+            everUpdated = true;
         }
 
         private void OnResize(object sender, EventArgs e)
