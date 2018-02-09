@@ -17,8 +17,6 @@ namespace sicsim
             InitializeComponent();
         }
 
-
-
         #region unused
         //Label[] registerLabels;
         //TextBox[] registerTboxes;
@@ -73,7 +71,7 @@ namespace sicsim
             }).Start();
         }
 
-
+        #region Logging
         readonly Color COLOR_DEFAULT = Color.Black;
         readonly Color COLOR_ERROR = Color.DarkRed;
         private void Log(string str, params object[] args)
@@ -108,6 +106,16 @@ namespace sicsim
                 return;
             }
             toolStripStatusLabel1.Text = string.Format(str, args);
+        }
+        #endregion Logging
+
+        private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var res = openMemoryDialog.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                
+            }
         }
     }
 }
