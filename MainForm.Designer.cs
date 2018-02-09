@@ -77,12 +77,15 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.label9 = new System.Windows.Forms.Label();
+            this.gotoTB = new System.Windows.Forms.TextBox();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.menuStrip.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // memGrpBox
@@ -351,14 +354,14 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(873, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(904, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Loading...";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(12, 265);
+            this.button7.Location = new System.Drawing.Point(12, 367);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(139, 23);
             this.button7.TabIndex = 3;
@@ -513,9 +516,11 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.gotoTB);
+            this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(139, 232);
+            this.groupBox1.Size = new System.Drawing.Size(139, 270);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Memory Map";
@@ -533,6 +538,24 @@
             this.selectedBytesLabel.Size = new System.Drawing.Size(96, 17);
             this.selectedBytesLabel.Text = "56 bytes selected";
             this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 236);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(33, 13);
+            this.label9.TabIndex = 0;
+            this.label9.Text = "Go to";
+            // 
+            // gotoTB
+            // 
+            this.gotoTB.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gotoTB.Location = new System.Drawing.Point(45, 233);
+            this.gotoTB.Name = "gotoTB";
+            this.gotoTB.Size = new System.Drawing.Size(87, 21);
+            this.gotoTB.TabIndex = 1;
+            this.gotoTB.TextChanged += new System.EventHandler(this.gotoTB_TextChanged);
             // 
             // MainForm
             // 
@@ -564,6 +587,8 @@
             this.groupBox3.PerformLayout();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -620,6 +645,8 @@
         private HexDisplay hexDisplay;
         private System.Windows.Forms.ToolStripStatusLabel cursorPositionLabel;
         private System.Windows.Forms.ToolStripStatusLabel selectedBytesLabel;
+        private System.Windows.Forms.TextBox gotoTB;
+        private System.Windows.Forms.Label label9;
     }
 }
 

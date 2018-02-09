@@ -23,6 +23,28 @@ namespace sicsim
         public Stream Data
         { get; set; }
 
+        public struct BoxedByte
+        {
+            public int Address
+            { get; private set; }
+            public Pen Pen
+            { get; private set; }
+            public BoxedByte(int address, Pen pen)
+            {
+                Address = address;
+                Pen = pen;
+            }
+        }
+
+        List<BoxedByte> boxes = new List<BoxedByte>();
+        public IList<BoxedByte> Boxes
+        {
+            get
+            {
+                return boxes;
+            }
+        }
+
         #region Format properties
         string wordFormatString = "X6";
         int wordDigits = 6;
@@ -110,11 +132,13 @@ namespace sicsim
         float wordXgap = 4; // distance between each successive word of data.
 
         float wordWidth;
+        float byteWidth;
         float dataXoffset; // computed distance between left column and left of leftmost address.
         int wordsPerLine; // computed number of words to display per line.
+        int bytesPerLine; // computed number of bytes that are on each line.
         int lineCount; // computed number of lines to display.
         float textLineSpacing; // computed distance between lines.
-        float textHeight; // computed height of a line of text.
+        float lineHeight; // computed height of a line of text.
 
         /// <summary>
         /// Recalculates the parameters needed to draw this HexDisplay.
@@ -130,11 +154,12 @@ namespace sicsim
             // addrH * lineCount + lineSpacing * (lineCount - 1) = BOUNDS.Height - textYoffset
             // lineCount * (addrH + lineSpacing - 1) = BOUNDS.Height - textYoffset
             lineCount = (int)((BOUNDS.Height - 1 - textYoffset) / (addrH + textLineSpacing - 1));
-            textHeight = addrH;
+            lineHeight = addrH;
 
             dataXoffset = addressX + addrW + addressDataGap;
 
             wordWidth = g.MeasureString(new string('F', WordDigits), font).Width;
+            byteWidth = wordWidth / (WordDigits / 2);
 
             // BOUNDS.Width - (addressX + addrW + addressDataGap) = dataLine.Width + dataXendPadding
             // BOUNDS.Width - (addressX + addrW + addressDataGap) = wordsPerLine * wordW+ (wordsPerLine - 1) * wordXgap + dataXendPadding
@@ -145,6 +170,7 @@ namespace sicsim
             wordsPerLine = (int)((BOUNDS.Width - (addressX + addrW + addressDataGap) - dataXendPadding + wordXgap) / (wordWidth + wordXgap));
             if (wordsPerLine < 0)
                 wordsPerLine = 0;
+            bytesPerLine = wordsPerLine * WordDigits;
 
             doRecalc = false;
         }
@@ -173,21 +199,18 @@ namespace sicsim
             Data.Position = StartAddress; // Reset the stream to the beginning of the window.
             for (int line = 0; line < lineCount; ++line)
             {
-                float y = textYoffset + line * (textLineSpacing + textHeight); // caching the Y offset of this line.
+                float y = textYoffset + line * (textLineSpacing + lineHeight); // caching the Y offset of this line.
 
+                // Draw address.
                 g.DrawString(lineAddress.ToString(addressFormatString), font, Brushes.DarkSlateGray, addressX, y);
-
 
                 // FOR DEBUG
                 //g.DrawString($"{line}of{lineCount}", font, Brushes.DarkSlateGray, addressX, y);
                 //var strSz = g.MeasureString(lineAddress.ToString(addressFormatString), font);
                 //g.DrawRectangle(Pens.Red, addressX, y, strSz.Width, strSz.Height);
 
-                var bounds = g.VisibleClipBounds;
-                g.DrawRectangle(Pens.Purple, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
-
+                // Draw data.
                 int bytesRead = Data.Read(lineBytes, 0, bytesPerLine);
-
                 var lineWords = Word.FromArray(lineBytes, 0, bytesRead);
                 int lineWordCount = lineWords.Length; // The actual number of words we have to display on this line.
                 if (lineWordCount > 0)
@@ -198,10 +221,31 @@ namespace sicsim
                         g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
                     }
                 }
-
                 lineAddress += bytesPerLine;
             }
 
+            // Draw boxes.
+            foreach (var box in boxes)
+            {
+                int addr = box.Address;
+                int screenByte = addr - StartAddress;   
+                int screenWord = screenByte / wordsPerLine;
+                int maxAddr = wordsPerLine * lineCount;
+                if (screenByte < 0 || addr > maxAddr)
+                    continue; // Ignore if address is not on screen.
+
+                int line = screenByte / bytesPerLine;
+                int lineWord = screenWord % bytesPerLine;
+                int wordByte = addr % WordDigits;
+
+                float boxX = dataXoffset + screenWord * (wordWidth + wordXgap) + wordByte * byteWidth;
+
+                g.DrawRectangle(box.Pen,
+                    boxX,
+                    textYoffset + line * (textLineSpacing + lineHeight),
+                    byteWidth,
+                    lineHeight);
+            }
         }
 
         private void PaintCenteredText(Graphics g, string text)

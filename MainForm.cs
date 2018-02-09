@@ -136,7 +136,10 @@ namespace sicsim
 
         private void InitializeMachineDisplay()
         {
-            hexDisplay.Data = sess.Machine.Memory;
+            if (sess != null && sess.Machine != null)
+                hexDisplay.Data = sess.Machine.Memory;
+
+            hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(5, Pens.Green));
         }
 
         bool everUpdated = false;
@@ -151,7 +154,8 @@ namespace sicsim
             {
                 InitializeMachineDisplay();
             }
-            // do update.
+
+            // update labels.
             var m = sess.Machine;
             regATB.Text = m.RegisterA.ToString("X6");
             regBTB.Text = m.RegisterB.ToString("X6");
@@ -161,7 +165,10 @@ namespace sicsim
             regLTB.Text = m.RegisterL.ToString("X6");
             pcTB.Text = m.ProgramCounter.ToString("X6");
 
+
+            // update memory display
             hexDisplay.Invalidate();
+
             everUpdated = true;
         }
 
@@ -169,6 +176,31 @@ namespace sicsim
         {
             memGrpBox.Width = regGrpBox.Location.X - memGrpBox.Location.X;
             memGrpBox.Height = logBox.Location.Y - memGrpBox.Location.Y;
+        }
+
+        private void gotoTB_TextChanged(object sender, EventArgs e)
+        {
+            // If currently entered address is on screen, move cursor to it.
+            // Else, wait for user to indicate they're done entering the address (e.g. on blur, press Enter)
+
+            string text = gotoTB.Text.Trim();
+            if (text.Length == 0)
+            {
+                gotoTB.BackColor = SystemColors.Window;
+                return;
+            }
+
+            try
+            {
+                int addr = (int)Convert.ToUInt32(text, 16);
+            }
+            catch (FormatException ex)
+            {
+                gotoTB.BackColor = Color.LightPink;
+                return;
+            }
+            gotoTB.BackColor = SystemColors.Window;
+
         }
     }
 }
