@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new sicsim.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.regSTB = new System.Windows.Forms.TextBox();
@@ -55,6 +54,8 @@
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.button7 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
@@ -75,10 +76,14 @@
             this.saveMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.label9 = new System.Windows.Forms.Label();
             this.gotoTB = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.utf8RB = new System.Windows.Forms.RadioButton();
+            this.radioButton4 = new System.Windows.Forms.RadioButton();
+            this.rawRB = new System.Windows.Forms.RadioButton();
+            this.hexDisplay = new sicsim.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -86,6 +91,7 @@
             this.groupBox3.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // memGrpBox
@@ -97,22 +103,6 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.FontSize = 10F;
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 0;
-            this.hexDisplay.WordDigits = 6;
             // 
             // regGrpBox
             // 
@@ -359,9 +349,23 @@
             this.toolStripStatusLabel1.Text = "Loading...";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // cursorPositionLabel
+            // 
+            this.cursorPositionLabel.Name = "cursorPositionLabel";
+            this.cursorPositionLabel.Size = new System.Drawing.Size(36, 17);
+            this.cursorPositionLabel.Text = "0x100";
+            this.cursorPositionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // selectedBytesLabel
+            // 
+            this.selectedBytesLabel.Name = "selectedBytesLabel";
+            this.selectedBytesLabel.Size = new System.Drawing.Size(96, 17);
+            this.selectedBytesLabel.Text = "56 bytes selected";
+            this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(12, 367);
+            this.button7.Location = new System.Drawing.Point(12, 573);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(139, 23);
             this.button7.TabIndex = 3;
@@ -402,21 +406,21 @@
             // 
             this.button8.Location = new System.Drawing.Point(6, 19);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(127, 23);
+            this.button8.Size = new System.Drawing.Size(139, 23);
             this.button8.TabIndex = 0;
             this.button8.Text = "Set (F9)";
             this.button8.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.checkBox1);
             this.groupBox3.Controls.Add(this.checkBox2);
             this.groupBox3.Controls.Add(this.checkBox3);
             this.groupBox3.Controls.Add(this.button8);
-            this.groupBox3.Location = new System.Drawing.Point(6, 460);
+            this.groupBox3.Location = new System.Drawing.Point(888, 419);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(145, 139);
+            this.groupBox3.Size = new System.Drawing.Size(151, 139);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Breakpoint";
@@ -525,19 +529,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Memory Map";
             // 
-            // cursorPositionLabel
+            // gotoTB
             // 
-            this.cursorPositionLabel.Name = "cursorPositionLabel";
-            this.cursorPositionLabel.Size = new System.Drawing.Size(36, 17);
-            this.cursorPositionLabel.Text = "0x100";
-            this.cursorPositionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // selectedBytesLabel
-            // 
-            this.selectedBytesLabel.Name = "selectedBytesLabel";
-            this.selectedBytesLabel.Size = new System.Drawing.Size(96, 17);
-            this.selectedBytesLabel.Text = "56 bytes selected";
-            this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.gotoTB.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gotoTB.Location = new System.Drawing.Point(45, 233);
+            this.gotoTB.Name = "gotoTB";
+            this.gotoTB.Size = new System.Drawing.Size(87, 21);
+            this.gotoTB.TabIndex = 1;
+            this.gotoTB.TextChanged += new System.EventHandler(this.gotoTB_TextChanged);
             // 
             // label9
             // 
@@ -548,20 +547,88 @@
             this.label9.TabIndex = 0;
             this.label9.Text = "Go to";
             // 
-            // gotoTB
+            // groupBox4
             // 
-            this.gotoTB.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gotoTB.Location = new System.Drawing.Point(45, 233);
-            this.gotoTB.Name = "gotoTB";
-            this.gotoTB.Size = new System.Drawing.Size(87, 21);
-            this.gotoTB.TabIndex = 1;
-            this.gotoTB.TextChanged += new System.EventHandler(this.gotoTB_TextChanged);
+            this.groupBox4.Controls.Add(this.radioButton3);
+            this.groupBox4.Controls.Add(this.utf8RB);
+            this.groupBox4.Controls.Add(this.radioButton4);
+            this.groupBox4.Controls.Add(this.rawRB);
+            this.groupBox4.Location = new System.Drawing.Point(12, 303);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(139, 116);
+            this.groupBox4.TabIndex = 8;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Decoding";
+            // 
+            // radioButton3
+            // 
+            this.radioButton3.AutoSize = true;
+            this.radioButton3.Location = new System.Drawing.Point(9, 66);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(111, 17);
+            this.radioButton3.TabIndex = 2;
+            this.radioButton3.Text = "Decimal Unsigned";
+            this.radioButton3.UseVisualStyleBackColor = true;
+            this.radioButton3.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            // 
+            // utf8RB
+            // 
+            this.utf8RB.AutoSize = true;
+            this.utf8RB.Location = new System.Drawing.Point(9, 90);
+            this.utf8RB.Name = "utf8RB";
+            this.utf8RB.Size = new System.Drawing.Size(85, 17);
+            this.utf8RB.TabIndex = 1;
+            this.utf8RB.Text = "Text (UTF-8)";
+            this.utf8RB.UseVisualStyleBackColor = true;
+            this.utf8RB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            // 
+            // radioButton4
+            // 
+            this.radioButton4.AutoSize = true;
+            this.radioButton4.Location = new System.Drawing.Point(9, 43);
+            this.radioButton4.Name = "radioButton4";
+            this.radioButton4.Size = new System.Drawing.Size(99, 17);
+            this.radioButton4.TabIndex = 3;
+            this.radioButton4.Text = "Decimal Signed";
+            this.radioButton4.UseVisualStyleBackColor = true;
+            this.radioButton4.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            // 
+            // rawRB
+            // 
+            this.rawRB.AutoSize = true;
+            this.rawRB.Checked = true;
+            this.rawRB.Location = new System.Drawing.Point(9, 20);
+            this.rawRB.Name = "rawRB";
+            this.rawRB.Size = new System.Drawing.Size(47, 17);
+            this.rawRB.TabIndex = 0;
+            this.rawRB.TabStop = true;
+            this.rawRB.Text = "Raw";
+            this.rawRB.UseVisualStyleBackColor = true;
+            this.rawRB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.FontSize = 10F;
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 0;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = sicsim.HexDisplay.Encoding.Raw;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1051, 757);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.button7);
@@ -589,6 +656,8 @@
             this.menuStrip.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -647,6 +716,11 @@
         private System.Windows.Forms.ToolStripStatusLabel selectedBytesLabel;
         private System.Windows.Forms.TextBox gotoTB;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.RadioButton radioButton4;
+        private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.RadioButton utf8RB;
+        private System.Windows.Forms.RadioButton rawRB;
     }
 }
 

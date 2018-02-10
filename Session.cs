@@ -35,7 +35,7 @@ namespace sicsim
         /// </summary>
         /// <param name="path">The path to the binary file.</param>
         /// <param name="address">The destination address to copy the data.</param>
-        public void LoadMemory(string path, Word address)
+        public long LoadMemory(string path, Word address)
         {
             FileStream read = null;
             try
@@ -50,15 +50,17 @@ namespace sicsim
                         fileSize,
                         address,
                         fileSize - destinationWindowSize);
-                    return;
+                    return 0;
                 }
 
-                // Read the file and copy it into the machine.
-                // Doing this without a loop will not be possible when fileSize > int.MaxValue.
-                // This is okay, since no SIC machine's memory is that big.
-                byte[] buf = new byte[fileSize];
-                read.Read(buf, 0, (int)fileSize);
-                Machine.DMAWrite(buf, (int)address);
+                long ret = read.Length;
+                // Read the file and copy it into the machine at the desired location.
+                lock (Machine)
+                {
+                    Machine.Memory.Seek((int)address, SeekOrigin.Begin);
+                    read.CopyTo(Machine.Memory);
+                }
+                return ret;
             }
             catch (IOException ex)
             {
@@ -69,6 +71,7 @@ namespace sicsim
                 if (read != null)
                     read.Dispose();
             }
+            return 0; // Should be unreachable.
         }
     }
 }

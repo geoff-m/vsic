@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Path = System.IO.Path;
 
 namespace sicsim
 {
@@ -65,6 +66,7 @@ namespace sicsim
             new Task(() =>
             {
                 sess = new Session();
+                sess.Logger = this;
 
                 Log("Done.");
                 UpdateMachineDisplay();
@@ -116,13 +118,16 @@ namespace sicsim
             var res = openMemoryDialog.ShowDialog();
             if (res == DialogResult.OK)
             {
+                bool success = true;
+                long bytesRead = 0;
+                int cursorAddress = 0; // todo: implement me.
                 try
                 {
-                    //sess.LoadMemory(openMemoryDialog.FileName, (Word)cursorLocation);
-                    sess.LoadMemory(openMemoryDialog.FileName, (Word)0);
+                    bytesRead = sess.LoadMemory(openMemoryDialog.FileName, (Word)cursorAddress);
                 }
                 catch (ArgumentException argex)
                 {
+                    success = false;
                     LogError("Error loading file: {0}", argex.Message);
 #if DEBUG
                     throw;
@@ -130,6 +135,8 @@ namespace sicsim
                     return;
 #endif
                 }
+                if (success)
+                    Log($"Loaded {bytesRead} bytes from {Path.GetFileName(openMemoryDialog.FileName)} at address {cursorAddress}.");
                 UpdateMachineDisplay();
             }
         }
@@ -139,7 +146,12 @@ namespace sicsim
             if (sess != null && sess.Machine != null)
                 hexDisplay.Data = sess.Machine.Memory;
 
-            hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(5, Pens.Green));
+            for (int i = 0; i < 60; ++i)
+            {
+                hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, Pens.Green));
+                //hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, new Pen(new SolidBrush(Color.FromArgb(64, Color.Green)))));
+            }
+
         }
 
         bool everUpdated = false;
@@ -201,6 +213,24 @@ namespace sicsim
             }
             gotoTB.BackColor = SystemColors.Window;
 
+        }
+
+        private void changedEncodingSelection(object sender, EventArgs e)
+        {
+            do
+            {
+                if (rawRB.Checked)
+                {
+                    hexDisplay.WordEncoding = HexDisplay.Encoding.Raw;
+                    break;
+                }
+                if (utf8RB.Checked)
+                {
+                    hexDisplay.WordEncoding = HexDisplay.Encoding.UTF8;
+                    break;
+                }
+            } while (false);
+            hexDisplay.Invalidate();
         }
     }
 }
