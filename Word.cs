@@ -35,15 +35,18 @@ namespace sicsim
             int i;
             for (i = 0; i < bytesInFullWords; i += 3)
             {
-                ret[wi++] = new Word(array[i], array[i + 1], array[i + 2]);
+                //ret[wi++] = new Word(array[i], array[i + 1], array[i + 2]); // big-endian
+                ret[wi++] = new Word(array[i + 2], array[i + 1], array[i]); // little-endian
             }
             switch (extraBytes)
             {
                 case 1:
-                    ret[rlen - 1] = new Word(array[i], 0xff, 0xff);
+                    //ret[rlen - 1] = new Word(array[i], 0xff, 0xff);
+                    ret[rlen - 1] = new Word(0xff, 0xff, array[i]);
                     break;
                 case 2:
-                    ret[length - 1] = new Word(array[i], array[i + 1], 0xff);
+                    //ret[length - 1] = new Word(array[i], array[i + 1], 0xff);
+                    ret[length - 1] = new Word(0xff, array[i + 1], array[i]);
                     break;
             }
             return ret;
@@ -66,6 +69,11 @@ namespace sicsim
             return (Word)((int)x + (int)y);
         }
 
+        public static Word operator ++(Word w)
+        {
+            return (Word)((int)w + 1);
+        }
+
         public byte Low, Middle, High;
         public Word(byte low, byte middle, byte high)
         {
@@ -76,7 +84,7 @@ namespace sicsim
 
         public override string ToString()
         {
-            return ((int)this).ToString();
+            return "0x" + ((int)this).ToString("X");
         }
 
         public string ToString(string format)

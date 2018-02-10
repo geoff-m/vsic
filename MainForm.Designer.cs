@@ -45,7 +45,7 @@
             this.regFTB = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.regBTB = new System.Windows.Forms.TextBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.pcGrpBox = new System.Windows.Forms.GroupBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -84,9 +84,10 @@
             this.utf8RB = new System.Windows.Forms.RadioButton();
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
+            this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.pcGrpBox.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.menuStrip.SuspendLayout();
@@ -265,21 +266,21 @@
             this.regBTB.Size = new System.Drawing.Size(71, 24);
             this.regBTB.TabIndex = 8;
             // 
-            // groupBox2
+            // pcGrpBox
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.checkBox4);
-            this.groupBox2.Controls.Add(this.button5);
-            this.groupBox2.Controls.Add(this.button4);
-            this.groupBox2.Controls.Add(this.button3);
-            this.groupBox2.Controls.Add(this.pcTB);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Location = new System.Drawing.Point(888, 247);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(151, 166);
-            this.groupBox2.TabIndex = 3;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Program Counter";
+            this.pcGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pcGrpBox.Controls.Add(this.checkBox4);
+            this.pcGrpBox.Controls.Add(this.button5);
+            this.pcGrpBox.Controls.Add(this.button4);
+            this.pcGrpBox.Controls.Add(this.button3);
+            this.pcGrpBox.Controls.Add(this.pcTB);
+            this.pcGrpBox.Controls.Add(this.label2);
+            this.pcGrpBox.Location = new System.Drawing.Point(888, 247);
+            this.pcGrpBox.Name = "pcGrpBox";
+            this.pcGrpBox.Size = new System.Drawing.Size(151, 166);
+            this.pcGrpBox.TabIndex = 3;
+            this.pcGrpBox.TabStop = false;
+            this.pcGrpBox.Text = "Program Counter";
             // 
             // checkBox4
             // 
@@ -362,7 +363,7 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(904, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(910, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Loading...";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -445,7 +446,7 @@
             // 
             // openMemoryDialog
             // 
-            this.openMemoryDialog.Filter = "Binary image|*.bin|All files|*.*";
+            this.openMemoryDialog.Filter = "Binary image (*.bin)|*.bin|All files|*.*";
             // 
             // menuStrip
             // 
@@ -514,26 +515,27 @@
             // loadOBJToolStripMenuItem
             // 
             this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
-            this.loadOBJToolStripMenuItem.Text = "Load OBJ...";
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadOBJToolStripMenuItem.Text = "Load Obj...";
+            this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
-            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
-            this.loadMemoryToolStripMenuItem.Text = "Load Memory to [addr]...";
+            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
             this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.loadMemoryToolStripMenuItem_Click);
             // 
             // saveMemoryToolStripMenuItem
             // 
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
             // 
             // manageDevicesToolStripMenuItem
             // 
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
             // 
             // groupBox1
@@ -624,6 +626,11 @@
             this.rawRB.UseVisualStyleBackColor = true;
             this.rawRB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
             // 
+            // openOBJdialog
+            // 
+            this.openOBJdialog.Filter = "SIC/XE OBJ files (*.obj)|*.obj";
+            this.openOBJdialog.SupportMultiDottedExtensions = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -636,7 +643,7 @@
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.menuStrip);
             this.Controls.Add(this.logBox);
-            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.pcGrpBox);
             this.Controls.Add(this.regGrpBox);
             this.Controls.Add(this.memGrpBox);
             this.MainMenuStrip = this.menuStrip;
@@ -647,8 +654,8 @@
             this.memGrpBox.ResumeLayout(false);
             this.regGrpBox.ResumeLayout(false);
             this.regGrpBox.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.pcGrpBox.ResumeLayout(false);
+            this.pcGrpBox.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -682,7 +689,7 @@
         private System.Windows.Forms.TextBox regFTB;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox regBTB;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox pcGrpBox;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button3;
@@ -722,6 +729,7 @@
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton utf8RB;
         private System.Windows.Forms.RadioButton rawRB;
+        private System.Windows.Forms.OpenFileDialog openOBJdialog;
     }
 }
 

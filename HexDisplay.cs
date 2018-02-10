@@ -27,21 +27,53 @@ namespace sicsim
             Click += OnClick;
         }
 
-        public struct BoxedByte
+        public class BoxedByte
         {
+            const float PEN_WIDTH = 0.2f;
             public int Address
+            { get; private set; }
+            public Color Color
             { get; private set; }
             public Pen Pen
             { get; private set; }
-            public BoxedByte(int address, Pen pen)
+            public Brush Brush
+            { get; private set; }
+            public bool Hollow
+            { get; private set; }
+            /// <summary>
+            /// Describes a colored marker to be drawn around a byte at a certain address.
+            /// </summary>
+            /// <param name="address">The address to be marked.</param>
+            /// <param name="color">The color that will be used for drawing.</param>
+            /// <param name="uniqueId">User markers (from breakpoints) keyed on their addresses. However, special markers must be considered unique beyond address. For example, program counter needs to be considered unique at all times.</param>
+            public BoxedByte(int address, Color color, bool hollow = false, int uniqueId = 0)
             {
                 Address = address;
-                Pen = pen;
+                Color = color;
+                id = uniqueId;
+                if (hollow)
+                {
+                    Pen = new Pen(color, PEN_WIDTH);
+                }
+                else
+                {
+                    Brush = new SolidBrush(color);
+                }
+                Hollow = hollow;
             }
+            int id;
+            public override int GetHashCode()
+            {
+                if (id != 0)
+                    return id;
+                return Address;
+            }
+
+
         }
 
-        List<BoxedByte> boxes = new List<BoxedByte>();
-        public IList<BoxedByte> Boxes
+        HashSet<BoxedByte> boxes = new HashSet<BoxedByte>();
+        public HashSet<BoxedByte> Boxes
         { get { return boxes; } }
 
         public Stream Data
@@ -129,6 +161,24 @@ namespace sicsim
                     CursorAddressChanged.Invoke(this, null);
             }
         }
+
+        public event EventHandler CursorAddressChanged;
+
+        Font font = new Font(FontFamily.GenericMonospace, 10);
+        public float FontSize
+        {
+            get
+            {
+                return font.Size;
+            }
+            set
+            {
+                font = new Font(FontFamily.GenericMonospace, value);
+                doRecalc = true;
+                Invalidate();
+            }
+        }
+        #endregion
 
         #region Cursor Movement Accessors
         /// <summary>
@@ -225,24 +275,6 @@ namespace sicsim
 
         #endregion
 
-        public event EventHandler CursorAddressChanged;
-
-        Font font = new Font(FontFamily.GenericMonospace, 10);
-        public float FontSize
-        {
-            get
-            {
-                return font.Size;
-            }
-            set
-            {
-                font = new Font(FontFamily.GenericMonospace, value);
-                doRecalc = true;
-                Invalidate();
-            }
-        }
-        #endregion
-
         float textYoffset = 0; // the Y offset for both the address and the data.
         float addressX = 4; // distance between left column and left of address.
 
@@ -317,6 +349,15 @@ namespace sicsim
             if (wordsPerLine == 0)
                 return;
 
+            // Draw boxes.
+            int boxesDrawn = 0; // for debug.
+            foreach (var box in boxes)
+            {
+                if (DrawBox(g, box))
+                    ++boxesDrawn;
+            }
+
+            // Draw addresses and data.
             int bytesPerLine = wordsPerLine * 3;
             int lineAddress = startAddress;
             var lineBytes = new byte[bytesPerLine];
@@ -343,6 +384,7 @@ namespace sicsim
                         int lineWordCount = lineWords.Length; // The actual number of words we have to display on this line.
                         if (lineWordCount < 0)
                             continue;
+
                         g.DrawString(lineWords[0].ToString(wordFormatString), font, Brushes.Black, dataXoffset, y);
                         for (int wordIdx = 1; wordIdx < lineWordCount; ++wordIdx)
                         {
@@ -369,15 +411,6 @@ namespace sicsim
 
                 lineAddress += bytesPerLine;
             }
-
-            // Draw boxes.
-            int boxesDrawn = 0; // for debug.
-            foreach (var box in boxes)
-            {
-                if (DrawBox(g, box))
-                    ++boxesDrawn;
-            }
-
             // Draw cursor.
             DrawCursor(g);
         }
@@ -397,11 +430,23 @@ namespace sicsim
 
             float boxX = dataXoffset + lineWord * (wordWidth + wordXgap) + wordByte * (byteWidth);
 
-            g.DrawRectangle(box.Pen,
-                boxX,
-                textYoffset + line * (textLineSpacing + lineHeight),
-                byteWidth - 1,
-                lineHeight - 1);
+            if (box.Hollow)
+            {
+                g.DrawRectangle(box.Pen,
+                                   boxX,
+                                   textYoffset + line * (textLineSpacing + lineHeight),
+                                   byteWidth - 1,
+                                   lineHeight - 1);
+            }
+            else
+            {
+                g.FillRectangle(box.Brush,
+                   boxX,
+                   textYoffset + line * (textLineSpacing + lineHeight),
+                   byteWidth - 1,
+                   lineHeight - 1);
+            }
+
             return true;
         }
 

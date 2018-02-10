@@ -173,10 +173,14 @@ namespace sicsim
             }
         }
 
+        private const int PC_MARKER_ID = -1;
+        private readonly Color PC_MARKER_COLOR = Color.Yellow;
         private void InitializeMachineDisplay()
         {
             if (sess != null && sess.Machine != null)
                 hexDisplay.Data = sess.Machine.Memory;
+
+            pcMarker = new HexDisplay.BoxedByte((int)sess.Machine.ProgramCounter, PC_MARKER_COLOR, false, PC_MARKER_ID);
 
             // add some boxes for debug.
             //for (int i = 0; i < 60; ++i)
@@ -187,6 +191,7 @@ namespace sicsim
 
         }
 
+        HexDisplay.BoxedByte pcMarker;
         bool everUpdated = false;
         private void UpdateMachineDisplay()
         {
@@ -210,6 +215,10 @@ namespace sicsim
             regLTB.Text = m.RegisterL.ToString("X6");
             pcTB.Text = m.ProgramCounter.ToString("X6");
 
+            // update program counter marker
+            hexDisplay.Boxes.Remove(pcMarker);
+            pcMarker = new HexDisplay.BoxedByte((int)m.ProgramCounter, PC_MARKER_COLOR, false, PC_MARKER_ID);
+            hexDisplay.Boxes.Add(pcMarker);
 
             // update memory display
             hexDisplay.Invalidate();
@@ -271,6 +280,16 @@ namespace sicsim
             string addr = hexDisplay.CursorAddress.ToString("X");
             loadMemoryToolStripMenuItem.Text = $"Load Memory at {addr}...";
             cursorPositionLabel.Text = $"0x{addr}";
+        }
+
+        private void loadOBJToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var res = openOBJdialog.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                sess.Machine.LoadObj(openOBJdialog.FileName);
+                UpdateMachineDisplay();
+            }
         }
     }
 }

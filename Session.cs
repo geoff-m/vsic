@@ -27,8 +27,16 @@ namespace sicsim
             Logger = new NullLog();
         }
 
+        ILogSink logger;
         public ILogSink Logger
-        { get; set; }
+        {
+            get { return logger; }
+            set
+            {
+                logger = value;
+                Machine.Logger = value; // Give the same logger to my Machine.
+            }
+        }
 
         /// <summary>
         /// Loads a binary file into the machine's memory at the specified address.
@@ -46,7 +54,7 @@ namespace sicsim
                 int destinationWindowSize = Machine.MemorySize - (int)address;
                 if (destinationWindowSize < fileSize)
                 {
-                    Logger.LogError("Error: The {0}-byte file is too large to load at address {1} ({2} bytes too long). No memory was changed.", 
+                    Logger.LogError("Error: The {0}-byte file is too large to load at address {1} ({2} bytes too long). No memory was changed.",
                         fileSize,
                         address,
                         fileSize - destinationWindowSize);
@@ -72,6 +80,12 @@ namespace sicsim
                     read.Dispose();
             }
             return 0; // Should be unreachable.
+        }
+
+        public void LoadOBJ(string path)
+        {
+            var read = new StreamReader(path);
+
         }
     }
 }

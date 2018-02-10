@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Diagnostics;
 
 namespace sicsim
 {
     public class Machine
     {
+        #region Memory and registers
         public const int SIC_MEMORY_MAXIMUM = 0x8000; // 32K
         public const int SICXE_MEMORY_MAXIMUM = 0x100000; // 1M
 
         const byte MEMORY_INITIAL_VALUE = 0xff;
         readonly Word REG_INITIAL_VALUE = (Word)0xffffff;
 
+        //public event EventHandler StateChanged; // unused
+
         public Word ProgramCounter
-        {
-            get;
-            private set;
-        }
+        { get; private set; }
 
         /// <summary>
         /// Gets the machine's memory size in bytes.
@@ -69,6 +70,7 @@ namespace sicsim
             get;
             private set;
         }
+        #endregion
 
         public Machine(int memorySize = SICXE_MEMORY_MAXIMUM)
         {
@@ -88,6 +90,8 @@ namespace sicsim
             regT = REG_INITIAL_VALUE;
             regX = REG_INITIAL_VALUE;
             ProgramCounter = (Word)0;
+
+            Logger = new NullLog();
         }
 
         /// <summary>
@@ -172,7 +176,6 @@ namespace sicsim
             HardwareFault = 3
         }
 
-
         #region Helper functions
         private Word ReadWord(Word address, AddressingMode mode)
         {
@@ -216,6 +219,12 @@ namespace sicsim
             memory[addr + 2] = w.Low;
         }
 
+        private void WriteByte(byte b, Word address)
+        {
+            memory[(int)address] = b;
+            Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
+        }
+
         /// <summary>
         /// Writes a portion of this machine's memory to the console.
         /// </summary>
@@ -234,5 +243,98 @@ namespace sicsim
             }
         }
         #endregion
+
+        public void LoadObj(string path)
+        {
+            Word blockAddr = (Word)(-1); // Initialized only to silence compiler warning.
+            int lineCount = 1;
+            int entryPoint;
+            try
+            {
+                // First count the number of blocks in total.
+                int blockCount = File.ReadAllLines(path).Count(l => l.Trim() == "!");
+
+                var read = new StreamReader(path);
+                string line = null;
+                int block;
+                for (block = 0; block < blockCount - 1; ++block)
+                {
+                    // Read in the first line as the base address of this block.
+                    line = read.ReadLine().Trim().ToLower();
+                    ++lineCount;
+                    blockAddr = (Word)Convert.ToInt32(line, 16);
+                    Debug.WriteLine($"Block {block}'s base address is {blockAddr}.");
+
+                    line = read.ReadLine().Trim().ToLower();
+                    ++lineCount;
+                    do
+                    {
+                        Debug.WriteLine($"Code/data in block {block}: {line}");
+                        // Pair will always succeeded (i.e. find an even number of digits) for files assembled by sicasm.
+                        foreach (var b in Pair(line).Select(p => Convert.ToByte(p, 16)))
+                        {
+                            WriteByte(b, blockAddr++);
+                        }
+
+                        line = read.ReadLine().Trim().ToLower();
+                        ++lineCount;
+                    } while (line != "!");
+                }
+
+                // Load final block.
+                line = read.ReadLine().Trim().ToLower();
+                blockAddr = (Word)Convert.ToInt32(line, 16);
+                Debug.WriteLine($"Block {block}'s base address is {blockAddr}.");
+
+                line = read.ReadLine().Trim().ToLower();
+                ++lineCount;
+                entryPoint = Convert.ToInt32(line, 16);
+                while (true)
+                {
+                    line = read.ReadLine().Trim().ToLower();
+                    ++lineCount;
+                    if (line == "!")
+                        break;
+                    Debug.WriteLine($"Code/data in block {block}: {line}");
+                    // Pair will always succeeded (i.e. find an even number of digits) for files assembled by sicasm.
+                    foreach (var b in Pair(line).Select(p => Convert.ToByte(p, 16)))
+                    {
+                        WriteByte(b, blockAddr++);
+                    }
+                }
+                ProgramCounter = (Word)entryPoint;
+            }
+            catch (Exception ex)
+            {
+                if (ex is FormatException || ex is IOException)
+                {
+                    Logger.LogError("Error loading \"{0}\" at line {1}: {2}", path, lineCount, ex.Message);
+                    Logger.LogError("The machine's state may be corrupt after an unsuccessful load.");
+                    return;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            Logger.Log("Loaded \"{0}\" successfully.", path);
+        }
+
+        public void TestMemory()
+        {
+            for (Word i = (Word)0; (int)i < MemorySize; ++i)
+            {
+                WriteByte((byte)i, i);
+            }
+        }
+
+        private IEnumerable<string> Pair(string str)
+        {
+            for (int i = 0; i < str.Length; i += 2)
+                yield return str.Substring(i, 2);
+        }
+
+        public ILogSink Logger
+        { get; set; }
     }
 }
