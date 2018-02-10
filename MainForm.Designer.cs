@@ -49,7 +49,7 @@
             this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.stepButton = new System.Windows.Forms.Button();
             this.pcTB = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.logBox = new System.Windows.Forms.RichTextBox();
@@ -115,6 +115,7 @@
             this.hexDisplay.Data = null;
             this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.hexDisplay.Name = "hexDisplay";
             this.hexDisplay.Size = new System.Drawing.Size(710, 553);
             this.hexDisplay.StartAddress = 0;
@@ -272,7 +273,7 @@
             this.pcGrpBox.Controls.Add(this.checkBox4);
             this.pcGrpBox.Controls.Add(this.button5);
             this.pcGrpBox.Controls.Add(this.button4);
-            this.pcGrpBox.Controls.Add(this.button3);
+            this.pcGrpBox.Controls.Add(this.stepButton);
             this.pcGrpBox.Controls.Add(this.pcTB);
             this.pcGrpBox.Controls.Add(this.label2);
             this.pcGrpBox.Location = new System.Drawing.Point(888, 247);
@@ -311,14 +312,15 @@
             this.button4.Text = "Run (F5)";
             this.button4.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // stepButton
             // 
-            this.button3.Location = new System.Drawing.Point(9, 110);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(136, 23);
-            this.button3.TabIndex = 18;
-            this.button3.Text = "Step (F10)";
-            this.button3.UseVisualStyleBackColor = true;
+            this.stepButton.Location = new System.Drawing.Point(9, 110);
+            this.stepButton.Name = "stepButton";
+            this.stepButton.Size = new System.Drawing.Size(136, 23);
+            this.stepButton.TabIndex = 18;
+            this.stepButton.Text = "Step (F10)";
+            this.stepButton.UseVisualStyleBackColor = true;
+            this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
             // 
             // pcTB
             // 
@@ -692,7 +694,7 @@
         private System.Windows.Forms.GroupBox pcGrpBox;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button stepButton;
         private System.Windows.Forms.TextBox pcTB;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.RichTextBox logBox;

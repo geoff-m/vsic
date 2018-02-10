@@ -291,5 +291,17 @@ namespace sicsim
                 UpdateMachineDisplay();
             }
         }
+
+        private void stepButton_Click(object sender, EventArgs e)
+        {
+            var res = sess.Machine.Step();
+            switch (res)
+            {
+                case Machine.RunResult.IllegalInstruction:
+                    LogError($"Illegal instruction at address 0x{sess.Machine.ProgramCounter.ToString("X")}!");
+                    break;
+            }
+            UpdateMachineDisplay();
+        }
     }
 }

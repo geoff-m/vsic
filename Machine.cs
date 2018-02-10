@@ -183,7 +183,7 @@ namespace sicsim
             */
 
 
-            int sextet = memory[(int)ProgramCounter++] & 0xfc; // no opcode ends with 1, 2, or 3.
+            byte sextet = (byte)(memory[(int)ProgramCounter++] & 0xfc); // no opcode ends with 1, 2, or 3.
             if (Enum.IsDefined(typeof(Mnemonic), sextet))
             {
                 var op = (Mnemonic)sextet;
