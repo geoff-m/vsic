@@ -491,8 +491,16 @@ namespace sicsim
             var ret = System.Text.Encoding.UTF8.GetChars(array, offset, count);
             for (int i = 0; i < ret.Length; ++i)
             {
-                if (char.IsControl(ret[i]) || char.IsWhiteSpace(ret[i]))
+                char c = ret[i];
+                if (char.IsWhiteSpace(c))
+                {
                     ret[i] = ' ';
+                    continue;
+                }
+                if (char.IsControl(c))
+                {
+                    ret[i] = '�';
+                }
             }
             return new string(ret);
         }
