@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="AddressingMode.cs" />
     <Compile Include="Breakpoint.cs" />
+    <Compile Include="ConditionCode.cs" />
     <Compile Include="Disassembly.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -60,13 +61,13 @@
       <DependentUpon>HexDisplay.cs</DependentUpon>
     </Compile>
     <Compile Include="ILogSink.cs" />
+    <Compile Include="Instructions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Enums.cs" />
     <Compile Include="Machine.cs" />
     <Compile Include="Entry Point.cs" />
     <Compile Include="NullLog.cs" />

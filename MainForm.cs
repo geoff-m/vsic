@@ -106,7 +106,7 @@ namespace sicsim
             }).Start();
         }
 
-        #region Logging
+        #region ILogSink implementation
         readonly Color COLOR_DEFAULT = Color.Black;
         readonly Color COLOR_ERROR = Color.DarkRed;
         public void Log(string str, params object[] args)

@@ -113,7 +113,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.hexDisplay.CursorAddress = 0;
             this.hexDisplay.Data = null;
-            this.hexDisplay.FontSize = 10F;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.hexDisplay.Location = new System.Drawing.Point(3, 16);
             this.hexDisplay.Name = "hexDisplay";
             this.hexDisplay.Size = new System.Drawing.Size(710, 553);

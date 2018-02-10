@@ -20,6 +20,9 @@ namespace sicsim
         public Word ProgramCounter
         { get; private set; }
 
+        public ConditionCode ConditionCode
+        { get; private set; }
+
         /// <summary>
         /// Gets the machine's memory size in bytes.
         /// </summary>
@@ -161,11 +164,95 @@ namespace sicsim
             return ret;
         }
 
+        /// <summary>
+        /// Executes the instruction at the program counter.
+        /// </summary>
+        /// <returns></returns>
         public RunResult Step()
         {
-            // todo: Execute the instruction at PC.
+            /* instructions needed for 'addnums': 
+            COMPR   2
+            RMO     2
+            LDA     3/4
+            MUL     3/4
+            LDX     3/4
+            ADD     3/4
+            STA     3/4
+            STX     3/4
+            JGT     3/4
+            */
+
+
+            int sextet = memory[(int)ProgramCounter++] & 0xfc; // no opcode ends with 1, 2, or 3.
+            if (Enum.IsDefined(typeof(Mnemonic), sextet))
+            {
+                var op = (Mnemonic)sextet;
+                byte b2;
+                int r1, r2;
+                switch (op)
+                {
+                    case Mnemonic.COMPR: // format 2
+                        b2 = memory[(int)ProgramCounter++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        r2 = b2 & 0xf;
+                        Word reg1value = GetRegister(r1);
+                        Word reg2value = GetRegister(r2);
+                        ConditionCode = CompareWords(reg1value, reg2value);
+                        break;
+                    case Mnemonic.RMO: // format 2
+                        b2 = memory[(int)ProgramCounter++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        r2 = b2 & 0xf;
+                        switch ((Register)r2)
+                        {
+                            case Register.A:
+                                regA = GetRegister(r1);
+                                break;
+                            case Register.T:
+                                regT = GetRegister(r1);
+                                break;
+                            case Register.X:
+                                regX = GetRegister(r1);
+                                break;
+                        }
+                        break;
+                    case Mnemonic.LDA: // format 3/4
+
+                        break;
+
+                }
+            }
+            else
+            {
+                return RunResult.IllegalInstruction;
+            }
 
             return RunResult.None; // if no error occurs.
+        }
+
+        private ConditionCode CompareWords(Word x, Word y)
+        {
+            int xv = (int)x;
+            int yv = (int)y;
+            if (xv < yv)
+                return ConditionCode.LessThan;
+            if (xv > yv)
+                return ConditionCode.GreaterThan;
+            return ConditionCode.EqualTo;
+        }
+
+        private Word GetRegister(int r)
+        {
+            switch ((Register)r)
+            {
+                case Register.A:
+                    return regA;
+                case Register.T:
+                    return regT;
+                case Register.X:
+                    return regX;
+            }
+            throw new ArgumentException(nameof(r));
         }
 
         public enum RunResult
@@ -320,7 +407,7 @@ namespace sicsim
             Logger.Log("Loaded \"{0}\" successfully.", path);
         }
 
-        public void TestMemory()
+        public void MemoryRainbowTest()
         {
             for (Word i = (Word)0; (int)i < MemorySize; ++i)
             {

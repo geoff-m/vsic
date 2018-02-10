@@ -164,16 +164,12 @@ namespace sicsim
 
         public event EventHandler CursorAddressChanged;
 
-        Font font = new Font(FontFamily.GenericMonospace, 10);
-        public float FontSize
+        public override Font Font
         {
-            get
-            {
-                return font.Size;
-            }
+            get => base.Font;
             set
             {
-                font = new Font(FontFamily.GenericMonospace, value);
+                base.Font = value;
                 doRecalc = true;
                 Invalidate();
             }
@@ -301,7 +297,7 @@ namespace sicsim
         private void UpdateMeasurements(Graphics g)
         {
             var BOUNDS = g.VisibleClipBounds;
-            var addressSize = g.MeasureString(new string('F', addressDigits), font);
+            var addressSize = g.MeasureString(new string('F', addressDigits), Font);
             float addrH = addressSize.Height;
             float addrW = addressSize.Width;
             textLineSpacing = 0.05f * addrH;
@@ -312,7 +308,7 @@ namespace sicsim
 
             dataXoffset = addressX + addrW + addressDataGap;
 
-            wordWidth = g.MeasureString(new string('F', WordDigits), font).Width;
+            wordWidth = g.MeasureString(new string('F', WordDigits), Font).Width;
             byteWidth = wordWidth / (WordDigits / 2); // todo: get correct value for byteWidth. i think it is being overestimated.
 
             // BOUNDS.Width - (addressX + addrW + addressDataGap) = dataLine.Width + dataXendPadding
@@ -367,11 +363,11 @@ namespace sicsim
                 float y = textYoffset + line * (textLineSpacing + lineHeight); // caching the Y offset of this line.
 
                 // Draw address.
-                g.DrawString(lineAddress.ToString(addressFormatString), font, Brushes.DarkSlateGray, addressX, y);
+                g.DrawString(lineAddress.ToString(addressFormatString), Font, Brushes.DarkSlateGray, addressX, y);
 
                 // FOR DEBUG
-                //g.DrawString($"{line}of{lineCount}", font, Brushes.DarkSlateGray, addressX, y);
-                //var strSz = g.MeasureString(lineAddress.ToString(addressFormatString), font);
+                //g.DrawString($"{line}of{lineCount}", Font, Brushes.DarkSlateGray, addressX, y);
+                //var strSz = g.MeasureString(lineAddress.ToString(addressFormatString), Font);
                 //g.DrawRectangle(Pens.Red, addressX, y, strSz.Width, strSz.Height);
 
                 // Draw data, depending on selected encoding.
@@ -385,26 +381,32 @@ namespace sicsim
                         if (lineWordCount < 0)
                             continue;
 
-                        g.DrawString(lineWords[0].ToString(wordFormatString), font, Brushes.Black, dataXoffset, y);
+                        g.DrawString(lineWords[0].ToString(wordFormatString), Font, Brushes.Black, dataXoffset, y);
                         for (int wordIdx = 1; wordIdx < lineWordCount; ++wordIdx)
                         {
                             float x = dataXoffset + wordIdx * (wordWidth + wordXgap);
-                            g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, x, y);
+                            g.DrawString(lineWords[wordIdx].ToString(wordFormatString), Font, Brushes.Black, x, y);
                         }
                         break;
 
                     case Encoding.UTF8:
                         var str = DecodeAsUTF8(lineBytes, 0, 3);
                         float charGap = wordWidth / 3; // This works well enough in practice.
-                        g.DrawString(str.Substring(0, 1), font, Brushes.Black, dataXoffset, y);
-                        g.DrawString(str.Substring(1, 1), font, Brushes.Black, dataXoffset + charGap, y);
-                        g.DrawString(str.Substring(2, 1), font, Brushes.Black, dataXoffset + charGap + charGap, y);
+                        if (str.Length >= 1)
+                            g.DrawString(str.Substring(0, 1), Font, Brushes.Black, dataXoffset, y);
+                        if (str.Length >= 2)
+                            g.DrawString(str.Substring(1, 1), Font, Brushes.Black, dataXoffset + charGap, y);
+                        if (str.Length >= 3)
+                            g.DrawString(str.Substring(2, 1), Font, Brushes.Black, dataXoffset + charGap + charGap, y);
                         for (int wordIdx = 1; wordIdx < Math.Ceiling(bytesRead / 3d); ++wordIdx)
                         {
                             str = DecodeAsUTF8(lineBytes, wordIdx * 3, 3);
-                            g.DrawString(str.Substring(0, 1), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
-                            g.DrawString(str.Substring(1, 1), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap) + charGap, y);
-                            g.DrawString(str.Substring(2, 1), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap) + charGap + charGap, y);
+                            if (str.Length >= 1)
+                                g.DrawString(str.Substring(0, 1), Font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
+                            if (str.Length >= 2)
+                                g.DrawString(str.Substring(1, 1), Font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap) + charGap, y);
+                            if (str.Length >= 3)
+                                g.DrawString(str.Substring(2, 1), Font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap) + charGap + charGap, y);
                         }
                         break;
                 }
@@ -480,8 +482,8 @@ namespace sicsim
         private void PaintCenteredText(Graphics g, string text)
         {
             var bounds = g.VisibleClipBounds;
-            var textsz = g.MeasureString(text, font);
-            g.DrawString(text, font, Brushes.Black, (bounds.Width - textsz.Width) / 2, (bounds.Height - textsz.Height) / 2);
+            var textsz = g.MeasureString(text, Font);
+            g.DrawString(text, Font, Brushes.Black, (bounds.Width - textsz.Width) / 2, (bounds.Height - textsz.Height) / 2);
         }
 
         #endregion
