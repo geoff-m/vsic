@@ -20,27 +20,12 @@ namespace sicsim
             UTF8 = 32
         }
 
-        Encoding enc = Encoding.Raw;
-        public Encoding WordEncoding
-        {
-            get
-            {
-                return enc;
-            }
-            set
-            {
-                enc = value;
-            }
-        }
-
         public HexDisplay()
         {
             InitializeComponent();
             DoubleBuffered = true;
+            Click += OnClick;
         }
-
-        public Stream Data
-        { get; set; }
 
         public struct BoxedByte
         {
@@ -57,10 +42,23 @@ namespace sicsim
 
         List<BoxedByte> boxes = new List<BoxedByte>();
         public IList<BoxedByte> Boxes
+        { get { return boxes; } }
+
+        public Stream Data
+        { get; set; }
+
+        Encoding enc = Encoding.Raw;
+        public Encoding WordEncoding
         {
             get
             {
-                return boxes;
+                return enc;
+            }
+            set
+            {
+                enc = value;
+                // I used to have Invalidate() here, but we'll leave that to the caller.
+                // So for now (2-9-2018), 'enc' is pointless and there's no reason this isn't an auto property.
             }
         }
 
@@ -122,12 +120,110 @@ namespace sicsim
             }
             set
             {
-                // todo: address is not contained in display, update displayed window to contain it.
+                if ((Data != null && cursorAddress >= Data.Length) || cursorAddress < 0)
+                    throw new ArgumentOutOfRangeException(nameof(value));
+
+                // todo: if address is not contained in display, update displayed window to contain it.
                 cursorAddress = value;
                 if (CursorAddressChanged != null)
                     CursorAddressChanged.Invoke(this, null);
             }
         }
+
+        #region Cursor Movement Accessors
+        /// <summary>
+        /// Moves the cursor to the beginning of the line it's on.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorHome()
+        {
+            int diff = CursorAddress % bytesPerLine;
+            if (diff == 0)
+                return false; // We are already at the beginning of the line.
+
+            CursorAddress -= diff;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves the cursor to the end of the line it's on.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorEnd()
+        {
+            int diff = bytesPerLine - CursorAddress % bytesPerLine - 1;
+            if (diff == 0)
+                return false; // We are already at the end of the line.
+
+            CursorAddress += diff;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves the cursor up one line.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorUp()
+        {
+            int newaddr = CursorAddress - bytesPerLine;
+            if (newaddr < 0)
+            {
+                // Do nothing if moving up would put us before the beginning.
+                return false;
+            }
+            CursorAddress = newaddr;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves the cursor down one line.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorDown()
+        {
+            int newaddr = CursorAddress + bytesPerLine;
+            if (newaddr > Data.Length)
+            {
+                // Do nothing if moving up would put us after the end.
+                return false;
+            }
+            CursorAddress = newaddr;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves the cursor left one byte.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorLeft()
+        {
+            int newaddr = CursorAddress - 1;
+            if (newaddr < 0)
+            {
+                // Do nothing if moving left would put us before the beginning.
+                return false;
+            }
+            CursorAddress = newaddr;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves the cursor right one byte.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorRight()
+        {
+            int newaddr = CursorAddress + 1;
+            if (newaddr > Data.Length)
+            {
+                // Do nothing if moving right would put us after the end.
+                return false;
+            }
+            CursorAddress = newaddr;
+            return true;
+        }
+
+        #endregion
 
         public event EventHandler CursorAddressChanged;
 
@@ -142,7 +238,7 @@ namespace sicsim
             {
                 font = new Font(FontFamily.GenericMonospace, value);
                 doRecalc = true;
-                // redraw
+                Invalidate();
             }
         }
         #endregion
@@ -200,7 +296,7 @@ namespace sicsim
 
             doRecalc = false;
         }
-        
+
         private void OnPaint(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
@@ -250,7 +346,8 @@ namespace sicsim
                         g.DrawString(lineWords[0].ToString(wordFormatString), font, Brushes.Black, dataXoffset, y);
                         for (int wordIdx = 1; wordIdx < lineWordCount; ++wordIdx)
                         {
-                            g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
+                            float x = dataXoffset + wordIdx * (wordWidth + wordXgap);
+                            g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, x, y);
                         }
                         break;
 
@@ -267,15 +364,6 @@ namespace sicsim
                             g.DrawString(str.Substring(1, 1), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap) + charGap, y);
                             g.DrawString(str.Substring(2, 1), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap) + charGap + charGap, y);
                         }
-
-                        //var str = DecodeAsUTF8(lineBytes, 0, 3);
-                        //g.DrawString(str, font, Brushes.Black, dataXoffset, y);
-                        //for (int wordIdx = 1; wordIdx < Math.Ceiling(bytesRead / 3d); ++wordIdx)
-                        //{
-                        //    str = DecodeAsUTF8(lineBytes, wordIdx * 3, 3);
-                        //    g.DrawString(str, font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
-                        //    //g.DrawString(lineWords[wordIdx].ToString(wordFormatString), font, Brushes.Black, dataXoffset + wordIdx * (wordWidth + wordXgap), y);
-                        //}
                         break;
                 }
 
@@ -319,8 +407,7 @@ namespace sicsim
 
         private bool DrawCursor(Graphics g)
         {
-            //int addr = cursorAddress;
-            int addr = 13;
+            int addr = cursorAddress;
 
             int screenByte = addr - StartAddress;
             int screenByteCount = lineCount * wordsPerLine * AddressDigits;
@@ -370,5 +457,23 @@ namespace sicsim
             doRecalc = true;
             Invalidate();
         }
+
+        private void OnClick(object sender, EventArgs e)
+        {
+            MouseEventArgs me = e as MouseEventArgs;
+            if (me == null || me.Button != MouseButtons.Left)
+                return;
+
+            int line = (int)((me.Y - textYoffset) / (lineHeight + textLineSpacing));
+            int wordIdx = (int)((me.X - dataXoffset) / (wordWidth + wordXgap));
+            float charGap = wordWidth / 3;
+            int wordByte = (int)((me.X - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
+
+            CursorAddress = line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
+
+            Invalidate();
+        }
+
+
     }
 }

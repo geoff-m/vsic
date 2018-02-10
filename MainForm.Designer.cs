@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new sicsim.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.regSTB = new System.Windows.Forms.TextBox();
@@ -83,7 +84,6 @@
             this.utf8RB = new System.Windows.Forms.RadioButton();
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
-            this.hexDisplay = new sicsim.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -103,6 +103,24 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.FontSize = 10F;
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 0;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = sicsim.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // regGrpBox
             // 
@@ -359,8 +377,8 @@
             // selectedBytesLabel
             // 
             this.selectedBytesLabel.Name = "selectedBytesLabel";
-            this.selectedBytesLabel.Size = new System.Drawing.Size(96, 17);
-            this.selectedBytesLabel.Text = "56 bytes selected";
+            this.selectedBytesLabel.Size = new System.Drawing.Size(90, 17);
+            this.selectedBytesLabel.Text = "0 bytes selected";
             this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // button7
@@ -599,29 +617,12 @@
             this.rawRB.Checked = true;
             this.rawRB.Location = new System.Drawing.Point(9, 20);
             this.rawRB.Name = "rawRB";
-            this.rawRB.Size = new System.Drawing.Size(47, 17);
+            this.rawRB.Size = new System.Drawing.Size(69, 17);
             this.rawRB.TabIndex = 0;
             this.rawRB.TabStop = true;
-            this.rawRB.Text = "Raw";
+            this.rawRB.Text = "Raw Hex";
             this.rawRB.UseVisualStyleBackColor = true;
             this.rawRB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.FontSize = 10F;
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 0;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = sicsim.HexDisplay.Encoding.Raw;
             // 
             // MainForm
             // 

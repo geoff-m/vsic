@@ -58,6 +58,38 @@ namespace sicsim
         //}
         #endregion
 
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Up:
+                    hexDisplay.MoveCursorUp();
+                    break;
+                case Keys.Down:
+                    hexDisplay.MoveCursorDown();
+                    break;
+                case Keys.Left:
+                case Keys.Back: // Backspace.
+                    hexDisplay.MoveCursorLeft();
+                    break;
+                case Keys.Right:
+                    hexDisplay.MoveCursorRight();
+                    break;
+                case Keys.Home:
+                    hexDisplay.MoveCursorHome();
+                    break;
+                case Keys.End:
+                    hexDisplay.MoveCursorEnd();
+                    break;
+                default:
+                    return base.ProcessCmdKey(ref msg, keyData);
+            }
+
+            hexDisplay.Invalidate();
+            return true;
+        }
+
         Session sess;
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -120,10 +152,10 @@ namespace sicsim
             {
                 bool success = true;
                 long bytesRead = 0;
-                int cursorAddress = 0; // todo: implement me.
+                int loadAddress = hexDisplay.CursorAddress;
                 try
                 {
-                    bytesRead = sess.LoadMemory(openMemoryDialog.FileName, (Word)cursorAddress);
+                    bytesRead = sess.LoadMemory(openMemoryDialog.FileName, (Word)loadAddress);
                 }
                 catch (ArgumentException argex)
                 {
@@ -136,7 +168,7 @@ namespace sicsim
 #endif
                 }
                 if (success)
-                    Log($"Loaded {bytesRead} bytes from {Path.GetFileName(openMemoryDialog.FileName)} at address {cursorAddress}.");
+                    Log($"Loaded {bytesRead} bytes from {Path.GetFileName(openMemoryDialog.FileName)} at address {loadAddress.ToString("X")}.");
                 UpdateMachineDisplay();
             }
         }
@@ -146,11 +178,12 @@ namespace sicsim
             if (sess != null && sess.Machine != null)
                 hexDisplay.Data = sess.Machine.Memory;
 
-            for (int i = 0; i < 60; ++i)
-            {
-                hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, Pens.Green));
-                //hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, new Pen(new SolidBrush(Color.FromArgb(64, Color.Green)))));
-            }
+            // add some boxes for debug.
+            //for (int i = 0; i < 60; ++i)
+            //{
+            //    hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, Pens.Green));
+            //    //hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, new Pen(new SolidBrush(Color.FromArgb(64, Color.Green)))));
+            //}
 
         }
 
@@ -206,7 +239,7 @@ namespace sicsim
             {
                 int addr = (int)Convert.ToUInt32(text, 16);
             }
-            catch (FormatException ex)
+            catch (FormatException)
             {
                 gotoTB.BackColor = Color.LightPink;
                 return;
@@ -231,6 +264,13 @@ namespace sicsim
                 }
             } while (false);
             hexDisplay.Invalidate();
+        }
+
+        private void OnCursorMove(object sender, EventArgs e)
+        {
+            string addr = hexDisplay.CursorAddress.ToString("X");
+            loadMemoryToolStripMenuItem.Text = $"Load Memory at {addr}...";
+            cursorPositionLabel.Text = $"0x{addr}";
         }
     }
 }

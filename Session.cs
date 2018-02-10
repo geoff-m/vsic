@@ -57,7 +57,7 @@ namespace sicsim
                 // Read the file and copy it into the machine at the desired location.
                 lock (Machine)
                 {
-                    Machine.Memory.Seek((int)address, SeekOrigin.Begin);
+                    Machine.Memory.Seek((int)address + 1, SeekOrigin.Begin); // idk why i need + 1 here, but it seems I do.
                     read.CopyTo(Machine.Memory);
                 }
                 return ret;
