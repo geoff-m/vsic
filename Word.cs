@@ -69,6 +69,11 @@ namespace sicsim
             return (Word)((int)x + (int)y);
         }
 
+        public static Word operator -(Word x, Word y)
+        {
+            return (Word)((int)x - (int)y);
+        }
+
         public static Word operator ++(Word w)
         {
             return (Word)((int)w + 1);

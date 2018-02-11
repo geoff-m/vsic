@@ -298,7 +298,7 @@ namespace sicsim
             switch (res)
             {
                 case Machine.RunResult.IllegalInstruction:
-                    LogError($"Illegal instruction at address 0x{sess.Machine.ProgramCounter.ToString("X")}!");
+                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter - 1).ToString("X")}!");
                     break;
             }
             UpdateMachineDisplay();

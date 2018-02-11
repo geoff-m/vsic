@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new sicsim.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.regSTB = new System.Windows.Forms.TextBox();
@@ -85,6 +84,7 @@
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
+            this.hexDisplay = new sicsim.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.pcGrpBox.SuspendLayout();
@@ -104,25 +104,6 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 0;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = sicsim.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // regGrpBox
             // 
@@ -159,6 +140,7 @@
             // 
             // regSTB
             // 
+            this.regSTB.Enabled = false;
             this.regSTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regSTB.Location = new System.Drawing.Point(32, 123);
             this.regSTB.Name = "regSTB";
@@ -167,6 +149,7 @@
             // 
             // regLTB
             // 
+            this.regLTB.Enabled = false;
             this.regLTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regLTB.Location = new System.Drawing.Point(32, 149);
             this.regLTB.Name = "regLTB";
@@ -193,6 +176,7 @@
             // 
             // regATB
             // 
+            this.regATB.Enabled = false;
             this.regATB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regATB.Location = new System.Drawing.Point(32, 19);
             this.regATB.Name = "regATB";
@@ -210,6 +194,7 @@
             // 
             // regTTB
             // 
+            this.regTTB.Enabled = false;
             this.regTTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regTTB.Location = new System.Drawing.Point(32, 45);
             this.regTTB.Name = "regTTB";
@@ -227,6 +212,7 @@
             // 
             // regXTB
             // 
+            this.regXTB.Enabled = false;
             this.regXTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regXTB.Location = new System.Drawing.Point(32, 71);
             this.regXTB.Name = "regXTB";
@@ -244,6 +230,7 @@
             // 
             // regFTB
             // 
+            this.regFTB.Enabled = false;
             this.regFTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regFTB.Location = new System.Drawing.Point(32, 175);
             this.regFTB.Name = "regFTB";
@@ -261,6 +248,7 @@
             // 
             // regBTB
             // 
+            this.regBTB.Enabled = false;
             this.regBTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regBTB.Location = new System.Drawing.Point(32, 97);
             this.regBTB.Name = "regBTB";
@@ -286,6 +274,7 @@
             // checkBox4
             // 
             this.checkBox4.AutoSize = true;
+            this.checkBox4.Enabled = false;
             this.checkBox4.Location = new System.Drawing.Point(9, 139);
             this.checkBox4.Name = "checkBox4";
             this.checkBox4.Size = new System.Drawing.Size(134, 17);
@@ -299,7 +288,7 @@
             this.button5.Location = new System.Drawing.Point(9, 81);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(136, 23);
-            this.button5.TabIndex = 20;
+            this.button5.TabIndex = 6;
             this.button5.Text = "Break (F6)";
             this.button5.UseVisualStyleBackColor = true;
             // 
@@ -308,7 +297,7 @@
             this.button4.Location = new System.Drawing.Point(9, 52);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(136, 23);
-            this.button4.TabIndex = 19;
+            this.button4.TabIndex = 0;
             this.button4.Text = "Run (F5)";
             this.button4.UseVisualStyleBackColor = true;
             // 
@@ -317,13 +306,14 @@
             this.stepButton.Location = new System.Drawing.Point(9, 110);
             this.stepButton.Name = "stepButton";
             this.stepButton.Size = new System.Drawing.Size(136, 23);
-            this.stepButton.TabIndex = 18;
+            this.stepButton.TabIndex = 10;
             this.stepButton.Text = "Step (F10)";
             this.stepButton.UseVisualStyleBackColor = true;
             this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
             // 
             // pcTB
             // 
+            this.pcTB.Enabled = false;
             this.pcTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.pcTB.Location = new System.Drawing.Point(30, 16);
             this.pcTB.Name = "pcTB";
@@ -386,6 +376,7 @@
             // 
             // button7
             // 
+            this.button7.Enabled = false;
             this.button7.Location = new System.Drawing.Point(12, 573);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(139, 23);
@@ -428,7 +419,7 @@
             this.button8.Location = new System.Drawing.Point(6, 19);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(139, 23);
-            this.button8.TabIndex = 0;
+            this.button8.TabIndex = 9;
             this.button8.Text = "Set (F9)";
             this.button8.UseVisualStyleBackColor = true;
             // 
@@ -439,6 +430,7 @@
             this.groupBox3.Controls.Add(this.checkBox2);
             this.groupBox3.Controls.Add(this.checkBox3);
             this.groupBox3.Controls.Add(this.button8);
+            this.groupBox3.Enabled = false;
             this.groupBox3.Location = new System.Drawing.Point(888, 419);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(151, 139);
@@ -469,6 +461,7 @@
             this.revertToolStripMenuItem,
             this.saveToolStripMenuItem,
             this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Enabled = false;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
             this.fileToolStripMenuItem.Text = "Session";
@@ -530,12 +523,14 @@
             // 
             // saveMemoryToolStripMenuItem
             // 
+            this.saveMemoryToolStripMenuItem.Enabled = false;
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
             this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
             // 
             // manageDevicesToolStripMenuItem
             // 
+            this.manageDevicesToolStripMenuItem.Enabled = false;
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
             this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
@@ -544,6 +539,7 @@
             // 
             this.groupBox1.Controls.Add(this.gotoTB);
             this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Enabled = false;
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(139, 270);
@@ -585,6 +581,7 @@
             // radioButton3
             // 
             this.radioButton3.AutoSize = true;
+            this.radioButton3.Enabled = false;
             this.radioButton3.Location = new System.Drawing.Point(9, 66);
             this.radioButton3.Name = "radioButton3";
             this.radioButton3.Size = new System.Drawing.Size(111, 17);
@@ -607,6 +604,7 @@
             // radioButton4
             // 
             this.radioButton4.AutoSize = true;
+            this.radioButton4.Enabled = false;
             this.radioButton4.Location = new System.Drawing.Point(9, 43);
             this.radioButton4.Name = "radioButton4";
             this.radioButton4.Size = new System.Drawing.Size(99, 17);
@@ -632,6 +630,25 @@
             // 
             this.openOBJdialog.Filter = "SIC/XE OBJ files (*.obj)|*.obj";
             this.openOBJdialog.SupportMultiDottedExtensions = true;
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = sicsim.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // MainForm
             // 

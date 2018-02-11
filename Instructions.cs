@@ -37,6 +37,7 @@ namespace sicsim
         // Registers
         LDA = 0x00,
         LDL = 0x08,
+        LDX = 0x04,
         STA = 0x0C,
         STL = 0x14,
         STX = 0x10,

@@ -17,8 +17,12 @@ namespace sicsim
 
         //public event EventHandler StateChanged; // unused
 
+        int PC; // Implementing this as an int saves a lot of casts in this class.
         public Word ProgramCounter
-        { get; private set; }
+        {
+            get { return (Word)PC; }
+            set { PC = (int)value; }
+        }
 
         public ConditionCode ConditionCode
         { get; private set; }
@@ -92,7 +96,7 @@ namespace sicsim
             regS = REG_INITIAL_VALUE;
             regT = REG_INITIAL_VALUE;
             regX = REG_INITIAL_VALUE;
-            ProgramCounter = (Word)0;
+            PC = 0;
 
             Logger = new NullLog();
         }
@@ -150,7 +154,7 @@ namespace sicsim
             if (addr < 0 || addr >= memory.Length)
                 throw new ArgumentException("Address is out of range.", nameof(address));
 
-            ProgramCounter = address;
+            PC = (int)address;
             return Run();
         }
 
@@ -182,25 +186,28 @@ namespace sicsim
             JGT     3/4
             */
 
-
-            byte sextet = (byte)(memory[(int)ProgramCounter++] & 0xfc); // no opcode ends with 1, 2, or 3.
+            byte b1 = memory[PC++];
+            byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
             if (Enum.IsDefined(typeof(Mnemonic), sextet))
             {
                 var op = (Mnemonic)sextet;
                 byte b2;
                 int r1, r2;
+                Word addr;
+                AddressingMode mode;
                 switch (op)
                 {
                     case Mnemonic.COMPR: // format 2
-                        b2 = memory[(int)ProgramCounter++];
+                        b2 = memory[PC++];
                         r1 = (b2 & 0xf0) >> 4;
                         r2 = b2 & 0xf;
                         Word reg1value = GetRegister(r1);
                         Word reg2value = GetRegister(r2);
                         ConditionCode = CompareWords(reg1value, reg2value);
+                        Logger.Log($"Ran {op.ToString()} {r1} {r2}.");
                         break;
                     case Mnemonic.RMO: // format 2
-                        b2 = memory[(int)ProgramCounter++];
+                        b2 = memory[PC++];
                         r1 = (b2 & 0xf0) >> 4;
                         r2 = b2 & 0xf;
                         switch ((Register)r2)
@@ -215,11 +222,44 @@ namespace sicsim
                                 regX = GetRegister(r1);
                                 break;
                         }
+                        Logger.Log($"Ran {op.ToString()} {r1} {r2}.");
                         break;
-                    case Mnemonic.LDA: // format 3/4
-
+                    case Mnemonic.LDA:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        regA = ReadWord(addr, mode);
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
                         break;
-
+                    case Mnemonic.MUL:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        regA = (Word)((int)regA * (int)ReadWord(addr, mode));
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.LDX:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        regX = ReadWord(addr, mode);
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.ADD:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        regA = regA + ReadWord(addr, mode);
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STA:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regA, addr, mode);
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STX:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regX, addr, mode);
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.JGT:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        if (ConditionCode == ConditionCode.GreaterThan)
+                            PC = (int)DecodeAddress(addr, mode);
+                        Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
+                        break;
                 }
             }
             else
@@ -228,6 +268,95 @@ namespace sicsim
             }
 
             return RunResult.None; // if no error occurs.
+        }
+
+        /// <summary>
+        /// Decodes the flags and operand of a standard SIC or SIC/XE format 3 or 4 instruction, while the progrm counter is at the second byte of the instruction.
+        /// Advances the program counter to the end of the current instruction and returns the target address (operand) it indicates.
+        /// </summary>
+        /// <param name="ni">The byte whose lowest 2 bits represent N and I, repsectively. All other bits are ignored.</param>
+        /// <param name="indirection">Indicates what level of indirection should be used on the returned operand.</param>
+        /// <returns>The operand found at the given address. The meaning of the operand is subject to the value of "indirection".</returns>
+        private Word DecodeLongInstruction(byte ni, out AddressingMode indirection)
+        {
+            int oldPC = PC - 1; // for error reporting.
+
+            byte b2 = memory[PC++];
+            byte flags = (byte)(ni << 4);
+            /* 00100000 0x20    N 
+             * 00010000 0x10    I
+             * 00001000 8       X
+             * 00000100 4       B
+             * 00000010 2       P
+             * 00000001 1       E
+             */
+            if (flags == 0)
+            {
+                // SIC-compatible instruction.
+                // Format of standard SIC instruction (24 bits total):
+                //   8      1     15
+                // opcode   x   address
+                if ((b2 & 0x8) == 0) // If X flag is not set.
+                {
+                    indirection = AddressingMode.Simple;
+                    return (Word)((b2 & ~0x8) << 7 | memory[PC++]);
+                }
+                indirection = AddressingMode.Simple;
+                return (Word)((int)regX + (b2 & ~0x8) << 7 | memory[PC++]);
+            }
+            flags |= (byte)((b2 & 0xf0) >> 4);
+            switch (flags)
+            {
+                case 0b110000:   // disp
+                    indirection = AddressingMode.Simple;
+                    return (Word)((b2 & 0xf) << 8 | memory[PC++]); // should be ++PC?
+                case 0b110001: // addr (format 4)
+                    indirection = AddressingMode.Simple;
+                    return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]); // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
+                case 0b110010: // (PC) + disp
+                    indirection = AddressingMode.Simple;
+                    return (Word)(PC + ((b2 & 0xf) << 8 | memory[PC++]));
+                case 0b110100: // (B) + disp
+                    indirection = AddressingMode.Simple;
+                    return (Word)((int)regB + ((b2 & 0xf) << 8) | memory[PC++]);
+                case 0b111000: // disp + (X)
+                    indirection = AddressingMode.Simple;
+                    return (Word)((int)regX + (b2 & 0xf) << 8 | memory[PC++]);
+                case 0b111001: // addr + (X) (format 4)
+                    indirection = AddressingMode.Simple;
+                    return (Word)((int)regX + (b2 & 0xf) | memory[PC++] << 8 | memory[PC++]);
+                case 0b111010: // (PC) + disp + (X)
+                    indirection = AddressingMode.Simple;
+                    return (Word)(PC + (int)regX + (b2 & 0xf) << 8 | memory[PC++]);
+                case 0b111100: // (B) + disp + (X)
+                    indirection = AddressingMode.Simple;
+                    return (Word)((int)regB + (int)regX + (b2 & 0xf) << 8 | memory[PC++]);
+                case 0b100000: // disp
+                    indirection = AddressingMode.Indirect;
+                    return (Word)((b2 & 0xf) << 8 | memory[PC++]);
+                case 0b100001: // addr (format 4)
+                    indirection = AddressingMode.Indirect;
+                    return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
+                case 0b100010: // (PC) + disp
+                    indirection = AddressingMode.Indirect;
+                    return (Word)(PC + (b2 & 0xf) << 8 | memory[PC++]);
+                case 0b100100: // (B) + disp
+                    indirection = AddressingMode.Indirect;
+                    return (Word)((int)regB + (b2 & 0xf) << 8 | memory[PC++]);
+                case 0b010000: // disp
+                    indirection = AddressingMode.Immediate;
+                    return (Word)((b2 & 0xf) << 8 | memory[PC++]);
+                case 0b010001: // addr (format 4)
+                    indirection = AddressingMode.Immediate;
+                    return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
+                case 0b010010: // (PC) + disp
+                    indirection = AddressingMode.Immediate;
+                    return (Word)(PC + (b2 & 0xf) << 8 | memory[PC++]);
+                case 0b010100: // (B) + disp
+                    indirection = AddressingMode.Immediate;
+                    return (Word)((int)regB + (b2 & 0xf) << 8 | memory[PC++]);
+            }
+            throw new IllegalInstructionException((Word)oldPC);
         }
 
         private ConditionCode CompareWords(Word x, Word y)
@@ -268,7 +397,6 @@ namespace sicsim
         {
             if (mode == AddressingMode.Immediate)
                 return address;
-            //return memory[(int)DecodeAddress(address, mode)];
             address = DecodeAddress(address, mode);
             return Word.FromArray(memory, (int)address);
         }
@@ -279,17 +407,13 @@ namespace sicsim
             switch (mode)
             {
                 case AddressingMode.Immediate:
-                    throw new ArgumentException("Addressing mode is immediate: address should not be decoded!");
-                case AddressingMode.Simple: // todo: In Machine, replace this with Direct. "Simple" should be disallowed here.
+                    throw new ArgumentException("Addressing mode is immediate and should not be decoded!");
+                case AddressingMode.Simple:
                     return address;
                 case AddressingMode.Indirect:
-                    return address + regX;
-                case AddressingMode.RelativeToBase:
-                    return address + regB;
-                case AddressingMode.RelativeToProgramCounter:
-                    return address + ProgramCounter;
+                    return ReadWord(address, AddressingMode.Simple);
                 default:
-                    throw new ArgumentException("Illegal or unsupported addressing mode");
+                    throw new ArgumentException("Illegal or unsupported addressing mode.");
             }
         }
 
@@ -299,7 +423,6 @@ namespace sicsim
             {
                 address = DecodeAddress(address, mode);
             }
-            //memory[(int)address] = w;
             int addr = (int)address;
             memory[addr] = w.High;
             memory[addr + 1] = w.Middle;
@@ -309,7 +432,7 @@ namespace sicsim
         private void WriteByte(byte b, Word address)
         {
             memory[(int)address] = b;
-            Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
+            //Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
         }
 
         /// <summary>
@@ -389,7 +512,7 @@ namespace sicsim
                         WriteByte(b, blockAddr++);
                     }
                 }
-                ProgramCounter = (Word)entryPoint;
+                PC = entryPoint;
             }
             catch (Exception ex)
             {

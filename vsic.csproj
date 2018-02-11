@@ -60,6 +60,7 @@
     <Compile Include="HexDisplay.Designer.cs">
       <DependentUpon>HexDisplay.cs</DependentUpon>
     </Compile>
+    <Compile Include="IllegalInstructionException.cs" />
     <Compile Include="ILogSink.cs" />
     <Compile Include="Instructions.cs" />
     <Compile Include="MainForm.cs">
