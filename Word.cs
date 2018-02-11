@@ -13,9 +13,9 @@ namespace sicsim
         /// </summary>
         public static Word FromArray(byte[] array, int startIndex)
         {
-            return new Word(array[startIndex],
+            return new Word(array[startIndex + 2],
                 array[startIndex + 1],
-                array[startIndex + 2]);
+                array[startIndex]);
         }
 
         /// <summary>

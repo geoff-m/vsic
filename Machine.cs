@@ -222,7 +222,7 @@ namespace sicsim
                                 regX = GetRegister(r1);
                                 break;
                         }
-                        Logger.Log($"Ran {op.ToString()} {r1} {r2}.");
+                        Logger.Log($"Ran {op.ToString()} {Enum.GetName(typeof(Register), r1)} {Enum.GetName(typeof(Register), r2)}.");
                         break;
                     case Mnemonic.LDA:
                         addr = DecodeLongInstruction(b1, out mode);
@@ -315,7 +315,12 @@ namespace sicsim
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]); // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
                 case 0b110010: // (PC) + disp
                     indirection = AddressingMode.Simple;
-                    return (Word)(PC + ((b2 & 0xf) << 8 | memory[PC++]));
+                    byte top4 = (byte)(b2 & 0xf);
+                    byte bottom8 = memory[PC++];
+                    int offset = top4 << 8;
+                    offset |= bottom8;
+                    offset = DecodeTwosComplement(offset, 12);
+                    return (Word)(PC + offset);
                 case 0b110100: // (B) + disp
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regB + ((b2 & 0xf) << 8) | memory[PC++]);
@@ -368,6 +373,27 @@ namespace sicsim
             if (xv > yv)
                 return ConditionCode.GreaterThan;
             return ConditionCode.EqualTo;
+        }
+
+        // Bits higher than 'bitCount' will be cleared if input is deemed negative. I cannot imagine any such bits should be set in the first place.
+        private int DecodeTwosComplement(int n, int bitCount)
+        {
+            int highBit = 1 << (bitCount - 1);
+
+            int lowerMask = highBit | highBit - 1; // The bits we don't care about.
+
+            if ((n & ~lowerMask) > 0)
+                Debug.WriteLine("Warning: Higher bits are set than are supposed to be in this number!");
+
+            if ((n & highBit) > 0) // If sign bit is set.
+            {
+                // Number is negative: invert and increment
+                return -((~n + 1) & lowerMask);
+            }
+
+            // Number was positive all along--no change was necessary.
+            // Optimizations will include skipping this method call in such cases.
+            return n;
         }
 
         private Word GetRegister(int r)
