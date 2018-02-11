@@ -457,6 +457,7 @@ namespace sicsim
         public void LoadObj(string path)
         {
             Word blockAddr = (Word)(-1); // Initialized only to silence compiler warning.
+            StreamReader read = null;
             int lineCount = 1;
             int entryPoint;
             try
@@ -464,7 +465,7 @@ namespace sicsim
                 // First count the number of blocks in total.
                 int blockCount = File.ReadAllLines(path).Count(l => l.Trim() == "!");
 
-                var read = new StreamReader(path);
+                read = new StreamReader(path);
                 string line = null;
                 int block;
                 for (block = 0; block < blockCount - 1; ++block)
@@ -526,6 +527,11 @@ namespace sicsim
                 {
                     throw;
                 }
+            }
+            finally
+            {
+                if (read != null)
+                    read.Dispose();
             }
             Logger.Log("Loaded \"{0}\" successfully.", path);
         }
