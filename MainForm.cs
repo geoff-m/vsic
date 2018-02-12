@@ -119,6 +119,10 @@ namespace sicsim
             logBox.SelectionColor = COLOR_DEFAULT;
             logBox.AppendText(string.Format(str, args));
             logBox.AppendText("\n");
+            
+            // Scroll to bottom.
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
         }
 
         public void LogError(string str, params object[] args)
@@ -131,6 +135,10 @@ namespace sicsim
             logBox.SelectionColor = COLOR_ERROR;
             logBox.AppendText(string.Format(str, args));
             logBox.AppendText("\n");
+
+            // Scroll to bottom.
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
         }
 
         public void SetStatusMessage(string str, params object[] args)

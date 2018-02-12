@@ -279,6 +279,8 @@ namespace sicsim
         /// <returns>The operand found at the given address. The meaning of the operand is subject to the value of "indirection".</returns>
         private Word DecodeLongInstruction(byte ni, out AddressingMode indirection)
         {
+            ni &= 0x3; // keep only bottom 2 bits.
+
             int oldPC = PC - 1; // for error reporting.
 
             byte b2 = memory[PC++];
@@ -290,9 +292,8 @@ namespace sicsim
              * 00000010 2       P
              * 00000001 1       E
              */
-            if (flags == 0)
+            if (flags == 0) // SIC-compatible instruction.
             {
-                // SIC-compatible instruction.
                 // Format of standard SIC instruction (24 bits total):
                 //   8      1     15
                 // opcode   x   address
