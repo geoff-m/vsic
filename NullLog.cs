@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sicsim
+namespace vsic
 {
     /// <summary>
     /// An implementation of ILogSink that does nothing.

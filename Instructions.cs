@@ -4,13 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sicsim
+namespace vsic
 {
     public enum Register : byte
     {
-        A = 0x0,
-        T = 0x5,
-        X = 0x1
+        A = 0,
+        X = 1,
+        L = 2,
+        PC = 8,
+        CC = 9,
+
+        B = 3,
+        S = 4,
+        T = 5,
+        F = 6
     }
     public enum Mnemonic : byte
     {

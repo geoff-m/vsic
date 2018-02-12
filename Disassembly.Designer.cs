@@ -1,4 +1,4 @@
-﻿namespace sicsim
+﻿namespace vsic
 {
     partial class Disassembly
     {

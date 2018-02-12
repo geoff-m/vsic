@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace sicsim
+namespace vsic
 {
     public interface ILogSink
     {

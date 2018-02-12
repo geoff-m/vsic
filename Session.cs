@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 
-namespace sicsim
+namespace vsic
 {
     /// <summary>
     /// Represents the entire state of a session in vsic, including whatever machine is present.

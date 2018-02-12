@@ -1,5 +1,5 @@
 ﻿
-namespace sicsim
+namespace vsic
 {
     enum AddressingMode
     {

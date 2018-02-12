@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace sicsim
+namespace vsic
 {
     /// <summary>
     /// The exception thrown by a machine when it attempts to execute an illegal instruction.

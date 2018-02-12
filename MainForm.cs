@@ -8,56 +8,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Path = System.IO.Path;
+using System.Diagnostics;
 
-namespace sicsim
+namespace vsic
 {
     public partial class MainForm : Form, ILogSink
     {
         public MainForm()
         {
             InitializeComponent();
+            ccCB.Items.Add("Less than");
+            ccCB.Items.Add("Equal to");
+            ccCB.Items.Add("Greater than");
         }
-
-        #region unused
-        //Label[] registerLabels;
-        //TextBox[] registerTboxes;
-        //private void Form1_Load(object sender, EventArgs e)
-        //{
-        //    // Set up labels for registers.
-        //    registerLabels = new Label[6];
-        //    var regLabel = new Label();
-        //    regLabel.Text = "A";
-        //    registerLabels[0] = regLabel;
-        //    regLabel = new Label();
-        //    regLabel.Text = "B";
-        //    registerLabels[1] = regLabel;
-        //    regLabel = new Label();
-        //    regLabel.Text = "S";
-        //    registerLabels[2] = regLabel;
-        //    regLabel = new Label();
-        //    regLabel.Text = "T";
-        //    registerLabels[3] = regLabel;
-        //    regLabel = new Label();
-        //    regLabel.Text = "X";
-        //    registerLabels[4] = regLabel;
-        //    regLabel = new Label();
-        //    regLabel.Text = "L";
-        //    registerLabels[5] = regLabel;
-
-        //    // Set up text boxes for registers.
-        //    registerTboxes = new TextBox[6];
-        //    registerTboxes[0] = new TextBox();
-        //    regGrpBox.Controls.AddRange(registerLabels);
-        //    var offset = regGrpBox.ClientRectangle.Location;
-        //    for (int i = 0; i < registerLabels.Length; ++i)
-        //    {
-        //        var labelLoc = new Point(offset.X + 2, offset.Y + 14 + (i == 0 ? 0 : i * registerLabels[i - 1].Height));
-        //        registerLabels[i].Location = labelLoc;
-        //    }
-
-        //}
-        #endregion
-
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -119,7 +82,7 @@ namespace sicsim
             logBox.SelectionColor = COLOR_DEFAULT;
             logBox.AppendText(string.Format(str, args));
             logBox.AppendText("\n");
-            
+
             // Scroll to bottom.
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
@@ -186,20 +149,70 @@ namespace sicsim
         private void InitializeMachineDisplay()
         {
             if (sess != null && sess.Machine != null)
+            {
                 hexDisplay.Data = sess.Machine.Memory;
+                sess.Machine.MemoryChanged += OnMemoryChanged;
+                sess.Machine.RegisterChanged += OnRegisterChanged;
+            }
 
-            pcMarker = new HexDisplay.BoxedByte((int)sess.Machine.ProgramCounter, PC_MARKER_COLOR, false, PC_MARKER_ID);
-
-            // add some boxes for debug.
-            //for (int i = 0; i < 60; ++i)
-            //{
-            //    hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, Pens.Green));
-            //    //hexDisplay.Boxes.Add(new HexDisplay.BoxedByte(i, new Pen(new SolidBrush(Color.FromArgb(64, Color.Green)))));
-            //}
+            pcMarker = new ByteMarker((int)sess.Machine.ProgramCounter,
+                (int)sess.Machine.InstructionsExecuted,
+                PC_MARKER_COLOR,
+                false,
+                PC_MARKER_ID);
 
         }
 
-        HexDisplay.BoxedByte pcMarker;
+        private void OnMemoryChanged(Word addr, int count, bool written)
+        {
+            int start = (int)addr;
+            for (int i = start; i < start + count; ++i)
+            {
+                var newBox = new ByteMarker((int)addr,
+                    (int)sess.Machine.InstructionsExecuted + 1,
+                    written ? Color.LightGreen : Color.Pink);
+
+                hexDisplay.Boxes.Add(newBox);
+            }
+        }
+
+        readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
+        readonly Color REGISTER_READ_COLOR = Color.Pink;
+        private void OnRegisterChanged(Register r, bool written)
+        {
+            switch (r)
+            {
+                case Register.A:
+                    regATB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.X:
+                    regXTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.L:
+                    regLTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.PC:
+                    pcTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.CC:
+                    ccCB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.B:
+                    regBTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.S:
+                    regSTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.T:
+                    regTTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+                case Register.F:
+                    regFTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
+                    break;
+            }
+        }
+
+        ByteMarker pcMarker;
         bool everUpdated = false;
         private void UpdateMachineDisplay()
         {
@@ -215,6 +228,7 @@ namespace sicsim
 
             // update labels.
             var m = sess.Machine;
+            var time = (int)m.InstructionsExecuted;
             regATB.Text = m.RegisterA.ToString("X6");
             regBTB.Text = m.RegisterB.ToString("X6");
             regSTB.Text = m.RegisterS.ToString("X6");
@@ -223,9 +237,29 @@ namespace sicsim
             regLTB.Text = m.RegisterL.ToString("X6");
             pcTB.Text = m.ProgramCounter.ToString("X6");
 
+            switch (m.ConditionCode)
+            {
+                case ConditionCode.EqualTo:
+                    ccCB.SelectedIndex = 1;
+                    break;
+                case ConditionCode.LessThan:
+                    ccCB.SelectedIndex = 0;
+                    break;
+                case ConditionCode.GreaterThan:
+                    ccCB.SelectedIndex = 2;
+                    break;
+            }
+
+            // cull old markers
+            int removed = hexDisplay.Boxes.RemoveWhere(bm => bm.Timestamp != time);
+            Debug.WriteLine($"Removed {removed} markers.");
+
             // update program counter marker
-            hexDisplay.Boxes.Remove(pcMarker);
-            pcMarker = new HexDisplay.BoxedByte((int)m.ProgramCounter, PC_MARKER_COLOR, false, PC_MARKER_ID);
+            pcMarker = new ByteMarker((int)m.ProgramCounter,
+                time,
+                PC_MARKER_COLOR,
+                false,
+                PC_MARKER_ID);
             hexDisplay.Boxes.Add(pcMarker);
 
             // update memory display
@@ -267,7 +301,7 @@ namespace sicsim
 
         private void changedEncodingSelection(object sender, EventArgs e)
         {
-            do
+            do // Not a loop.
             {
                 if (rawRB.Checked)
                 {
@@ -302,6 +336,15 @@ namespace sicsim
 
         private void stepButton_Click(object sender, EventArgs e)
         {
+            regATB.BackColor = SystemColors.Control;
+            regXTB.BackColor = SystemColors.Control;
+            regLTB.BackColor = SystemColors.Control;
+            pcTB.BackColor = SystemColors.Control;
+            ccCB.BackColor = SystemColors.Control;
+            regBTB.BackColor = SystemColors.Control;
+            regSTB.BackColor = SystemColors.Control;
+            regTTB.BackColor = SystemColors.Control;
+
             var res = sess.Machine.Step();
             switch (res)
             {

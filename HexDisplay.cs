@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 
-namespace sicsim
+namespace vsic
 {
     public partial class HexDisplay : UserControl
     {
@@ -27,53 +27,8 @@ namespace sicsim
             Click += OnClick;
         }
 
-        public class BoxedByte
-        {
-            const float PEN_WIDTH = 0.2f;
-            public int Address
-            { get; private set; }
-            public Color Color
-            { get; private set; }
-            public Pen Pen
-            { get; private set; }
-            public Brush Brush
-            { get; private set; }
-            public bool Hollow
-            { get; private set; }
-            /// <summary>
-            /// Describes a colored marker to be drawn around a byte at a certain address.
-            /// </summary>
-            /// <param name="address">The address to be marked.</param>
-            /// <param name="color">The color that will be used for drawing.</param>
-            /// <param name="uniqueId">User markers (from breakpoints) keyed on their addresses. However, special markers must be considered unique beyond address. For example, program counter needs to be considered unique at all times.</param>
-            public BoxedByte(int address, Color color, bool hollow = false, int uniqueId = 0)
-            {
-                Address = address;
-                Color = color;
-                id = uniqueId;
-                if (hollow)
-                {
-                    Pen = new Pen(color, PEN_WIDTH);
-                }
-                else
-                {
-                    Brush = new SolidBrush(color);
-                }
-                Hollow = hollow;
-            }
-            int id;
-            public override int GetHashCode()
-            {
-                if (id != 0)
-                    return id;
-                return Address;
-            }
-
-
-        }
-
-        HashSet<BoxedByte> boxes = new HashSet<BoxedByte>();
-        public HashSet<BoxedByte> Boxes
+        HashSet<ByteMarker> boxes = new HashSet<ByteMarker>();
+        public HashSet<ByteMarker> Boxes
         { get { return boxes; } }
 
         public Stream Data
@@ -417,7 +372,7 @@ namespace sicsim
             DrawCursor(g);
         }
 
-        private bool DrawBox(Graphics g, BoxedByte box)
+        private bool DrawBox(Graphics g, ByteMarker box)
         {
             int addr = box.Address;
             int screenByte = addr - StartAddress;

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingMode.cs" />
+    <Compile Include="ByteMarker.cs" />
     <Compile Include="Breakpoint.cs" />
     <Compile Include="ConditionCode.cs" />
     <Compile Include="Disassembly.cs">

@@ -1,4 +1,4 @@
-﻿namespace sicsim
+﻿namespace vsic
 {
     partial class MainForm
     {
@@ -29,7 +29,10 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new vsic.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
+            this.ccCB = new System.Windows.Forms.ComboBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.regSTB = new System.Windows.Forms.TextBox();
             this.regLTB = new System.Windows.Forms.TextBox();
@@ -84,7 +87,6 @@
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
-            this.hexDisplay = new sicsim.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.pcGrpBox.SuspendLayout();
@@ -105,9 +107,30 @@
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
             // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            // 
             // regGrpBox
             // 
             this.regGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.regGrpBox.Controls.Add(this.ccCB);
+            this.regGrpBox.Controls.Add(this.label10);
             this.regGrpBox.Controls.Add(this.label8);
             this.regGrpBox.Controls.Add(this.regSTB);
             this.regGrpBox.Controls.Add(this.regLTB);
@@ -124,10 +147,27 @@
             this.regGrpBox.Controls.Add(this.regBTB);
             this.regGrpBox.Location = new System.Drawing.Point(888, 27);
             this.regGrpBox.Name = "regGrpBox";
-            this.regGrpBox.Size = new System.Drawing.Size(151, 214);
+            this.regGrpBox.Size = new System.Drawing.Size(151, 238);
             this.regGrpBox.TabIndex = 1;
             this.regGrpBox.TabStop = false;
             this.regGrpBox.Text = "Registers";
+            // 
+            // ccCB
+            // 
+            this.ccCB.FormattingEnabled = true;
+            this.ccCB.Location = new System.Drawing.Point(33, 205);
+            this.ccCB.Name = "ccCB";
+            this.ccCB.Size = new System.Drawing.Size(90, 21);
+            this.ccCB.TabIndex = 0;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 208);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(21, 13);
+            this.label10.TabIndex = 17;
+            this.label10.Text = "CC";
             // 
             // label8
             // 
@@ -264,7 +304,7 @@
             this.pcGrpBox.Controls.Add(this.stepButton);
             this.pcGrpBox.Controls.Add(this.pcTB);
             this.pcGrpBox.Controls.Add(this.label2);
-            this.pcGrpBox.Location = new System.Drawing.Point(888, 247);
+            this.pcGrpBox.Location = new System.Drawing.Point(888, 388);
             this.pcGrpBox.Name = "pcGrpBox";
             this.pcGrpBox.Size = new System.Drawing.Size(151, 166);
             this.pcGrpBox.TabIndex = 3;
@@ -431,7 +471,7 @@
             this.groupBox3.Controls.Add(this.checkBox3);
             this.groupBox3.Controls.Add(this.button8);
             this.groupBox3.Enabled = false;
-            this.groupBox3.Location = new System.Drawing.Point(888, 419);
+            this.groupBox3.Location = new System.Drawing.Point(6, 369);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(151, 139);
             this.groupBox3.TabIndex = 0;
@@ -539,10 +579,9 @@
             // 
             this.groupBox1.Controls.Add(this.gotoTB);
             this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Enabled = false;
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(139, 270);
+            this.groupBox1.Size = new System.Drawing.Size(139, 214);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Memory Map";
@@ -550,7 +589,7 @@
             // gotoTB
             // 
             this.gotoTB.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gotoTB.Location = new System.Drawing.Point(45, 233);
+            this.gotoTB.Location = new System.Drawing.Point(46, 154);
             this.gotoTB.Name = "gotoTB";
             this.gotoTB.Size = new System.Drawing.Size(87, 21);
             this.gotoTB.TabIndex = 1;
@@ -559,7 +598,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 236);
+            this.label9.Location = new System.Drawing.Point(7, 157);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(33, 13);
             this.label9.TabIndex = 0;
@@ -571,7 +610,7 @@
             this.groupBox4.Controls.Add(this.utf8RB);
             this.groupBox4.Controls.Add(this.radioButton4);
             this.groupBox4.Controls.Add(this.rawRB);
-            this.groupBox4.Location = new System.Drawing.Point(12, 303);
+            this.groupBox4.Location = new System.Drawing.Point(12, 247);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(139, 116);
             this.groupBox4.TabIndex = 8;
@@ -630,25 +669,6 @@
             // 
             this.openOBJdialog.Filter = "SIC/XE OBJ files (*.obj)|*.obj";
             this.openOBJdialog.SupportMultiDottedExtensions = true;
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = sicsim.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // MainForm
             // 
@@ -749,6 +769,8 @@
         private System.Windows.Forms.RadioButton utf8RB;
         private System.Windows.Forms.RadioButton rawRB;
         private System.Windows.Forms.OpenFileDialog openOBJdialog;
+        private System.Windows.Forms.ComboBox ccCB;
+        private System.Windows.Forms.Label label10;
     }
 }
 

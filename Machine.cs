@@ -4,10 +4,16 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 
-namespace sicsim
+namespace vsic
 {
     public class Machine
     {
+        /// <summary>
+        /// The number of instructions this Machine has ever executed.
+        /// </summary>
+        public long InstructionsExecuted
+        { get; private set; }
+
         #region Memory and registers
         public const int SIC_MEMORY_MAXIMUM = 0x8000; // 32K
         public const int SICXE_MEMORY_MAXIMUM = 0x100000; // 1M
@@ -15,17 +21,50 @@ namespace sicsim
         const byte MEMORY_INITIAL_VALUE = 0xff;
         readonly Word REG_INITIAL_VALUE = (Word)0xffffff;
 
-        //public event EventHandler StateChanged; // unused
+        public event MemoryChangedEventHandler MemoryChanged;
+        public event RegisterChangedEventHandler RegisterChanged;
+
+        /// <summary>
+        /// A method called when the MemoryChanged event fires, indicating the Machine's memory has changed.
+        /// </summary>
+        /// <param name="startAddress">The first address that was changed in memory.</param>
+        /// <param name="count">Size of the region (measured in bytes) beginning at "startAddress" that contains all modified addresses.</param>
+        /// <param name="written">Indicates whether the specified address was written or read.</param>
+        public delegate void MemoryChangedEventHandler(Word startAddress, int count, bool written);
+
+        /// <summary>
+        /// A method called when the RegisterChanged event fires, indicating the Machine's memory has changed.
+        /// </summary>
+        /// <param name="reg">The register that was changed.</param>
+        /// <param name="written">Indicates whether the specified register was written or read.</param>
+        public delegate void RegisterChangedEventHandler(Register reg, bool written);
 
         int PC; // Implementing this as an int saves a lot of casts in this class.
         public Word ProgramCounter
         {
             get { return (Word)PC; }
-            set { PC = (int)value; }
+            set
+            {
+                int i = (int)value;
+                if (i >= memory.Length || i < 0)
+                {
+                    throw new ArgumentException("Address is out of range.", nameof(value));
+                }
+                PC = i;
+                RegisterChanged?.Invoke(Register.PC, true);
+            }
         }
 
+        ConditionCode CC;
         public ConditionCode ConditionCode
-        { get; private set; }
+        {
+            get { return CC; }
+            set
+            {
+                CC = value;
+                RegisterChanged?.Invoke(Register.CC, true);
+            }
+        }
 
         /// <summary>
         /// Gets the machine's memory size in bytes.
@@ -39,37 +78,61 @@ namespace sicsim
         public Word RegisterA
         {
             get { return regA; }
-            set { regA = value; }
+            set
+            {
+                regA = value;
+                RegisterChanged?.Invoke(Register.A, true);
+            }
         }
 
         public Word RegisterB
         {
             get { return regB; }
-            set { regB = value; }
+            set
+            {
+                regB = value;
+                RegisterChanged?.Invoke(Register.B, true);
+            }
         }
 
         public Word RegisterL
         {
             get { return regL; }
-            set { regL = value; }
+            set
+            {
+                regL = value;
+                RegisterChanged?.Invoke(Register.L, true);
+            }
         }
 
         public Word RegisterS
         {
             get { return regS; }
-            set { regS = value; }
+            set
+            {
+                regS = value;
+                RegisterChanged?.Invoke(Register.S, true);
+            }
         }
 
         public Word RegisterT
         {
             get { return regT; }
-            set { regT = value; }
+            set
+            {
+                regT = value;
+                RegisterChanged?.Invoke(Register.T, true);
+            }
         }
 
         public Word RegisterX
         {
             get { return regX; }
-            set { regX = value; }
+            set
+            {
+                regX = value;
+                RegisterChanged?.Invoke(Register.X, true);
+            }
         }
 
         public Stream Memory
@@ -150,11 +213,7 @@ namespace sicsim
 
         public RunResult Run(Word address)
         {
-            int addr = (int)address;
-            if (addr < 0 || addr >= memory.Length)
-                throw new ArgumentException("Address is out of range.", nameof(address));
-
-            PC = (int)address;
+            ProgramCounter = address; // We use property here to catch out-of-range.
             return Run();
         }
 
@@ -174,18 +233,6 @@ namespace sicsim
         /// <returns></returns>
         public RunResult Step()
         {
-            /* instructions needed for 'addnums': 
-            COMPR   2
-            RMO     2
-            LDA     3/4
-            MUL     3/4
-            LDX     3/4
-            ADD     3/4
-            STA     3/4
-            STX     3/4
-            JGT     3/4
-            */
-
             byte b1 = memory[PC++];
             byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
             if (Enum.IsDefined(typeof(Mnemonic), sextet))
@@ -204,7 +251,7 @@ namespace sicsim
                         Word reg1value = GetRegister(r1);
                         Word reg2value = GetRegister(r2);
                         ConditionCode = CompareWords(reg1value, reg2value);
-                        Logger.Log($"Ran {op.ToString()} {r1} {r2}.");
+                        Logger.Log($"Ran {op.ToString()} {r1},{r2}.");
                         break;
                     case Mnemonic.RMO: // format 2
                         b2 = memory[PC++];
@@ -222,26 +269,26 @@ namespace sicsim
                                 regX = GetRegister(r1);
                                 break;
                         }
-                        Logger.Log($"Ran {op.ToString()} {Enum.GetName(typeof(Register), r1)} {Enum.GetName(typeof(Register), r2)}.");
+                        Logger.Log($"Ran {op.ToString()} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                         break;
                     case Mnemonic.LDA:
                         addr = DecodeLongInstruction(b1, out mode);
-                        regA = ReadWord(addr, mode);
+                        RegisterA = ReadWord(addr, mode);
                         Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.MUL:
                         addr = DecodeLongInstruction(b1, out mode);
-                        regA = (Word)((int)regA * (int)ReadWord(addr, mode));
+                        RegisterA = (Word)((int)regA * (int)ReadWord(addr, mode));
                         Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.LDX:
                         addr = DecodeLongInstruction(b1, out mode);
-                        regX = ReadWord(addr, mode);
+                        RegisterX = ReadWord(addr, mode);
                         Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.ADD:
                         addr = DecodeLongInstruction(b1, out mode);
-                        regA = regA + ReadWord(addr, mode);
+                        RegisterA = regA + ReadWord(addr, mode);
                         Logger.Log($"Ran {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.STA:
@@ -267,6 +314,7 @@ namespace sicsim
                 return RunResult.IllegalInstruction;
             }
 
+            ++InstructionsExecuted;
             return RunResult.None; // if no error occurs.
         }
 
@@ -310,10 +358,11 @@ namespace sicsim
             {
                 case 0b110000:   // disp
                     indirection = AddressingMode.Simple;
-                    return (Word)((b2 & 0xf) << 8 | memory[PC++]); // should be ++PC?
+                    return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b110001: // addr (format 4)
                     indirection = AddressingMode.Simple;
-                    return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]); // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
+                    // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
+                    return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b110010: // (PC) + disp
                     indirection = AddressingMode.Simple;
                     byte top4 = (byte)(b2 & 0xf);
@@ -399,13 +448,17 @@ namespace sicsim
 
         private Word GetRegister(int r)
         {
+            var reg = (Register)r;
             switch ((Register)r)
             {
                 case Register.A:
+                    RegisterChanged?.Invoke(reg, false);
                     return regA;
                 case Register.T:
+                    RegisterChanged?.Invoke(reg, false);
                     return regT;
                 case Register.X:
+                    RegisterChanged?.Invoke(reg, false);
                     return regX;
             }
             throw new ArgumentException(nameof(r));
@@ -419,12 +472,12 @@ namespace sicsim
             HardwareFault = 3
         }
 
-        #region Helper functions
         private Word ReadWord(Word address, AddressingMode mode)
         {
             if (mode == AddressingMode.Immediate)
                 return address;
             address = DecodeAddress(address, mode);
+            MemoryChanged?.Invoke(address, 3, false);
             return Word.FromArray(memory, (int)address);
         }
 
@@ -454,6 +507,7 @@ namespace sicsim
             memory[addr] = w.High;
             memory[addr + 1] = w.Middle;
             memory[addr + 2] = w.Low;
+            MemoryChanged?.Invoke(w, 3, true);
         }
 
         private void WriteByte(byte b, Word address)
@@ -479,7 +533,6 @@ namespace sicsim
                  (int)memory[wordIdx + 3]);
             }
         }
-        #endregion
 
         public void LoadObj(string path)
         {
