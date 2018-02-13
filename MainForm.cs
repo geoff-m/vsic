@@ -166,7 +166,7 @@ namespace vsic
                 if (i == 16)
                     Debugger.Break();
                 var newBox = new ByteMarker(i,
-                    (int)sess.Machine.InstructionsExecuted + 1,
+                    (int)sess.Machine.InstructionsExecuted,
                     written ? Color.LightGreen : Color.Pink);
 
                 hexDisplay.Boxes.Add(newBox);
@@ -223,9 +223,8 @@ namespace vsic
                 InitializeMachineDisplay();
             }
 
-            // update labels.
+            // Update labels.
             var m = sess.Machine;
-            var time = (int)m.InstructionsExecuted;
             regATB.Text = m.RegisterA.ToString("X6");
             regBTB.Text = m.RegisterB.ToString("X6");
             regSTB.Text = m.RegisterS.ToString("X6");
@@ -247,19 +246,20 @@ namespace vsic
                     break;
             }
 
-            // cull old markers
-            int removed = hexDisplay.Boxes.RemoveWhere(bm => bm.Timestamp != time);
+            // Cull old markers.
+            int instr = (int)m.InstructionsExecuted;
+            int removed = hexDisplay.Boxes.RemoveWhere(bm => (instr - bm.Timestamp)  > 1);
             //Debug.WriteLine($"Removed {removed} markers.");
 
-            // update program counter marker
+            // Update program counter marker.
             pcMarker = new ByteMarker((int)m.ProgramCounter,
-                time,
+                instr - 1,
                 PC_MARKER_COLOR,
                 false,
                 PC_MARKER_ID);
             hexDisplay.Boxes.Add(pcMarker);
 
-            // update memory display
+            // Update memory display.
             hexDisplay.Invalidate();
 
             everUpdated = true;
@@ -267,8 +267,8 @@ namespace vsic
 
         private void OnResize(object sender, EventArgs e)
         {
-            memGrpBox.Width = regGrpBox.Location.X - memGrpBox.Location.X;
-            memGrpBox.Height = logBox.Location.Y - memGrpBox.Location.Y;
+            memGrpBox.Width = regGrpBox.Location.X - memGrpBox.Location.X - 10;
+            memGrpBox.Height = logBox.Location.Y - memGrpBox.Location.Y - 10;
         }
 
         private void gotoTB_TextChanged(object sender, EventArgs e)
@@ -327,6 +327,10 @@ namespace vsic
             if (res == DialogResult.OK)
             {
                 sess.Machine.LoadObj(openOBJdialog.FileName);
+
+                // Remove all temporary markers.
+                hexDisplay.Boxes.Clear();
+
                 UpdateMachineDisplay();
             }
         }
@@ -346,9 +350,15 @@ namespace vsic
             switch (res)
             {
                 case Machine.RunResult.IllegalInstruction:
-                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter - 1).ToString("X")}!");
+                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter).ToString("X")}!");
                     break;
             }
+            UpdateMachineDisplay();
+        }
+
+        private void runButton_Click(object sender, EventArgs e)
+        {
+            sess.Machine.Run();
             UpdateMachineDisplay();
         }
     }

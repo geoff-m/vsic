@@ -102,7 +102,7 @@
             this.memGrpBox.Controls.Add(this.hexDisplay);
             this.memGrpBox.Location = new System.Drawing.Point(163, 27);
             this.memGrpBox.Name = "memGrpBox";
-            this.memGrpBox.Size = new System.Drawing.Size(716, 572);
+            this.memGrpBox.Size = new System.Drawing.Size(698, 572);
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
@@ -126,7 +126,7 @@
             this.regGrpBox.Controls.Add(this.regFTB);
             this.regGrpBox.Controls.Add(this.label3);
             this.regGrpBox.Controls.Add(this.regBTB);
-            this.regGrpBox.Location = new System.Drawing.Point(888, 27);
+            this.regGrpBox.Location = new System.Drawing.Point(874, 27);
             this.regGrpBox.Name = "regGrpBox";
             this.regGrpBox.Size = new System.Drawing.Size(151, 238);
             this.regGrpBox.TabIndex = 1;
@@ -285,7 +285,7 @@
             this.pcGrpBox.Controls.Add(this.stepButton);
             this.pcGrpBox.Controls.Add(this.pcTB);
             this.pcGrpBox.Controls.Add(this.label2);
-            this.pcGrpBox.Location = new System.Drawing.Point(888, 388);
+            this.pcGrpBox.Location = new System.Drawing.Point(874, 271);
             this.pcGrpBox.Name = "pcGrpBox";
             this.pcGrpBox.Size = new System.Drawing.Size(151, 166);
             this.pcGrpBox.TabIndex = 3;
@@ -321,6 +321,7 @@
             this.runButton.TabIndex = 0;
             this.runButton.Text = "Run (F5)";
             this.runButton.UseVisualStyleBackColor = true;
+            this.runButton.Click += new System.EventHandler(this.runButton_Click);
             // 
             // stepButton
             // 
@@ -355,10 +356,10 @@
             this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.logBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logBox.Location = new System.Drawing.Point(0, 605);
+            this.logBox.Location = new System.Drawing.Point(0, 596);
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
-            this.logBox.Size = new System.Drawing.Size(1051, 127);
+            this.logBox.Size = new System.Drawing.Size(1037, 127);
             this.logBox.TabIndex = 4;
             this.logBox.Text = "";
             // 
@@ -368,15 +369,15 @@
             this.toolStripStatusLabel1,
             this.cursorPositionLabel,
             this.selectedBytesLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 735);
+            this.statusStrip.Location = new System.Drawing.Point(0, 726);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1051, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1037, 22);
             this.statusStrip.TabIndex = 5;
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(910, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(908, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Loading...";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -397,8 +398,9 @@
             // 
             // button7
             // 
+            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button7.Enabled = false;
-            this.button7.Location = new System.Drawing.Point(6, 573);
+            this.button7.Location = new System.Drawing.Point(6, 567);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(145, 23);
             this.button7.TabIndex = 3;
@@ -469,7 +471,7 @@
             this.machineToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1051, 24);
+            this.menuStrip.Size = new System.Drawing.Size(1037, 24);
             this.menuStrip.TabIndex = 6;
             this.menuStrip.Text = "menuStrip1";
             // 
@@ -559,6 +561,7 @@
             // 
             this.groupBox1.Controls.Add(this.gotoTB);
             this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Enabled = false;
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(139, 214);
@@ -662,7 +665,7 @@
             this.hexDisplay.Location = new System.Drawing.Point(3, 16);
             this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
             this.hexDisplay.StartAddress = 0;
             this.hexDisplay.TabIndex = 1;
             this.hexDisplay.WordDigits = 6;
@@ -673,7 +676,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1051, 757);
+            this.ClientSize = new System.Drawing.Size(1037, 748);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
@@ -685,6 +688,7 @@
             this.Controls.Add(this.regGrpBox);
             this.Controls.Add(this.memGrpBox);
             this.MainMenuStrip = this.menuStrip;
+            this.MinimumSize = new System.Drawing.Size(474, 728);
             this.Name = "MainForm";
             this.Text = "Virtual SIC";
             this.Load += new System.EventHandler(this.Form1_Load);
