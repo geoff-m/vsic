@@ -357,13 +357,16 @@ namespace vsic
             switch (flags)
             {
                 case 0b110000:   // disp
+                    Debug.WriteLine("disp");
                     indirection = AddressingMode.Simple;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b110001: // addr (format 4)
+                    Debug.WriteLine("addr");
                     indirection = AddressingMode.Simple;
                     // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b110010: // (PC) + disp
+                    Debug.WriteLine("pc + disp");
                     indirection = AddressingMode.Simple;
                     byte top4 = (byte)(b2 & 0xf);
                     byte bottom8 = memory[PC++];
@@ -372,42 +375,55 @@ namespace vsic
                     offset = DecodeTwosComplement(offset, 12);
                     return (Word)(PC + offset);
                 case 0b110100: // (B) + disp
+                    Debug.WriteLine("b + disp");
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regB + ((b2 & 0xf) << 8) | memory[PC++]);
                 case 0b111000: // disp + (X)
+                    Debug.WriteLine("disp + x");
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b111001: // addr + (X) (format 4)
+                    Debug.WriteLine("addr + x");
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regX + (b2 & 0xf) | memory[PC++] << 8 | memory[PC++]);
                 case 0b111010: // (PC) + disp + (X)
+                    Debug.WriteLine("pc + disp + x");
                     indirection = AddressingMode.Simple;
                     return (Word)(PC + (int)regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b111100: // (B) + disp + (X)
+                    Debug.WriteLine("b + disp + x");
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regB + (int)regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100000: // disp
+                    Debug.WriteLine("disp (indirect)");
                     indirection = AddressingMode.Indirect;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100001: // addr (format 4)
+                    Debug.WriteLine("addr (indirect)");
                     indirection = AddressingMode.Indirect;
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b100010: // (PC) + disp
+                    Debug.WriteLine("pc + disp (indirect)");
                     indirection = AddressingMode.Indirect;
                     return (Word)(PC + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100100: // (B) + disp
+                    Debug.WriteLine("b + disp (indirect)");
                     indirection = AddressingMode.Indirect;
                     return (Word)((int)regB + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010000: // disp
+                    Debug.WriteLine("disp (immediate)");
                     indirection = AddressingMode.Immediate;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010001: // addr (format 4)
+                    Debug.WriteLine("addr (immediate)");
                     indirection = AddressingMode.Immediate;
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b010010: // (PC) + disp
+                    Debug.WriteLine("pc + disp (immediate)");
                     indirection = AddressingMode.Immediate;
                     return (Word)(PC + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010100: // (B) + disp
+                    Debug.WriteLine("b + disp (immediate)");
                     indirection = AddressingMode.Immediate;
                     return (Word)((int)regB + (b2 & 0xf) << 8 | memory[PC++]);
             }
@@ -507,7 +523,7 @@ namespace vsic
             memory[addr] = w.High;
             memory[addr + 1] = w.Middle;
             memory[addr + 2] = w.Low;
-            MemoryChanged?.Invoke(w, 3, true);
+            MemoryChanged?.Invoke(address, 3, true);
         }
 
         private void WriteByte(byte b, Word address)

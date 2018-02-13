@@ -168,7 +168,9 @@ namespace vsic
             int start = (int)addr;
             for (int i = start; i < start + count; ++i)
             {
-                var newBox = new ByteMarker((int)addr,
+                if (i == 16)
+                    Debugger.Break();
+                var newBox = new ByteMarker(i,
                     (int)sess.Machine.InstructionsExecuted + 1,
                     written ? Color.LightGreen : Color.Pink);
 

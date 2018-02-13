@@ -51,10 +51,13 @@ namespace vsic
         {
             if (id != 0)
                 return id;
-            Debug.WriteLine($"hello from bytemarker with timestamp {Timestamp}");
+            //Debug.WriteLine($"hello from bytemarker at {Address} with timestamp {Timestamp}");
             return Address ^ Timestamp << 24;
         }
 
-
+        public override string ToString()
+        {
+            return $"{Address} ({Color}) (time={Timestamp})";
+        }
     }
 }
