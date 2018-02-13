@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new vsic.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -50,7 +49,7 @@
             this.pcGrpBox = new System.Windows.Forms.GroupBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.runButton = new System.Windows.Forms.Button();
             this.stepButton = new System.Windows.Forms.Button();
             this.pcTB = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -87,6 +86,7 @@
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
+            this.hexDisplay = new vsic.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.pcGrpBox.SuspendLayout();
@@ -106,25 +106,6 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // regGrpBox
             // 
@@ -155,7 +136,7 @@
             // ccCB
             // 
             this.ccCB.FormattingEnabled = true;
-            this.ccCB.Location = new System.Drawing.Point(33, 205);
+            this.ccCB.Location = new System.Drawing.Point(32, 201);
             this.ccCB.Name = "ccCB";
             this.ccCB.Size = new System.Drawing.Size(90, 21);
             this.ccCB.TabIndex = 0;
@@ -163,7 +144,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 208);
+            this.label10.Location = new System.Drawing.Point(6, 204);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(21, 13);
             this.label10.TabIndex = 17;
@@ -300,7 +281,7 @@
             this.pcGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pcGrpBox.Controls.Add(this.checkBox4);
             this.pcGrpBox.Controls.Add(this.button5);
-            this.pcGrpBox.Controls.Add(this.button4);
+            this.pcGrpBox.Controls.Add(this.runButton);
             this.pcGrpBox.Controls.Add(this.stepButton);
             this.pcGrpBox.Controls.Add(this.pcTB);
             this.pcGrpBox.Controls.Add(this.label2);
@@ -332,14 +313,14 @@
             this.button5.Text = "Break (F6)";
             this.button5.UseVisualStyleBackColor = true;
             // 
-            // button4
+            // runButton
             // 
-            this.button4.Location = new System.Drawing.Point(9, 52);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(136, 23);
-            this.button4.TabIndex = 0;
-            this.button4.Text = "Run (F5)";
-            this.button4.UseVisualStyleBackColor = true;
+            this.runButton.Location = new System.Drawing.Point(9, 52);
+            this.runButton.Name = "runButton";
+            this.runButton.Size = new System.Drawing.Size(136, 23);
+            this.runButton.TabIndex = 0;
+            this.runButton.Text = "Run (F5)";
+            this.runButton.UseVisualStyleBackColor = true;
             // 
             // stepButton
             // 
@@ -670,6 +651,25 @@
             this.openOBJdialog.Filter = "SIC/XE OBJ files (*.obj)|*.obj";
             this.openOBJdialog.SupportMultiDottedExtensions = true;
             // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(710, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -730,7 +730,7 @@
         private System.Windows.Forms.TextBox regBTB;
         private System.Windows.Forms.GroupBox pcGrpBox;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button runButton;
         private System.Windows.Forms.Button stepButton;
         private System.Windows.Forms.TextBox pcTB;
         private System.Windows.Forms.Label label2;

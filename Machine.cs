@@ -233,6 +233,7 @@ namespace vsic
         /// <returns></returns>
         public RunResult Step()
         {
+            // TODO: Make this method rewind the program counter (and any other state changes) if the instruction is invalid.
             byte b1 = memory[PC++];
             byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
             if (Enum.IsDefined(typeof(Mnemonic), sextet))
@@ -260,13 +261,13 @@ namespace vsic
                         switch ((Register)r2)
                         {
                             case Register.A:
-                                regA = GetRegister(r1);
+                                RegisterA = GetRegister(r1);
                                 break;
                             case Register.T:
-                                regT = GetRegister(r1);
+                                RegisterT = GetRegister(r1);
                                 break;
                             case Register.X:
-                                regX = GetRegister(r1);
+                                RegisterX = GetRegister(r1);
                                 break;
                         }
                         Logger.Log($"Ran {op.ToString()} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
@@ -311,11 +312,21 @@ namespace vsic
             }
             else
             {
+                LastResult = RunResult.IllegalInstruction;
                 return RunResult.IllegalInstruction;
             }
 
             ++InstructionsExecuted;
+            LastResult = RunResult.None;
             return RunResult.None; // if no error occurs.
+        }
+
+        /// <summary>
+        /// Gets the result of the last time Run or Step was called.
+        /// </summary>
+        public RunResult LastResult
+        {
+            get; private set;
         }
 
         /// <summary>
@@ -354,6 +365,7 @@ namespace vsic
                 return (Word)((int)regX + (b2 & ~0x8) << 7 | memory[PC++]);
             }
             flags |= (byte)((b2 & 0xf0) >> 4);
+            int disp;
             switch (flags)
             {
                 case 0b110000:   // disp
@@ -366,15 +378,17 @@ namespace vsic
                     // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b110010: // (PC) + disp
+                    // "For PC-relative addressing, [the disp] is interpreted as a 12-bit signed integer." (p. 9)
                     Debug.WriteLine("pc + disp");
                     indirection = AddressingMode.Simple;
                     byte top4 = (byte)(b2 & 0xf);
                     byte bottom8 = memory[PC++];
-                    int offset = top4 << 8;
-                    offset |= bottom8;
-                    offset = DecodeTwosComplement(offset, 12);
-                    return (Word)(PC + offset);
+                    disp = top4 << 8;
+                    disp |= bottom8;
+                    disp = DecodeTwosComplement(disp, 12);
+                    return (Word)(PC + disp);
                 case 0b110100: // (B) + disp
+                    // "For base relative addressing, the displacement field disp in a Format 3 instruction is interpreted as a 12-bit unsigned integer." (p. 9)
                     Debug.WriteLine("b + disp");
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regB + ((b2 & 0xf) << 8) | memory[PC++]);
@@ -386,10 +400,15 @@ namespace vsic
                     Debug.WriteLine("addr + x");
                     indirection = AddressingMode.Simple;
                     return (Word)((int)regX + (b2 & 0xf) | memory[PC++] << 8 | memory[PC++]);
+
                 case 0b111010: // (PC) + disp + (X)
                     Debug.WriteLine("pc + disp + x");
                     indirection = AddressingMode.Simple;
-                    return (Word)(PC + (int)regX + (b2 & 0xf) << 8 | memory[PC++]);
+                    disp = (b2 & 0xf) << 8;
+                    disp |= memory[PC++];
+                    disp = DecodeTwosComplement(disp, 12);
+                    return (Word)(PC + (int)regX + disp);
+
                 case 0b111100: // (B) + disp + (X)
                     Debug.WriteLine("b + disp + x");
                     indirection = AddressingMode.Simple;
@@ -405,7 +424,10 @@ namespace vsic
                 case 0b100010: // (PC) + disp
                     Debug.WriteLine("pc + disp (indirect)");
                     indirection = AddressingMode.Indirect;
-                    return (Word)(PC + (b2 & 0xf) << 8 | memory[PC++]);
+                    disp = (b2 & 0xf) << 8;
+                    disp |= memory[PC++];
+                    disp = DecodeTwosComplement(disp, 12);
+                    return (Word)(PC + disp);
                 case 0b100100: // (B) + disp
                     Debug.WriteLine("b + disp (indirect)");
                     indirection = AddressingMode.Indirect;
@@ -421,7 +443,10 @@ namespace vsic
                 case 0b010010: // (PC) + disp
                     Debug.WriteLine("pc + disp (immediate)");
                     indirection = AddressingMode.Immediate;
-                    return (Word)(PC + (b2 & 0xf) << 8 | memory[PC++]);
+                    disp = (b2 & 0xf) << 8;
+                    disp |= memory[PC++];
+                    disp = DecodeTwosComplement(disp, 12);
+                    return (Word)(PC + disp);
                 case 0b010100: // (B) + disp
                     Debug.WriteLine("b + disp (immediate)");
                     indirection = AddressingMode.Immediate;
@@ -454,6 +479,7 @@ namespace vsic
             if ((n & highBit) > 0) // If sign bit is set.
             {
                 // Number is negative: invert and increment
+                Debug.WriteLine("It's a negative number!");
                 return -((~n + 1) & lowerMask);
             }
 

@@ -239,6 +239,19 @@ namespace vsic
             regLTB.Text = m.RegisterL.ToString("X6");
             pcTB.Text = m.ProgramCounter.ToString("X6");
 
+            // update buttons
+            switch (m.LastResult)
+            {
+                case Machine.RunResult.None:
+                    stepButton.Enabled = true;
+                    runButton.Enabled = true;
+                    break;
+                case Machine.RunResult.IllegalInstruction:
+                    stepButton.Enabled = false;
+                    runButton.Enabled = false;
+                    break;
+            }
+
             switch (m.ConditionCode)
             {
                 case ConditionCode.EqualTo:
@@ -254,7 +267,7 @@ namespace vsic
 
             // cull old markers
             int removed = hexDisplay.Boxes.RemoveWhere(bm => bm.Timestamp != time);
-            Debug.WriteLine($"Removed {removed} markers.");
+            //Debug.WriteLine($"Removed {removed} markers.");
 
             // update program counter marker
             pcMarker = new ByteMarker((int)m.ProgramCounter,
