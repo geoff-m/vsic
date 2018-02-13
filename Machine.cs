@@ -234,6 +234,7 @@ namespace vsic
         public RunResult Step()
         {
             // TODO: Make this method rewind the program counter (and any other state changes) if the instruction is invalid.
+            // This will solve the problem of PC advancing even when we hit invalid instructions.
             byte b1 = memory[PC++];
             byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
             if (Enum.IsDefined(typeof(Mnemonic), sextet))

@@ -398,9 +398,9 @@
             // button7
             // 
             this.button7.Enabled = false;
-            this.button7.Location = new System.Drawing.Point(12, 573);
+            this.button7.Location = new System.Drawing.Point(6, 573);
             this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(139, 23);
+            this.button7.Size = new System.Drawing.Size(145, 23);
             this.button7.TabIndex = 3;
             this.button7.Text = "Go to Disassembly";
             this.button7.UseVisualStyleBackColor = true;
@@ -439,14 +439,13 @@
             // 
             this.button8.Location = new System.Drawing.Point(6, 19);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(139, 23);
+            this.button8.Size = new System.Drawing.Size(133, 23);
             this.button8.TabIndex = 9;
             this.button8.Text = "Set (F9)";
             this.button8.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.checkBox1);
             this.groupBox3.Controls.Add(this.checkBox2);
             this.groupBox3.Controls.Add(this.checkBox3);
@@ -454,7 +453,7 @@
             this.groupBox3.Enabled = false;
             this.groupBox3.Location = new System.Drawing.Point(6, 369);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(151, 139);
+            this.groupBox3.Size = new System.Drawing.Size(145, 139);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Breakpoint";
