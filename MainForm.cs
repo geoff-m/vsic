@@ -56,17 +56,12 @@ namespace vsic
         Session sess;
         private void Form1_Load(object sender, EventArgs e)
         {
-            Log("Creating new machine...");
+            sess = new Session();
+            sess.Logger = this;
 
-            new Task(() =>
-            {
-                sess = new Session();
-                sess.Logger = this;
-
-                Log("Done.");
-                UpdateMachineDisplay();
-                SetStatusMessage("Ready");
-            }).Start();
+            Log("Created new SIC/XE machine.");
+            UpdateMachineDisplay();
+            SetStatusMessage("Ready");
         }
 
         #region ILogSink implementation
