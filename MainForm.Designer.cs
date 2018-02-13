@@ -385,8 +385,8 @@
             // cursorPositionLabel
             // 
             this.cursorPositionLabel.Name = "cursorPositionLabel";
-            this.cursorPositionLabel.Size = new System.Drawing.Size(36, 17);
-            this.cursorPositionLabel.Text = "0x100";
+            this.cursorPositionLabel.Size = new System.Drawing.Size(24, 17);
+            this.cursorPositionLabel.Text = "0x0";
             this.cursorPositionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // selectedBytesLabel
