@@ -96,5 +96,7 @@ namespace vsic
         {
             return ((int)this).ToString(format);
         }
+
+        public static readonly Word Zero = (Word)0;
     }
 }

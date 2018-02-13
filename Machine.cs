@@ -246,16 +246,156 @@ namespace vsic
                 var op = (Mnemonic)sextet;
                 byte b2;
                 int r1, r2;
+                Word reg1value, reg2value;
                 Word addr;
                 AddressingMode mode;
                 switch (op)
                 {
+                    // Arithmetic ------------------------------------------------------
+                    case Mnemonic.ADD:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = regA + ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.ADDR: // format 2
+                        b2 = memory[PC++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        r2 = b2 & 0xf;
+                        reg1value = GetRegister(r1);
+                        reg2value = GetRegister(r2);
+                        SetRegister(r2, reg1value + reg2value);
+                        Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                        break;
+                    case Mnemonic.SUB:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = regA - ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.SUBR: // format 2
+                        b2 = memory[PC++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        r2 = b2 & 0xf;
+                        reg1value = GetRegister(r1);
+                        reg2value = GetRegister(r2);
+                        SetRegister(r2, reg1value + reg2value);
+                        Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                        break;
+                    case Mnemonic.MUL:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = (Word)((int)regA * (int)ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.MULR: // format 2
+                        b2 = memory[PC++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        r2 = b2 & 0xf;
+                        reg1value = GetRegister(r1);
+                        reg2value = GetRegister(r2);
+                        SetRegister(r2, (Word)((int)reg1value * (int)reg2value));
+                        Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                        break;
+                    case Mnemonic.DIV:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = (Word)((int)regA / (int)ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.DIVR: // format 2
+                        b2 = memory[PC++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        r2 = b2 & 0xf;
+                        reg1value = GetRegister(r1);
+                        reg2value = GetRegister(r2);
+                        SetRegister(r2, (Word)((int)reg1value / (int)reg2value));
+                        Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                        break;
+                    // Bitwise ---------------------------------------------------------
+                    case Mnemonic.AND:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = (Word)((int)regA & (int)ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.OR:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = (Word)((int)regA | (int)ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.SHIFTL:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = (Word)((int)regA << (int)ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.SHIFTR:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = (Word)((int)regA >> (int)ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    // Registers -------------------------------------------------------
+                    case Mnemonic.LDA:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterA = ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.LDB:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterB = ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.LDL:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterL = ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.LDS:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterS = ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.LDT:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterT = ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.LDX:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        RegisterX = ReadWord(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STA:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regA, addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STB:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regB, addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STL:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regL, addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STS:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regS, addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STT:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regT, addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.STX:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regX, addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
                     case Mnemonic.COMPR: // format 2
                         b2 = memory[PC++];
                         r1 = (b2 & 0xf0) >> 4;
                         r2 = b2 & 0xf;
-                        Word reg1value = GetRegister(r1);
-                        Word reg2value = GetRegister(r2);
+                        reg1value = GetRegister(r1);
+                        reg2value = GetRegister(r2);
                         ConditionCode = CompareWords(reg1value, reg2value);
                         Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                         break;
@@ -277,40 +417,46 @@ namespace vsic
                         }
                         Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                         break;
-                    case Mnemonic.LDA:
+                    case Mnemonic.CLEAR: // format 2
+                        b2 = memory[PC++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        SetRegister(r1, Word.Zero);
+                        Logger.Log($"Executed {op.ToString()} {r1}.");
+                        break;
+                    // Flow control ---------------------------------------------------
+                    case Mnemonic.J:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = ReadWord(addr, mode);
+                        PC = (int)DecodeAddress(addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
-                    case Mnemonic.MUL:
+                    case Mnemonic.JEQ:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA * (int)ReadWord(addr, mode));
-                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
-                        break;
-                    case Mnemonic.LDX:
-                        addr = DecodeLongInstruction(b1, out mode);
-                        RegisterX = ReadWord(addr, mode);
-                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
-                        break;
-                    case Mnemonic.ADD:
-                        addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = regA + ReadWord(addr, mode);
-                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
-                        break;
-                    case Mnemonic.STA:
-                        addr = DecodeLongInstruction(b1, out mode);
-                        WriteWord(regA, addr, mode);
-                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
-                        break;
-                    case Mnemonic.STX:
-                        addr = DecodeLongInstruction(b1, out mode);
-                        WriteWord(regX, addr, mode);
+                        if (ConditionCode == ConditionCode.EqualTo)
+                            PC = (int)DecodeAddress(addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.JGT:
                         addr = DecodeLongInstruction(b1, out mode);
                         if (ConditionCode == ConditionCode.GreaterThan)
                             PC = (int)DecodeAddress(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.JLT:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        if (ConditionCode == ConditionCode.LessThan)
+                            PC = (int)DecodeAddress(addr, mode);
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    // Other --------------------------------------------------------
+                    case Mnemonic.COMP:
+                        addr = DecodeLongInstruction(b1, out mode);
+                        ConditionCode = CompareWords(RegisterA, ReadWord(addr, mode));
+                        Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                        break;
+                    case Mnemonic.TIX:
+                        // increment X, then compare it to the operand
+                        addr = DecodeLongInstruction(b1, out mode);
+                        WriteWord(regX, addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                 }
@@ -494,6 +640,9 @@ namespace vsic
             return n;
         }
 
+        /// <summary>
+        /// Helper function to get the value stored in a register from its binary code.
+        /// </summary>
         private Word GetRegister(int r)
         {
             var reg = (Register)r;
@@ -502,12 +651,59 @@ namespace vsic
                 case Register.A:
                     RegisterChanged?.Invoke(reg, false);
                     return regA;
+                case Register.B:
+                    RegisterChanged?.Invoke(reg, false);
+                    return regB;
+                case Register.L:
+                    RegisterChanged?.Invoke(reg, false);
+                    return regL;
+                case Register.S:
+                    RegisterChanged?.Invoke(reg, false);
+                    return regS;
                 case Register.T:
                     RegisterChanged?.Invoke(reg, false);
                     return regT;
                 case Register.X:
                     RegisterChanged?.Invoke(reg, false);
                     return regX;
+            }
+            throw new ArgumentException(nameof(r));
+        }
+
+        /// <summary>
+        /// Helper function to set the value of a register specified by its binart code.
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="value">The value to store in the register.</param>
+        private void SetRegister(int r, Word value)
+        {
+            var reg = (Register)r;
+            switch ((Register)r)
+            {
+                case Register.A:
+                    RegisterChanged?.Invoke(reg, false);
+                    regA = value;
+                    break;
+                case Register.B:
+                    RegisterChanged?.Invoke(reg, false);
+                    regB = value;
+                    break;
+                case Register.L:
+                    RegisterChanged?.Invoke(reg, false);
+                    regL = value;
+                    break;
+                case Register.S:
+                    RegisterChanged?.Invoke(reg, false);
+                    regS = value;
+                    break;
+                case Register.T:
+                    RegisterChanged?.Invoke(reg, false);
+                    regT = value;
+                    break;
+                case Register.X:
+                    RegisterChanged?.Invoke(reg, false);
+                    regX = value;
+                    break;
             }
             throw new ArgumentException(nameof(r));
         }
@@ -666,7 +862,7 @@ namespace vsic
 
         public void MemoryRainbowTest()
         {
-            for (Word i = (Word)0; (int)i < MemorySize; ++i)
+            for (Word i = Word.Zero; (int)i < MemorySize; ++i)
             {
                 WriteByte((byte)i, i);
             }

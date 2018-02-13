@@ -23,9 +23,13 @@ namespace vsic
     {
         // Arithmetic
         ADD = 0x18,
+        ADDR = 0x90,
         SUB = 0x1C,
+        SUBR = 0x94,
         MUL = 0x20,
+        MULR = 0x98,
         DIV = 0x24,
+        DIVR = 0x9C,
 
         // Bitwise
         AND = 0x40,
@@ -38,29 +42,36 @@ namespace vsic
         JEQ = 0x30,
         JGT = 0x34,
         JLT = 0x38,
-        JSUB = 0x48,
-        RSUB = 0x4C,
+        JSUB = 0x48, // not implemented
+        RSUB = 0x4C, // not implemented
 
         // Registers
         LDA = 0x00,
+        LDB = 0x68,
         LDL = 0x08,
+        LDS = 0x6C,
+        LDT = 0x74,
         LDX = 0x04,
         STA = 0x0C,
+        STB = 0x78,
         STL = 0x14,
+        STS = 0X7C,
+        STT = 0x84,
         STX = 0x10,
-        CLEAR = 0xB4,
+        CLEAR = 0xB4, // not implemented
         RMO = 0xAC,
 
         // I/O
-        RD = 0xD8,
-        TD = 0xE0,
-        WD = 0xDC,
-        STCH = 0x54,
+        RD = 0xD8, // not implemented
+        TD = 0xE0, // not implemented
+        WD = 0xDC, // not implemented
+        STCH = 0x54, // not implemented
 
         // Other
-        COMP = 0x28,
         COMPR = 0xA0,
-        TIX = 0x2C
+        COMP = 0x28,
+        TIX = 0x2C, // not implemented
+        TIXR = 0xB8
     }
 
     public enum Flag : byte
