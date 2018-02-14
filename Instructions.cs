@@ -58,7 +58,7 @@ namespace vsic
         STS = 0X7C,
         STT = 0x84,
         STX = 0x10,
-        CLEAR = 0xB4, // not implemented
+        CLEAR = 0xB4,
         RMO = 0xAC,
 
         // I/O
