@@ -79,13 +79,7 @@ namespace vsic
                 if (read != null)
                     read.Dispose();
             }
-            return 0; // Should be unreachable.
-        }
-
-        public void LoadOBJ(string path)
-        {
-            var read = new StreamReader(path);
-
+            return 0; // Reachable only on error.
         }
     }
 }

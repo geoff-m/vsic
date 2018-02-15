@@ -163,8 +163,6 @@ namespace vsic
             int start = (int)addr;
             for (int i = start; i < start + count; ++i)
             {
-                if (i == 16)
-                    Debugger.Break();
                 var newBox = new ByteMarker(i,
                     (int)sess.Machine.InstructionsExecuted,
                     written ? Color.LightGreen : Color.Pink);
@@ -360,6 +358,12 @@ namespace vsic
         {
             sess.Machine.Run();
             UpdateMachineDisplay();
+        }
+
+        WatchForm watchForm = new WatchForm();
+        private void watchesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            watchForm.Show();
         }
     }
 }

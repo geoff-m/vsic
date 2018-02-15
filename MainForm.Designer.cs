@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new vsic.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -58,7 +59,6 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.button7 = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
@@ -86,7 +86,11 @@
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
-            this.hexDisplay = new vsic.HexDisplay();
+            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.watchesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.breakpointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disassemblyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.button7 = new System.Windows.Forms.Button();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.pcGrpBox.SuspendLayout();
@@ -106,6 +110,25 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // regGrpBox
             // 
@@ -369,7 +392,7 @@
             this.toolStripStatusLabel1,
             this.cursorPositionLabel,
             this.selectedBytesLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 726);
+            this.statusStrip.Location = new System.Drawing.Point(0, 739);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1037, 22);
             this.statusStrip.TabIndex = 5;
@@ -395,17 +418,6 @@
             this.selectedBytesLabel.Size = new System.Drawing.Size(90, 17);
             this.selectedBytesLabel.Text = "0 bytes selected";
             this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // button7
-            // 
-            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button7.Enabled = false;
-            this.button7.Location = new System.Drawing.Point(6, 567);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(145, 23);
-            this.button7.TabIndex = 3;
-            this.button7.Text = "Go to Disassembly";
-            this.button7.UseVisualStyleBackColor = true;
             // 
             // checkBox1
             // 
@@ -468,7 +480,8 @@
             // 
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.machineToolStripMenuItem});
+            this.machineToolStripMenuItem,
+            this.debugToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(1037, 24);
@@ -561,6 +574,7 @@
             // 
             this.groupBox1.Controls.Add(this.gotoTB);
             this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.button7);
             this.groupBox1.Enabled = false;
             this.groupBox1.Location = new System.Drawing.Point(12, 27);
             this.groupBox1.Name = "groupBox1";
@@ -653,34 +667,54 @@
             this.openOBJdialog.Filter = "SIC/XE OBJ files (*.obj)|*.obj";
             this.openOBJdialog.SupportMultiDottedExtensions = true;
             // 
-            // hexDisplay
+            // debugToolStripMenuItem
             // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.watchesToolStripMenuItem,
+            this.breakpointsToolStripMenuItem,
+            this.disassemblyToolStripMenuItem});
+            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.debugToolStripMenuItem.Text = "Debug";
+            // 
+            // watchesToolStripMenuItem
+            // 
+            this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.watchesToolStripMenuItem.Text = "Watches";
+            this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
+            // 
+            // breakpointsToolStripMenuItem
+            // 
+            this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.breakpointsToolStripMenuItem.Text = "Breakpoints";
+            // 
+            // disassemblyToolStripMenuItem
+            // 
+            this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.disassemblyToolStripMenuItem.Text = "Disassembly";
+            // 
+            // button7
+            // 
+            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button7.Enabled = false;
+            this.button7.Location = new System.Drawing.Point(6, 180);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(127, 23);
+            this.button7.TabIndex = 3;
+            this.button7.Text = "Go to Disassembly";
+            this.button7.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1037, 748);
+            this.ClientSize = new System.Drawing.Size(1037, 761);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.button7);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.menuStrip);
             this.Controls.Add(this.logBox);
@@ -688,7 +722,7 @@
             this.Controls.Add(this.regGrpBox);
             this.Controls.Add(this.memGrpBox);
             this.MainMenuStrip = this.menuStrip;
-            this.MinimumSize = new System.Drawing.Size(474, 728);
+            this.MinimumSize = new System.Drawing.Size(485, 728);
             this.Name = "MainForm";
             this.Text = "Virtual SIC";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -740,7 +774,6 @@
         private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.Button button7;
         private System.Windows.Forms.CheckBox checkBox4;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBox2;
@@ -774,6 +807,11 @@
         private System.Windows.Forms.OpenFileDialog openOBJdialog;
         private System.Windows.Forms.ComboBox ccCB;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem watchesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem breakpointsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem disassemblyToolStripMenuItem;
+        private System.Windows.Forms.Button button7;
     }
 }
 
