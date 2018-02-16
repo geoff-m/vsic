@@ -283,7 +283,7 @@ namespace vsic
                         break;
                     case Mnemonic.MUL:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA * (int)ReadWord(addr, mode));
+                        RegisterA = (Word)(regA * ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.MULR: // format 2
@@ -292,12 +292,12 @@ namespace vsic
                         r2 = b2 & 0xf;
                         reg1value = GetRegister(r1);
                         reg2value = GetRegister(r2);
-                        SetRegister(r2, (Word)((int)reg1value * (int)reg2value));
+                        SetRegister(r2, (Word)(reg1value * reg2value));
                         Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                         break;
                     case Mnemonic.DIV:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA / (int)ReadWord(addr, mode));
+                        RegisterA = (Word)(regA / ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.DIVR: // format 2
@@ -306,28 +306,28 @@ namespace vsic
                         r2 = b2 & 0xf;
                         reg1value = GetRegister(r1);
                         reg2value = GetRegister(r2);
-                        SetRegister(r2, (Word)((int)reg1value / (int)reg2value));
+                        SetRegister(r2, (Word)(reg1value / reg2value));
                         Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                         break;
                     // Bitwise ---------------------------------------------------------
                     case Mnemonic.AND:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA & (int)ReadWord(addr, mode));
+                        RegisterA = (Word)(regA & ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.OR:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA | (int)ReadWord(addr, mode));
+                        RegisterA = (Word)(regA | ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.SHIFTL:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA << (int)ReadWord(addr, mode));
+                        RegisterA = (Word)(regA << ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.SHIFTR:
                         addr = DecodeLongInstruction(b1, out mode);
-                        RegisterA = (Word)((int)regA >> (int)ReadWord(addr, mode));
+                        RegisterA = (Word)(regA >> ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     // Registers -------------------------------------------------------
@@ -427,25 +427,25 @@ namespace vsic
                     // Flow control ---------------------------------------------------
                     case Mnemonic.J:
                         addr = DecodeLongInstruction(b1, out mode);
-                        PC = (int)DecodeAddress(addr, mode);
+                        PC = DecodeAddress(addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.JEQ:
                         addr = DecodeLongInstruction(b1, out mode);
                         if (ConditionCode == ConditionCode.EqualTo)
-                            PC = (int)DecodeAddress(addr, mode);
+                            PC = DecodeAddress(addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.JGT:
                         addr = DecodeLongInstruction(b1, out mode);
                         if (ConditionCode == ConditionCode.GreaterThan)
-                            PC = (int)DecodeAddress(addr, mode);
+                            PC = DecodeAddress(addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     case Mnemonic.JLT:
                         addr = DecodeLongInstruction(b1, out mode);
                         if (ConditionCode == ConditionCode.LessThan)
-                            PC = (int)DecodeAddress(addr, mode);
+                            PC = DecodeAddress(addr, mode);
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                     // Other --------------------------------------------------------
@@ -457,7 +457,8 @@ namespace vsic
                     case Mnemonic.TIX:
                         // increment X, then compare it to the operand
                         addr = DecodeLongInstruction(b1, out mode);
-                        WriteWord(regX, addr, mode);
+                        ++regX;
+                        ConditionCode = CompareWords(RegisterX, ReadWord(RegisterX, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                 }

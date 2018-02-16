@@ -59,7 +59,7 @@ namespace vsic
                             (byte)((n & 0xff0000) >> 16));
         }
 
-        public static explicit operator int(Word w)
+        public static implicit operator int(Word w)
         {
             return w.Low | w.Middle << 8 | w.High << 16;
         }
