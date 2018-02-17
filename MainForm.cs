@@ -75,8 +75,10 @@ namespace vsic
                 return;
             }
             logBox.SelectionColor = COLOR_DEFAULT;
-            logBox.AppendText(string.Format(str, args));
-            logBox.AppendText("\n");
+            string s = string.Format(str, args);
+            Debug.WriteLine(s);
+            logBox.AppendText(s);
+            logBox.AppendText("\n");            
 
             // Scroll to bottom.
             logBox.SelectionStart = logBox.Text.Length;
@@ -91,7 +93,9 @@ namespace vsic
                 return;
             }
             logBox.SelectionColor = COLOR_ERROR;
-            logBox.AppendText(string.Format(str, args));
+            string s = string.Format(str, args);
+            Debug.WriteLine(s);
+            logBox.AppendText(s);
             logBox.AppendText("\n");
 
             // Scroll to bottom.

@@ -77,20 +77,21 @@
             this.loadMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.watchesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.breakpointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disassemblyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.gotoTB = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.button7 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.utf8RB = new System.Windows.Forms.RadioButton();
             this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
-            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.watchesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.breakpointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.disassemblyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.button7 = new System.Windows.Forms.Button();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.pcGrpBox.SuspendLayout();
@@ -99,12 +100,18 @@
             this.menuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // memGrpBox
             // 
+            this.memGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.memGrpBox.Controls.Add(this.hexDisplay);
-            this.memGrpBox.Location = new System.Drawing.Point(163, 27);
+            this.memGrpBox.Location = new System.Drawing.Point(159, 6);
             this.memGrpBox.Name = "memGrpBox";
             this.memGrpBox.Size = new System.Drawing.Size(698, 572);
             this.memGrpBox.TabIndex = 0;
@@ -149,7 +156,7 @@
             this.regGrpBox.Controls.Add(this.regFTB);
             this.regGrpBox.Controls.Add(this.label3);
             this.regGrpBox.Controls.Add(this.regBTB);
-            this.regGrpBox.Location = new System.Drawing.Point(874, 27);
+            this.regGrpBox.Location = new System.Drawing.Point(867, 6);
             this.regGrpBox.Name = "regGrpBox";
             this.regGrpBox.Size = new System.Drawing.Size(151, 238);
             this.regGrpBox.TabIndex = 1;
@@ -308,7 +315,7 @@
             this.pcGrpBox.Controls.Add(this.stepButton);
             this.pcGrpBox.Controls.Add(this.pcTB);
             this.pcGrpBox.Controls.Add(this.label2);
-            this.pcGrpBox.Location = new System.Drawing.Point(874, 271);
+            this.pcGrpBox.Location = new System.Drawing.Point(867, 250);
             this.pcGrpBox.Name = "pcGrpBox";
             this.pcGrpBox.Size = new System.Drawing.Size(151, 166);
             this.pcGrpBox.TabIndex = 3;
@@ -376,13 +383,12 @@
             // 
             // logBox
             // 
-            this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.logBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.logBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logBox.Location = new System.Drawing.Point(0, 596);
+            this.logBox.Location = new System.Drawing.Point(0, 0);
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
-            this.logBox.Size = new System.Drawing.Size(1037, 127);
+            this.logBox.Size = new System.Drawing.Size(1046, 129);
             this.logBox.TabIndex = 4;
             this.logBox.Text = "";
             // 
@@ -394,13 +400,13 @@
             this.selectedBytesLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 739);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1037, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1046, 22);
             this.statusStrip.TabIndex = 5;
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(908, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(917, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Loading...";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -465,7 +471,7 @@
             this.groupBox3.Controls.Add(this.checkBox3);
             this.groupBox3.Controls.Add(this.button8);
             this.groupBox3.Enabled = false;
-            this.groupBox3.Location = new System.Drawing.Point(6, 369);
+            this.groupBox3.Location = new System.Drawing.Point(8, 347);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(145, 139);
             this.groupBox3.TabIndex = 0;
@@ -484,7 +490,7 @@
             this.debugToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1037, 24);
+            this.menuStrip.Size = new System.Drawing.Size(1046, 24);
             this.menuStrip.TabIndex = 6;
             this.menuStrip.Text = "menuStrip1";
             // 
@@ -504,31 +510,31 @@
             // loadSessionToolStripMenuItem
             // 
             this.loadSessionToolStripMenuItem.Name = "loadSessionToolStripMenuItem";
-            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.loadSessionToolStripMenuItem.Text = "New";
             // 
             // saveSessionToolStripMenuItem
             // 
             this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveSessionToolStripMenuItem.Text = "Load...";
             // 
             // revertToolStripMenuItem
             // 
             this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-            this.revertToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.revertToolStripMenuItem.Text = "Revert";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             // 
             // machineToolStripMenuItem
@@ -570,13 +576,42 @@
             this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
             // 
+            // debugToolStripMenuItem
+            // 
+            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.watchesToolStripMenuItem,
+            this.breakpointsToolStripMenuItem,
+            this.disassemblyToolStripMenuItem});
+            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.debugToolStripMenuItem.Text = "Debug";
+            // 
+            // watchesToolStripMenuItem
+            // 
+            this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.watchesToolStripMenuItem.Text = "Watches";
+            this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
+            // 
+            // breakpointsToolStripMenuItem
+            // 
+            this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.breakpointsToolStripMenuItem.Text = "Breakpoints";
+            // 
+            // disassemblyToolStripMenuItem
+            // 
+            this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.disassemblyToolStripMenuItem.Text = "Disassembly";
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.gotoTB);
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.button7);
             this.groupBox1.Enabled = false;
-            this.groupBox1.Location = new System.Drawing.Point(12, 27);
+            this.groupBox1.Location = new System.Drawing.Point(14, 5);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(139, 214);
             this.groupBox1.TabIndex = 7;
@@ -601,15 +636,26 @@
             this.label9.TabIndex = 0;
             this.label9.Text = "Go to";
             // 
+            // button7
+            // 
+            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button7.Enabled = false;
+            this.button7.Location = new System.Drawing.Point(6, 180);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(127, 23);
+            this.button7.TabIndex = 3;
+            this.button7.Text = "Go to Disassembly";
+            this.button7.UseVisualStyleBackColor = true;
+            // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.radioButton3);
             this.groupBox4.Controls.Add(this.utf8RB);
             this.groupBox4.Controls.Add(this.radioButton4);
             this.groupBox4.Controls.Add(this.rawRB);
-            this.groupBox4.Location = new System.Drawing.Point(12, 247);
+            this.groupBox4.Location = new System.Drawing.Point(8, 225);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(139, 116);
+            this.groupBox4.Size = new System.Drawing.Size(145, 116);
             this.groupBox4.TabIndex = 8;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Decoding";
@@ -667,60 +713,38 @@
             this.openOBJdialog.Filter = "SIC/XE OBJ files (*.obj)|*.obj";
             this.openOBJdialog.SupportMultiDottedExtensions = true;
             // 
-            // debugToolStripMenuItem
+            // splitContainer1
             // 
-            this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.watchesToolStripMenuItem,
-            this.breakpointsToolStripMenuItem,
-            this.disassemblyToolStripMenuItem});
-            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
-            this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
-            this.debugToolStripMenuItem.Text = "Debug";
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // watchesToolStripMenuItem
+            // splitContainer1.Panel1
             // 
-            this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.watchesToolStripMenuItem.Text = "Watches";
-            this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
+            this.splitContainer1.Panel1.Controls.Add(this.regGrpBox);
+            this.splitContainer1.Panel1.Controls.Add(this.groupBox4);
+            this.splitContainer1.Panel1.Controls.Add(this.memGrpBox);
+            this.splitContainer1.Panel1.Controls.Add(this.groupBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.pcGrpBox);
+            this.splitContainer1.Panel1.Controls.Add(this.groupBox3);
             // 
-            // breakpointsToolStripMenuItem
+            // splitContainer1.Panel2
             // 
-            this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.breakpointsToolStripMenuItem.Text = "Breakpoints";
-            // 
-            // disassemblyToolStripMenuItem
-            // 
-            this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.disassemblyToolStripMenuItem.Text = "Disassembly";
-            // 
-            // button7
-            // 
-            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button7.Enabled = false;
-            this.button7.Location = new System.Drawing.Point(6, 180);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(127, 23);
-            this.button7.TabIndex = 3;
-            this.button7.Text = "Go to Disassembly";
-            this.button7.UseVisualStyleBackColor = true;
+            this.splitContainer1.Panel2.Controls.Add(this.logBox);
+            this.splitContainer1.Size = new System.Drawing.Size(1046, 715);
+            this.splitContainer1.SplitterDistance = 580;
+            this.splitContainer1.SplitterWidth = 6;
+            this.splitContainer1.TabIndex = 0;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1037, 761);
-            this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.groupBox3);
+            this.ClientSize = new System.Drawing.Size(1046, 761);
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.menuStrip);
-            this.Controls.Add(this.logBox);
-            this.Controls.Add(this.pcGrpBox);
-            this.Controls.Add(this.regGrpBox);
-            this.Controls.Add(this.memGrpBox);
             this.MainMenuStrip = this.menuStrip;
             this.MinimumSize = new System.Drawing.Size(485, 728);
             this.Name = "MainForm";
@@ -742,6 +766,10 @@
             this.groupBox1.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -812,6 +840,7 @@
         private System.Windows.Forms.ToolStripMenuItem breakpointsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disassemblyToolStripMenuItem;
         private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
 

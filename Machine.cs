@@ -409,6 +409,15 @@ namespace vsic
                             case Register.A:
                                 RegisterA = GetRegister(r1);
                                 break;
+                            case Register.B:
+                                RegisterB = GetRegister(r1);
+                                break;
+                            case Register.L:
+                                RegisterL = GetRegister(r1);
+                                break;
+                            case Register.S:
+                                RegisterS = GetRegister(r1);
+                                break;
                             case Register.T:
                                 RegisterT = GetRegister(r1);
                                 break;
@@ -422,7 +431,15 @@ namespace vsic
                         b2 = memory[PC++];
                         r1 = (b2 & 0xf0) >> 4;
                         SetRegister(r1, Word.Zero);
-                        Logger.Log($"Executed {op.ToString()} {r1}.");
+                        Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
+                        break;
+                    case Mnemonic.TIXR: // format 2
+                        b2 = memory[PC++];
+                        r1 = (b2 & 0xf0) >> 4;
+                        // increment X, then compare it to the operand
+                        ++regX;
+                        ConditionCode = CompareWords(RegisterX, GetRegister(r1));
+                        Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
                         break;
                     // Flow control ---------------------------------------------------
                     case Mnemonic.J:
@@ -516,7 +533,7 @@ namespace vsic
                     return (Word)((b2 & ~0x8) << 7 | memory[PC++]);
                 }
                 indirection = AddressingMode.Simple;
-                return (Word)((int)regX + (b2 & ~0x8) << 7 | memory[PC++]);
+                return (Word)(regX + (b2 & ~0x8) << 7 | memory[PC++]);
             }
             flags |= (byte)((b2 & 0xf0) >> 4);
             int disp;
@@ -535,38 +552,30 @@ namespace vsic
                     // "For PC-relative addressing, [the disp] is interpreted as a 12-bit signed integer." (p. 9)
                     Debug.WriteLine("pc + disp");
                     indirection = AddressingMode.Simple;
-                    byte top4 = (byte)(b2 & 0xf);
-                    byte bottom8 = memory[PC++];
-                    disp = top4 << 8;
-                    disp |= bottom8;
-                    disp = DecodeTwosComplement(disp, 12);
+                    disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b110100: // (B) + disp
                     // "For base relative addressing, the displacement field disp in a Format 3 instruction is interpreted as a 12-bit unsigned integer." (p. 9)
                     Debug.WriteLine("b + disp");
                     indirection = AddressingMode.Simple;
-                    return (Word)((int)regB + ((b2 & 0xf) << 8) | memory[PC++]);
+                    return (Word)(regB + ((b2 & 0xf) << 8 | memory[PC++]));
                 case 0b111000: // disp + (X)
                     Debug.WriteLine("disp + x");
                     indirection = AddressingMode.Simple;
-                    return (Word)((int)regX + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b111001: // addr + (X) (format 4)
                     Debug.WriteLine("addr + x");
                     indirection = AddressingMode.Simple;
-                    return (Word)((int)regX + (b2 & 0xf) | memory[PC++] << 8 | memory[PC++]);
-
+                    return (Word)(regX + (b2 & 0xf | memory[PC++] << 8 | memory[PC++]));
                 case 0b111010: // (PC) + disp + (X)
                     Debug.WriteLine("pc + disp + x");
                     indirection = AddressingMode.Simple;
-                    disp = (b2 & 0xf) << 8;
-                    disp |= memory[PC++];
-                    disp = DecodeTwosComplement(disp, 12);
-                    return (Word)(PC + (int)regX + disp);
-
+                    disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
+                    return (Word)(PC + regX + disp);
                 case 0b111100: // (B) + disp + (X)
                     Debug.WriteLine("b + disp + x");
                     indirection = AddressingMode.Simple;
-                    return (Word)((int)regB + (int)regX + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(regB + regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100000: // disp
                     Debug.WriteLine("disp (indirect)");
                     indirection = AddressingMode.Indirect;
@@ -578,18 +587,16 @@ namespace vsic
                 case 0b100010: // (PC) + disp
                     Debug.WriteLine("pc + disp (indirect)");
                     indirection = AddressingMode.Indirect;
-                    disp = (b2 & 0xf) << 8;
-                    disp |= memory[PC++];
-                    disp = DecodeTwosComplement(disp, 12);
+                    disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b100100: // (B) + disp
                     Debug.WriteLine("b + disp (indirect)");
                     indirection = AddressingMode.Indirect;
-                    return (Word)((int)regB + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010000: // disp
                     Debug.WriteLine("disp (immediate)");
                     indirection = AddressingMode.Immediate;
-                    return (Word)((b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                 case 0b010001: // addr (format 4)
                     Debug.WriteLine("addr (immediate)");
                     indirection = AddressingMode.Immediate;
@@ -597,14 +604,12 @@ namespace vsic
                 case 0b010010: // (PC) + disp
                     Debug.WriteLine("pc + disp (immediate)");
                     indirection = AddressingMode.Immediate;
-                    disp = (b2 & 0xf) << 8;
-                    disp |= memory[PC++];
-                    disp = DecodeTwosComplement(disp, 12);
+                    disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b010100: // (B) + disp
                     Debug.WriteLine("b + disp (immediate)");
                     indirection = AddressingMode.Immediate;
-                    return (Word)((int)regB + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
             }
             throw new IllegalInstructionException((Word)oldPC);
         }
@@ -683,31 +688,27 @@ namespace vsic
             switch ((Register)r)
             {
                 case Register.A:
-                    RegisterChanged?.Invoke(reg, false);
                     regA = value;
                     break;
                 case Register.B:
-                    RegisterChanged?.Invoke(reg, false);
                     regB = value;
                     break;
                 case Register.L:
-                    RegisterChanged?.Invoke(reg, false);
                     regL = value;
                     break;
                 case Register.S:
-                    RegisterChanged?.Invoke(reg, false);
                     regS = value;
                     break;
                 case Register.T:
-                    RegisterChanged?.Invoke(reg, false);
                     regT = value;
                     break;
                 case Register.X:
-                    RegisterChanged?.Invoke(reg, false);
                     regX = value;
                     break;
+                default:
+                    throw new ArgumentException(nameof(r));
             }
-            throw new ArgumentException(nameof(r));
+            RegisterChanged?.Invoke(reg, true);
         }
 
         public enum RunResult
@@ -802,9 +803,13 @@ namespace vsic
                     blockAddr = (Word)Convert.ToInt32(line, 16);
                     Debug.WriteLine($"Block {block}'s base address is {blockAddr}.");
 
+                    // Discard first line of non-final block. (?)
+                    line = read.ReadLine().Trim().ToLower();
+                    Debug.Assert(line == "000000");
+
                     line = read.ReadLine().Trim().ToLower();
                     ++lineCount;
-                    do
+                    while (line != "!")
                     {
                         Debug.WriteLine($"Code/data in block {block}: {line}");
                         // Pair will always succeeded (i.e. find an even number of digits) for files assembled by sicasm.
@@ -815,7 +820,7 @@ namespace vsic
 
                         line = read.ReadLine().Trim().ToLower();
                         ++lineCount;
-                    } while (line != "!");
+                    }
                 }
 
                 // Load final block.
@@ -840,6 +845,7 @@ namespace vsic
                     }
                 }
                 PC = entryPoint;
+            #if !DEBUG
             }
             catch (Exception ex)
             {
@@ -853,6 +859,7 @@ namespace vsic
                 {
                     throw;
                 }
+#endif
             }
             finally
             {
