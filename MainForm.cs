@@ -56,12 +56,24 @@ namespace vsic
         Session sess;
         private void Form1_Load(object sender, EventArgs e)
         {
+            CreateNewSession();
+        }
+
+        private void CreateNewSession()
+        {
             sess = new Session();
             sess.Logger = this;
 
             Log("Created new SIC/XE machine.");
+            InitializeMachineDisplay();
             UpdateMachineDisplay();
             SetStatusMessage("Ready");
+        }
+
+        private void UnloadSession()
+        {
+            sess.Machine.MemoryChanged -= OnMemoryChanged;
+            sess.Machine.RegisterChanged -= OnRegisterChanged;
         }
 
         #region ILogSink implementation
@@ -154,6 +166,8 @@ namespace vsic
                 sess.Machine.RegisterChanged += OnRegisterChanged;
             }
 
+            hexDisplay.Boxes.Clear();
+
             pcMarker = new ByteMarker((int)sess.Machine.ProgramCounter,
                 (int)sess.Machine.InstructionsExecuted,
                 PC_MARKER_COLOR,
@@ -212,17 +226,12 @@ namespace vsic
         }
 
         ByteMarker pcMarker;
-        bool everUpdated = false;
         private void UpdateMachineDisplay()
         {
             if (InvokeRequired)
             {
                 Invoke(new Action(() => UpdateMachineDisplay()));
                 return;
-            }
-            if (!everUpdated)
-            {
-                InitializeMachineDisplay();
             }
 
             // Update labels.
@@ -263,8 +272,6 @@ namespace vsic
 
             // Update memory display.
             hexDisplay.Invalidate();
-
-            everUpdated = true;
         }
 
         private void OnResize(object sender, EventArgs e)
@@ -367,6 +374,17 @@ namespace vsic
         private void watchesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             watchForm.Show();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void newMachineToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UnloadSession();
+            CreateNewSession();
         }
     }
 }
