@@ -475,7 +475,7 @@ namespace vsic
                         // increment X, then compare it to the operand
                         addr = DecodeLongInstruction(b1, out mode);
                         ++regX;
-                        ConditionCode = CompareWords(RegisterX, ReadWord(RegisterX, mode));
+                        ConditionCode = CompareWords(RegisterX, ReadWord(addr, mode));
                         Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                         break;
                 }

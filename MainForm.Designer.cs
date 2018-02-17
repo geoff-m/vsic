@@ -156,7 +156,7 @@
             this.regGrpBox.Controls.Add(this.regFTB);
             this.regGrpBox.Controls.Add(this.label3);
             this.regGrpBox.Controls.Add(this.regBTB);
-            this.regGrpBox.Location = new System.Drawing.Point(867, 6);
+            this.regGrpBox.Location = new System.Drawing.Point(863, 6);
             this.regGrpBox.Name = "regGrpBox";
             this.regGrpBox.Size = new System.Drawing.Size(151, 238);
             this.regGrpBox.TabIndex = 1;
@@ -247,7 +247,7 @@
             // 
             this.regTTB.Enabled = false;
             this.regTTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.regTTB.Location = new System.Drawing.Point(32, 45);
+            this.regTTB.Location = new System.Drawing.Point(32, 71);
             this.regTTB.Name = "regTTB";
             this.regTTB.Size = new System.Drawing.Size(71, 24);
             this.regTTB.TabIndex = 5;
@@ -265,7 +265,7 @@
             // 
             this.regXTB.Enabled = false;
             this.regXTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.regXTB.Location = new System.Drawing.Point(32, 71);
+            this.regXTB.Location = new System.Drawing.Point(32, 45);
             this.regXTB.Name = "regXTB";
             this.regXTB.Size = new System.Drawing.Size(71, 24);
             this.regXTB.TabIndex = 6;
@@ -273,7 +273,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 76);
+            this.label4.Location = new System.Drawing.Point(14, 51);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(14, 13);
             this.label4.TabIndex = 11;
@@ -291,7 +291,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 50);
+            this.label3.Location = new System.Drawing.Point(14, 78);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 10;
@@ -315,7 +315,7 @@
             this.pcGrpBox.Controls.Add(this.stepButton);
             this.pcGrpBox.Controls.Add(this.pcTB);
             this.pcGrpBox.Controls.Add(this.label2);
-            this.pcGrpBox.Location = new System.Drawing.Point(867, 250);
+            this.pcGrpBox.Location = new System.Drawing.Point(863, 256);
             this.pcGrpBox.Name = "pcGrpBox";
             this.pcGrpBox.Size = new System.Drawing.Size(151, 166);
             this.pcGrpBox.TabIndex = 3;
@@ -388,7 +388,7 @@
             this.logBox.Location = new System.Drawing.Point(0, 0);
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
-            this.logBox.Size = new System.Drawing.Size(1046, 129);
+            this.logBox.Size = new System.Drawing.Size(1026, 129);
             this.logBox.TabIndex = 4;
             this.logBox.Text = "";
             // 
@@ -400,13 +400,13 @@
             this.selectedBytesLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 739);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(1046, 22);
+            this.statusStrip.Size = new System.Drawing.Size(1026, 22);
             this.statusStrip.TabIndex = 5;
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(917, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(897, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Loading...";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -490,7 +490,7 @@
             this.debugToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1046, 24);
+            this.menuStrip.Size = new System.Drawing.Size(1026, 24);
             this.menuStrip.TabIndex = 6;
             this.menuStrip.Text = "menuStrip1";
             // 
@@ -732,7 +732,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.logBox);
-            this.splitContainer1.Size = new System.Drawing.Size(1046, 715);
+            this.splitContainer1.Size = new System.Drawing.Size(1026, 715);
             this.splitContainer1.SplitterDistance = 580;
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
@@ -741,7 +741,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1046, 761);
+            this.ClientSize = new System.Drawing.Size(1026, 761);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.menuStrip);

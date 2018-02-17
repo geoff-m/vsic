@@ -270,7 +270,6 @@ namespace vsic
         private void OnResize(object sender, EventArgs e)
         {
             memGrpBox.Width = regGrpBox.Location.X - memGrpBox.Location.X - 10;
-            memGrpBox.Height = logBox.Location.Y - memGrpBox.Location.Y - 10;
         }
 
         private void gotoTB_TextChanged(object sender, EventArgs e)
