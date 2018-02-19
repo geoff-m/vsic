@@ -1,0 +1,37 @@
+﻿
+line format in LST file:
+
+[Line number]-     [Address]     {Object code}     {Label}     [Operation/Directive]     {Operand/Argument}	{Comment}
+
+Line number
+	Padded to 3 (decimal?) digits
+	Begins at 1
+
+
+Address
+	Hexadecimal
+	Padded to 6 digits
+
+Object code
+	May or may not be present.
+	A hexadecimal number.
+
+Label
+	May or may not be present.
+	Arbitrary non-space characters?
+
+Operation
+	A known operation mnemonic.
+
+Directive
+	A known assembler directive.
+
+Operand
+	An operand whose presence depends on the operation. That is, only a certain set of operations take an operand.
+
+Argument
+	An argument to an assembler directive whose meaning depends on the directive.
+
+Comment
+	May or may not be present.
+	Consists of all characters to the end of the line.

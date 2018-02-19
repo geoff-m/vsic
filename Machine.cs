@@ -897,24 +897,15 @@ namespace vsic
 
                     var tokens = splitter.Split(line, 6, expectedLineStart.Length - 1);
 
+                    // The first token after start of line must be address. (Every line has an address.)
                     int addr;
                     if (!int.TryParse(tokens[1], out addr))
                     {
-                        Logger.LogError($"Error loading \"{path}\": cannot parse address field on line {lineCount}: {line}");
+                        Logger.LogError($"Error loading \"{path}\": cannot parse address \"{tokens[1]}\" on line {lineCount}: {line}");
                         return;
                     }
 
-                    // let's assume labels cannot be entirely numbers.
-                    if (allDigits.IsMatch(tokens[2]))
-                    {
-                        // We assume it's object code.
-
-                    }
-                    else
-                    {
-                        // We assume it's a label or an assembler directive.
-
-                    }
+        
 
                 }
 
