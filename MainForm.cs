@@ -386,5 +386,19 @@ namespace vsic
             UnloadSession();
             CreateNewSession();
         }
+
+        private void loadLstToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var res = openLSTdialog.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                sess.Machine.LoadLst(openLSTdialog.FileName);
+
+                // Remove all temporary markers.
+                hexDisplay.Boxes.Clear();
+
+                UpdateMachineDisplay();
+            }
+        }
     }
 }

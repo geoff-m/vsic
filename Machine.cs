@@ -805,7 +805,7 @@ namespace vsic
 
                     // Discard first line of non-final block. (?)
                     line = read.ReadLine().Trim().ToLower();
-                    Debug.Assert(line == "000000");
+                    Debug.Assert(line == "000000", "Unexpected obj file format");
 
                     line = read.ReadLine().Trim().ToLower();
                     ++lineCount;
@@ -845,7 +845,7 @@ namespace vsic
                     }
                 }
                 PC = entryPoint;
-            #if !DEBUG
+#if !DEBUG
             }
             catch (Exception ex)
             {
@@ -875,27 +875,60 @@ namespace vsic
         /// <param name="path"></param>
         public void LoadLst(string path)
         {
+            // Let's care about only those lines that sicasm has formatted with a line number.
+            // This method begins parsing by finding the first line number in the file, 001.
+
             StreamReader read = null;
-            int lineCount = 0;
+            int lineCount = 1; // Let this represent not the line in the file, but rather just the numbered line we're on.
             var splitter = new Regex(@"\s+");
             var allDigits = new Regex(@"\d+");
             try
             {
                 read = new StreamReader(path);
                 string expectedLineStart;
-                string line;
+                string line = null;
 
-                while (!read.EndOfStream)
+                expectedLineStart = $"{lineCount.ToString().PadLeft(3, '0')}-";
+                // Look for the line that starts with this token ("001-")
+                bool foundStart = false;
+                while (!read.EndOfStream && !foundStart)
                 {
-                    expectedLineStart = $"{lineCount.ToString().PadLeft(3, '0')}- ";
+
                     line = read.ReadLine().Trim();
+                    if (line.StartsWith(expectedLineStart))
+                    {
+                        foundStart = true;
+                        break;
+                    }
+                }
+                if (!foundStart)
+                {
+                    Logger.LogError($"Error loading \"{path}\": Could not find first line number on any line (\"001-\").");
+                    return;
+                }
+
+                bool searchingForLine = false; // To suppress repeated "wrong line number" messages.
+                while (true)
+                {
                     if (!line.StartsWith(expectedLineStart))
                     {
-                        Logger.LogError($"Error loading \"{path}\": Expected line to {lineCount} to start with \"{expectedLineStart}\" but got \"{line}\".");
-                        return; // Just abort if we don't see the line number we expect.
+                        if (!searchingForLine)
+                            Logger.LogError($"Error loading \"{path}\": Expected line to {lineCount} to start with \"{expectedLineStart}\" but got \"{line}\".");
+                        if (read.TryReadLine(out line))
+                        {
+                            // Try checking the next line for the line number we expect.
+                            searchingForLine = true;
+                            line = read.ReadLine().Trim();
+                            continue;
+                        }
+                        else
+                            return;
                     }
+                    searchingForLine = false;
 
-                    var tokens = splitter.Split(line, 6, expectedLineStart.Length - 1);
+                    var tokens = splitter.Split(line, 
+                                                    7, // maximum number of splits.
+                                                    expectedLineStart.Length - 1); // start index.
 
                     // The first token after start of line must be address. (Every line has an address.)
                     int addr;
@@ -905,10 +938,13 @@ namespace vsic
                         return;
                     }
 
-        
 
+
+
+                    ++lineCount;
+                    expectedLineStart = $"{lineCount.ToString().PadLeft(3, '0')}- ";
+                    line = read.ReadLine().Trim();
                 }
-
             }
             catch (Exception ex)
             {
