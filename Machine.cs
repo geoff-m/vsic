@@ -939,8 +939,6 @@ namespace vsic
                     }
 
 
-
-
                     ++lineCount;
                     expectedLineStart = $"{lineCount.ToString().PadLeft(3, '0')}- ";
                     line = read.ReadLine().Trim();

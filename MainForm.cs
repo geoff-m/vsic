@@ -20,37 +20,42 @@ namespace vsic
             ccCB.Items.Add("Less than");
             ccCB.Items.Add("Equal to");
             ccCB.Items.Add("Greater than");
+
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            switch (keyData)
+            if (hexDisplayFocused)
             {
-                case Keys.Up:
-                    hexDisplay.MoveCursorUp();
-                    break;
-                case Keys.Down:
-                    hexDisplay.MoveCursorDown();
-                    break;
-                case Keys.Left:
-                case Keys.Back: // Backspace.
-                    hexDisplay.MoveCursorLeft();
-                    break;
-                case Keys.Right:
-                    hexDisplay.MoveCursorRight();
-                    break;
-                case Keys.Home:
-                    hexDisplay.MoveCursorHome();
-                    break;
-                case Keys.End:
-                    hexDisplay.MoveCursorEnd();
-                    break;
-                default:
-                    return base.ProcessCmdKey(ref msg, keyData);
-            }
+                switch (keyData)
+                {
+                    case Keys.Up:
+                        hexDisplay.MoveCursorUp();
+                        break;
+                    case Keys.Down:
+                        hexDisplay.MoveCursorDown();
+                        break;
+                    case Keys.Left:
+                    case Keys.Back: // Backspace.
+                        hexDisplay.MoveCursorLeft();
+                        break;
+                    case Keys.Right:
+                        hexDisplay.MoveCursorRight();
+                        break;
+                    case Keys.Home:
+                        hexDisplay.MoveCursorHome();
+                        break;
+                    case Keys.End:
+                        hexDisplay.MoveCursorEnd();
+                        break;
+                    default:
+                        return base.ProcessCmdKey(ref msg, keyData);
+                }
 
-            hexDisplay.Invalidate();
-            return true;
+                hexDisplay.Invalidate();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         Session sess;
@@ -90,7 +95,7 @@ namespace vsic
             string s = string.Format(str, args);
             Debug.WriteLine(s);
             logBox.AppendText(s);
-            logBox.AppendText("\n");            
+            logBox.AppendText("\n");
 
             // Scroll to bottom.
             logBox.SelectionStart = logBox.Text.Length;
@@ -174,6 +179,7 @@ namespace vsic
                 false,
                 PC_MARKER_ID);
 
+            ResetTextboxColors();
         }
 
         private void OnMemoryChanged(Word addr, int count, bool written)
@@ -225,6 +231,18 @@ namespace vsic
             }
         }
 
+        private void ResetTextboxColors()
+        {
+            regATB.BackColor = SystemColors.Window;
+            regXTB.BackColor = SystemColors.Window;
+            regLTB.BackColor = SystemColors.Window;
+            pcTB.BackColor = SystemColors.Window;
+            ccCB.BackColor = SystemColors.Window;
+            regBTB.BackColor = SystemColors.Window;
+            regSTB.BackColor = SystemColors.Window;
+            regTTB.BackColor = SystemColors.Window;
+        }
+
         ByteMarker pcMarker;
         private void UpdateMachineDisplay()
         {
@@ -259,11 +277,11 @@ namespace vsic
 
             // Cull old markers.
             int instr = (int)m.InstructionsExecuted;
-            int removed = hexDisplay.Boxes.RemoveWhere(bm => (instr - bm.Timestamp)  > 1);
+            int removed = hexDisplay.Boxes.RemoveWhere(bm => (instr - bm.Timestamp) > 1);
             //Debug.WriteLine($"Removed {removed} markers.");
 
             // Update program counter marker.
-            pcMarker = new ByteMarker((int)m.ProgramCounter,
+            pcMarker = new ByteMarker(m.ProgramCounter,
                 instr - 1,
                 PC_MARKER_COLOR,
                 false,
@@ -339,21 +357,14 @@ namespace vsic
                 // Remove all temporary markers.
                 hexDisplay.Boxes.Clear();
 
+                ResetTextboxColors();
+
                 UpdateMachineDisplay();
             }
         }
 
         private void stepButton_Click(object sender, EventArgs e)
         {
-            regATB.BackColor = SystemColors.Control;
-            regXTB.BackColor = SystemColors.Control;
-            regLTB.BackColor = SystemColors.Control;
-            pcTB.BackColor = SystemColors.Control;
-            ccCB.BackColor = SystemColors.Control;
-            regBTB.BackColor = SystemColors.Control;
-            regSTB.BackColor = SystemColors.Control;
-            regTTB.BackColor = SystemColors.Control;
-
             var res = sess.Machine.Step();
             switch (res)
             {
@@ -399,6 +410,23 @@ namespace vsic
 
                 UpdateMachineDisplay();
             }
+        }
+
+        private void onPCtbKeyPress(object sender, KeyPressEventArgs e)
+        {
+            char c = e.KeyChar;
+            Debug.WriteLine($"key char: '{c}' ({((int)c).ToString("X")})");
+        }
+
+        bool hexDisplayFocused;
+        private void onHexDisplayFocus(object sender, EventArgs e)
+        {
+            hexDisplayFocused = true;
+        }
+
+        private void onHexDisplayBlur(object sender, EventArgs e)
+        {
+            hexDisplayFocused = false;
         }
     }
 }

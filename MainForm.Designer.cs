@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new vsic.HexDisplay();
             this.regGrpBox = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -73,6 +74,7 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.machineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadOBJToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadLstToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMemoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,9 +93,7 @@
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.loadLstToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
-            this.hexDisplay = new vsic.HexDisplay();
             this.memGrpBox.SuspendLayout();
             this.regGrpBox.SuspendLayout();
             this.pcGrpBox.SuspendLayout();
@@ -119,6 +119,27 @@
             this.memGrpBox.TabIndex = 0;
             this.memGrpBox.TabStop = false;
             this.memGrpBox.Text = "Memory";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // regGrpBox
             // 
@@ -177,6 +198,7 @@
             this.regSTB.Enabled = false;
             this.regSTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regSTB.Location = new System.Drawing.Point(32, 123);
+            this.regSTB.MaxLength = 6;
             this.regSTB.Name = "regSTB";
             this.regSTB.Size = new System.Drawing.Size(71, 24);
             this.regSTB.TabIndex = 9;
@@ -186,6 +208,7 @@
             this.regLTB.Enabled = false;
             this.regLTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regLTB.Location = new System.Drawing.Point(32, 149);
+            this.regLTB.MaxLength = 6;
             this.regLTB.Name = "regLTB";
             this.regLTB.Size = new System.Drawing.Size(71, 24);
             this.regLTB.TabIndex = 15;
@@ -213,6 +236,7 @@
             this.regATB.Enabled = false;
             this.regATB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regATB.Location = new System.Drawing.Point(32, 19);
+            this.regATB.MaxLength = 6;
             this.regATB.Name = "regATB";
             this.regATB.Size = new System.Drawing.Size(71, 24);
             this.regATB.TabIndex = 4;
@@ -231,6 +255,7 @@
             this.regTTB.Enabled = false;
             this.regTTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regTTB.Location = new System.Drawing.Point(32, 71);
+            this.regTTB.MaxLength = 6;
             this.regTTB.Name = "regTTB";
             this.regTTB.Size = new System.Drawing.Size(71, 24);
             this.regTTB.TabIndex = 5;
@@ -249,6 +274,7 @@
             this.regXTB.Enabled = false;
             this.regXTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regXTB.Location = new System.Drawing.Point(32, 45);
+            this.regXTB.MaxLength = 6;
             this.regXTB.Name = "regXTB";
             this.regXTB.Size = new System.Drawing.Size(71, 24);
             this.regXTB.TabIndex = 6;
@@ -285,6 +311,7 @@
             this.regBTB.Enabled = false;
             this.regBTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regBTB.Location = new System.Drawing.Point(32, 97);
+            this.regBTB.MaxLength = 6;
             this.regBTB.Name = "regBTB";
             this.regBTB.Size = new System.Drawing.Size(71, 24);
             this.regBTB.TabIndex = 8;
@@ -348,12 +375,13 @@
             // 
             // pcTB
             // 
-            this.pcTB.Enabled = false;
             this.pcTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.pcTB.Location = new System.Drawing.Point(30, 16);
+            this.pcTB.MaxLength = 6;
             this.pcTB.Name = "pcTB";
             this.pcTB.Size = new System.Drawing.Size(71, 24);
             this.pcTB.TabIndex = 17;
+            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onPCtbKeyPress);
             // 
             // label2
             // 
@@ -543,6 +571,14 @@
             this.loadOBJToolStripMenuItem.Text = "Load Obj...";
             this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
+            // loadLstToolStripMenuItem
+            // 
+            this.loadLstToolStripMenuItem.Enabled = false;
+            this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
+            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadLstToolStripMenuItem.Text = "Load Lst...";
+            this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.loadLstToolStripMenuItem_Click);
+            // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
@@ -725,36 +761,9 @@
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
             // 
-            // loadLstToolStripMenuItem
-            // 
-            this.loadLstToolStripMenuItem.Enabled = false;
-            this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
-            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.loadLstToolStripMenuItem.Text = "Load Lst...";
-            this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.loadLstToolStripMenuItem_Click);
-            // 
             // openLSTdialog
             // 
             this.openLSTdialog.Filter = "sicasm LST files (*.lst)|*.lst";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
             // 
             // MainForm
             // 
