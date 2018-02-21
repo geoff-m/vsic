@@ -19,6 +19,7 @@ namespace vsic
         T = 5,
         F = 6
     }
+
     public enum Mnemonic : byte
     {
         // Arithmetic
@@ -70,7 +71,7 @@ namespace vsic
         // Other
         COMPR = 0xA0,
         COMP = 0x28,
-        TIX = 0x2C, // not implemented
+        TIX = 0x2C,
         TIXR = 0xB8
     }
 
