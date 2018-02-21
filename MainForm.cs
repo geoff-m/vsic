@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -9,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Path = System.IO.Path;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace vsic
 {
@@ -412,12 +412,6 @@ namespace vsic
             }
         }
 
-        private void onPCtbKeyPress(object sender, KeyPressEventArgs e)
-        {
-            char c = e.KeyChar;
-            Debug.WriteLine($"key char: '{c}' ({((int)c).ToString("X")})");
-        }
-
         bool hexDisplayFocused;
         private void onHexDisplayFocus(object sender, EventArgs e)
         {
@@ -428,5 +422,58 @@ namespace vsic
         {
             hexDisplayFocused = false;
         }
+
+        // todo: use this function to handle key press for all registers
+        private void onRegisterTBKeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if (tb == null)
+            {
+                Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {sender.ToString()}");
+                return;
+            }
+            
+            char c = e.KeyChar;
+            Debug.WriteLine($"key char: '{c}' ({((int)c).ToString("X")})");
+            int cursorIndex = tb.SelectionStart;
+            switch (c)
+            {
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                case '0':
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                    if (cursorIndex < tb.MaxLength) // Do nothing if cursor is after last character.
+                    {
+                        tb.SelectionLength = 1;
+                        tb.SelectedText = char.ToUpper(c).ToString();
+                    }
+                    break;
+
+                case (char)Keys.Enter:
+                    // todo: Commit changes to machine.
+
+                    break;
+
+                case (char)Keys.Back:
+                    tb.SelectionStart = cursorIndex - 1;
+                    break;
+            }
+
+            e.Handled = true;
+        }
+
+
     }
 }

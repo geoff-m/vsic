@@ -381,7 +381,7 @@
             this.pcTB.Name = "pcTB";
             this.pcTB.Size = new System.Drawing.Size(71, 24);
             this.pcTB.TabIndex = 17;
-            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onPCtbKeyPress);
+            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label2
             // 
