@@ -319,7 +319,6 @@ namespace vsic
                 return;
             }
             gotoTB.BackColor = SystemColors.Window;
-
         }
 
         private void changedEncodingSelection(object sender, EventArgs e)
@@ -365,6 +364,7 @@ namespace vsic
 
         private void stepButton_Click(object sender, EventArgs e)
         {
+            ResetTextboxColors();
             var res = sess.Machine.Step();
             switch (res)
             {

@@ -25,6 +25,8 @@ namespace vsic
             InitializeComponent();
             DoubleBuffered = true;
             Click += OnClick;
+            Enter += OnFocus;
+            Leave += OnBlur;
         }
 
         HashSet<ByteMarker> boxes = new HashSet<ByteMarker>();
@@ -131,7 +133,7 @@ namespace vsic
         }
         #endregion
 
-        #region Cursor Movement Accessors
+        #region Cursor Movement Mutators
         /// <summary>
         /// Moves the cursor to the beginning of the line it's on.
         /// </summary>
@@ -426,11 +428,23 @@ namespace vsic
 
             float boxX = dataXoffset + lineWord * (wordWidth + wordXgap) + wordByte * (byteWidth);
 
-            g.FillRectangle(Brushes.Black,
+            if (Focused)
+            {
+                g.FillRectangle(Brushes.Black,
                 boxX,
                 textYoffset + line * (textLineSpacing + lineHeight),
                 3,
                 lineHeight);
+            }
+            else
+            {
+                g.DrawRectangle(Pens.Black,
+                boxX,
+                textYoffset + line * (textLineSpacing + lineHeight),
+                3,
+                lineHeight);
+            }
+
             return true;
         }
 
@@ -462,6 +476,8 @@ namespace vsic
             return new string(ret);
         }
 
+        #region Event Handlers
+
         private void OnResize(object sender, EventArgs e)
         {
             doRecalc = true;
@@ -484,6 +500,18 @@ namespace vsic
             Invalidate();
         }
 
+
+        private void OnFocus(object sender, EventArgs e)
+        {
+            Invalidate();
+        }
+
+        private void OnBlur(object sender, EventArgs e)
+        {
+            Invalidate();
+        }
+
+        #endregion
 
     }
 }
