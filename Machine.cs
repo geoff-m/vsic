@@ -316,14 +316,20 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.SHIFTL:
-                            addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = (Word)(regA << ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            b2 = memory[PC++];
+                            r1 = (b2 & 0xf0) >> 4;
+                            r2 = b2 & 0xf;
+                            reg1value = GetRegister(r1);
+                            SetRegister(r1, (Word)(reg1value << (r2 + 1)));
+                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.SHIFTR:
-                            addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = (Word)(regA >> ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            b2 = memory[PC++];
+                            r1 = (b2 & 0xf0) >> 4;
+                            r2 = b2 & 0xf;
+                            reg1value = GetRegister(r1);
+                            SetRegister(r1, (Word)(reg1value << (r2 + 1)));
+                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         // Registers -------------------------------------------------------
                         case Mnemonic.LDA:
