@@ -280,7 +280,10 @@ namespace vsic
             int removed = hexDisplay.Boxes.RemoveWhere(bm => (instr - bm.Timestamp) > 1);
             //Debug.WriteLine($"Removed {removed} markers.");
 
-            // Update program counter marker.
+            // Remove old program counter.
+            hexDisplay.Boxes.RemoveWhere(bm => bm.GetHashCode() == PC_MARKER_ID);
+
+            // Add new program counter marker.
             pcMarker = new ByteMarker(m.ProgramCounter,
                 instr - 1,
                 PC_MARKER_COLOR,
@@ -432,12 +435,12 @@ namespace vsic
                 Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {sender.ToString()}");
                 return;
             }
-            
+
             char c = e.KeyChar;
-            Debug.WriteLine($"key char: '{c}' ({((int)c).ToString("X")})");
             int cursorIndex = tb.SelectionStart;
             switch (c)
             {
+                case '0':
                 case '1':
                 case '2':
                 case '3':
@@ -447,24 +450,64 @@ namespace vsic
                 case '7':
                 case '8':
                 case '9':
-                case '0':
                 case 'a':
                 case 'b':
                 case 'c':
                 case 'd':
                 case 'e':
                 case 'f':
-                    if (cursorIndex < tb.MaxLength) // Do nothing if cursor is after last character.
+                    if (cursorIndex < tb.MaxLength) // Do nothing if caret is after last character.
                     {
+                        // Overwrite the character following the caret.
                         tb.SelectionLength = 1;
                         tb.SelectedText = char.ToUpper(c).ToString();
                     }
                     break;
 
                 case (char)Keys.Enter:
-                    // todo: Commit changes to machine.
+                    // Commit changes to machine.
+                    Word newValue = (Word)int.Parse(tb.Text, System.Globalization.NumberStyles.HexNumber);
 
-                    break;
+                    if (ReferenceEquals(tb, pcTB))
+                    {
+                        sess.Machine.ProgramCounter = newValue;
+                        UpdateMachineDisplay();
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regATB))
+                    {
+                        sess.Machine.RegisterA = newValue;
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regXTB))
+                    {
+                        sess.Machine.RegisterX = newValue;
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regTTB))
+                    {
+                        sess.Machine.RegisterT = newValue;
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regBTB))
+                    {
+                        sess.Machine.RegisterB = newValue;
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regSTB))
+                    {
+                        sess.Machine.RegisterS = newValue;
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regLTB))
+                    {
+                        sess.Machine.RegisterL = newValue;
+                        break;
+                    }
+                    
+                    // This should be unreachable.
+                    Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {sender.ToString()}");
+                    return;
 
                 case (char)Keys.Back:
                     tb.SelectionStart = cursorIndex - 1;

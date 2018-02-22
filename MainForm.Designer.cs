@@ -195,23 +195,23 @@
             // 
             // regSTB
             // 
-            this.regSTB.Enabled = false;
             this.regSTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regSTB.Location = new System.Drawing.Point(32, 123);
             this.regSTB.MaxLength = 6;
             this.regSTB.Name = "regSTB";
             this.regSTB.Size = new System.Drawing.Size(71, 24);
             this.regSTB.TabIndex = 9;
+            this.regSTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // regLTB
             // 
-            this.regLTB.Enabled = false;
             this.regLTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regLTB.Location = new System.Drawing.Point(32, 149);
             this.regLTB.MaxLength = 6;
             this.regLTB.Name = "regLTB";
             this.regLTB.Size = new System.Drawing.Size(71, 24);
             this.regLTB.TabIndex = 15;
+            this.regLTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label1
             // 
@@ -225,7 +225,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(13, 154);
+            this.label7.Location = new System.Drawing.Point(14, 154);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(13, 13);
             this.label7.TabIndex = 14;
@@ -233,13 +233,13 @@
             // 
             // regATB
             // 
-            this.regATB.Enabled = false;
             this.regATB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regATB.Location = new System.Drawing.Point(32, 19);
             this.regATB.MaxLength = 6;
             this.regATB.Name = "regATB";
             this.regATB.Size = new System.Drawing.Size(71, 24);
             this.regATB.TabIndex = 4;
+            this.regATB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label6
             // 
@@ -252,13 +252,13 @@
             // 
             // regTTB
             // 
-            this.regTTB.Enabled = false;
             this.regTTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regTTB.Location = new System.Drawing.Point(32, 71);
             this.regTTB.MaxLength = 6;
             this.regTTB.Name = "regTTB";
             this.regTTB.Size = new System.Drawing.Size(71, 24);
             this.regTTB.TabIndex = 5;
+            this.regTTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label5
             // 
@@ -271,18 +271,18 @@
             // 
             // regXTB
             // 
-            this.regXTB.Enabled = false;
             this.regXTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regXTB.Location = new System.Drawing.Point(32, 45);
             this.regXTB.MaxLength = 6;
             this.regXTB.Name = "regXTB";
             this.regXTB.Size = new System.Drawing.Size(71, 24);
             this.regXTB.TabIndex = 6;
+            this.regXTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(14, 51);
+            this.label4.Location = new System.Drawing.Point(13, 51);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(14, 13);
             this.label4.TabIndex = 11;
@@ -300,7 +300,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(14, 78);
+            this.label3.Location = new System.Drawing.Point(13, 78);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 10;
@@ -308,13 +308,13 @@
             // 
             // regBTB
             // 
-            this.regBTB.Enabled = false;
             this.regBTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regBTB.Location = new System.Drawing.Point(32, 97);
             this.regBTB.MaxLength = 6;
             this.regBTB.Name = "regBTB";
             this.regBTB.Size = new System.Drawing.Size(71, 24);
             this.regBTB.TabIndex = 8;
+            this.regBTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // pcGrpBox
             // 
