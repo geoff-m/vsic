@@ -76,7 +76,7 @@ namespace vsic
 
         public static Word operator ++(Word w)
         {
-            return (Word)((int)w + 1);
+            return (Word)(w + 1);
         }
 
         public byte Low, Middle, High;
