@@ -127,7 +127,7 @@ namespace vsic
                 Invoke(new Action(() => SetStatusMessage(str, args)));
                 return;
             }
-            toolStripStatusLabel1.Text = string.Format(str, args);
+            toolStripStatusLabel.Text = string.Format(str, args);
         }
         #endregion Logging
 
@@ -368,20 +368,45 @@ namespace vsic
         private void stepButton_Click(object sender, EventArgs e)
         {
             ResetTextboxColors();
-            var res = sess.Machine.Step();
-            switch (res)
-            {
-                case Machine.RunResult.IllegalInstruction:
-                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter).ToString("X")}!");
-                    break;
-            }
+            sess.Machine.Step();
+            handleExecutionResult();
             UpdateMachineDisplay();
         }
 
         private void runButton_Click(object sender, EventArgs e)
         {
-            sess.Machine.Run();
+            var m = sess.Machine;
+            long startInstr = m.InstructionsExecuted;
+            m.Run();
+            long endInstr = m.InstructionsExecuted;
+            long diff = endInstr - startInstr;
+            Log($"Run: {diff.ToString()} instructions executed.");
+            handleExecutionResult();
             UpdateMachineDisplay();
+        }
+
+        private void handleExecutionResult()
+        {
+            switch (sess.Machine.LastResult)
+            {
+                case Machine.RunResult.None:
+                    toolStripStatusLabel.Text = "";
+                    break;
+                case Machine.RunResult.HardwareFault:
+                    LogError("A hardware fault has occurred!");
+                    toolStripStatusLabel.Text = "Hardware fault";
+                    break;
+                case Machine.RunResult.HitBreakpoint:
+                    toolStripStatusLabel.Text = "Hit breakpoint";
+                    break;
+                case Machine.RunResult.IllegalInstruction:
+                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter).ToString("X")}!");
+                    toolStripStatusLabel.Text = "Illegal instruction";
+                    break;
+                case Machine.RunResult.EndOfMemory:
+                    LogError("The program counter has hit the end of memory.");
+                    break;
+            }
         }
 
         WatchForm watchForm = new WatchForm();

@@ -56,7 +56,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -406,7 +406,7 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1,
+            this.toolStripStatusLabel,
             this.cursorPositionLabel,
             this.selectedBytesLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 739);
@@ -414,13 +414,13 @@
             this.statusStrip.Size = new System.Drawing.Size(1026, 22);
             this.statusStrip.TabIndex = 5;
             // 
-            // toolStripStatusLabel1
+            // toolStripStatusLabel
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(897, 17);
-            this.toolStripStatusLabel1.Spring = true;
-            this.toolStripStatusLabel1.Text = "Loading...";
-            this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(866, 17);
+            this.toolStripStatusLabel.Spring = true;
+            this.toolStripStatusLabel.Text = "Loading...";
+            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // cursorPositionLabel
             // 
@@ -829,7 +829,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.CheckBox checkBox4;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox checkBox2;

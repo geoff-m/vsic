@@ -232,8 +232,17 @@ namespace vsic
         /// <returns></returns>
         public RunResult Step()
         {
+            if (PC >= memory.Length)
+            {
+                LastResult = RunResult.EndOfMemory;
+                return LastResult;
+            }
             int originalPC = PC; // Will be used to restore PC later if execution fails.
-            byte b1 = memory[PC++];
+            byte b1 = memory[PC];
+            if (PC < memory.Length)
+            {
+                ++PC;
+            }
             byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
             if (Enum.IsDefined(typeof(Mnemonic), sextet))
             {
@@ -466,6 +475,10 @@ namespace vsic
                                 PC = DecodeAddress(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
+                        case Mnemonic.RSUB:
+                            PC = RegisterL;
+                            Logger.Log($"Executed {op.ToString()}.");
+                            break;
                         // Other --------------------------------------------------------
                         case Mnemonic.COMP:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -485,7 +498,17 @@ namespace vsic
                 {
                     PC = originalPC;
                     LastResult = RunResult.IllegalInstruction;
-                    return RunResult.IllegalInstruction;
+                    return LastResult;
+                }
+                catch (IndexOutOfRangeException ior)
+                {
+                    if (PC < memory.Length - 4 || true)
+                    {
+                        Debug.WriteLine($"Unexpected: {ior.ToString()} at:\n{ior.StackTrace}");
+                    }
+                    PC = originalPC;
+                    LastResult = RunResult.EndOfMemory;
+                    return LastResult;
                 }
             }
             else
@@ -497,7 +520,7 @@ namespace vsic
 
             ++InstructionsExecuted;
             LastResult = RunResult.None;
-            return RunResult.None; // if no error occurs.
+            return LastResult; // if no error occurs.
         }
 
         /// <summary>
@@ -721,10 +744,26 @@ namespace vsic
 
         public enum RunResult
         {
+            /// <summary>
+            /// Nominal result.
+            /// </summary>
             None = 0,
+            /// <summary>
+            /// A breakpoint has been hit.
+            /// </summary>
             HitBreakpoint = 1,
+            /// <summary>
+            /// The instruction at the program counter could not be decoded.
+            /// </summary>
             IllegalInstruction = 2,
-            HardwareFault = 3
+            /// <summary>
+            /// A hardware fault has occurred. Right now, this is unused.
+            /// </summary>
+            HardwareFault = 3,
+            /// <summary>
+            /// No execution was done because the program counter is at the end of memory.
+            /// </summary>
+            EndOfMemory = 4
         }
 
         private Word ReadWord(Word address, AddressingMode mode)
