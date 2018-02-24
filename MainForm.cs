@@ -567,8 +567,9 @@ namespace vsic
                     var newBox = new ByteMarker(i,
                         MEMORY_READ_COLOR,
                         sess.Machine.InstructionsExecuted);
-
-                    hexDisplay.Boxes.Add(newBox);
+                    bool added;
+                    added = hexDisplay.Boxes.Add(newBox);
+                    Debug.WriteLine($"Box was added? {added}");
                 }
             }
 
@@ -594,7 +595,7 @@ namespace vsic
         // We use a sorted set instead of a dictionary because we want to search for breakpoints over intervals, not just at exact addresses.
         private SortedSet<Breakpoint> breakpoints;
 
-        private readonly Color BREAKPOINT_COLOR = Color.FromArgb(127, Color.Red);
+        private readonly Color BREAKPOINT_COLOR = Color.FromArgb(192, Color.Red);
 
         private void setBkptButton_Click(object sender, EventArgs e)
         {

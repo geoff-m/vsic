@@ -52,7 +52,23 @@ namespace vsic
         {
             if (id != 0)
                 return id;
-            return Address ^ ExpiresAfter.GetHashCode() << 24;
+            return Address ^ ExpiresAfter.GetHashCode() << 24; ;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ByteMarker other)
+            {
+                if (Hollow && other.Hollow)
+                {
+                    return Address == other.Address && ExpiresAfter == other.ExpiresAfter && PenWidth == other.PenWidth && Color == other.Color && Brush == other.Brush;
+                }
+                if (!Hollow && !other.Hollow)
+                {
+                    return Address == other.Address && ExpiresAfter == other.ExpiresAfter && PenWidth == other.PenWidth && Color == other.Color && Pen == other.Pen;
+                }   
+            }
+            return false;
         }
 
         public override string ToString()

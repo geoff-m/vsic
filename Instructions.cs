@@ -44,7 +44,7 @@ namespace vsic
         JGT = 0x34,
         JLT = 0x38,
         JSUB = 0x48, // not implemented
-        RSUB = 0x4C, // not implemented
+        RSUB = 0x4C,
 
         // Registers
         LDA = 0x00,
