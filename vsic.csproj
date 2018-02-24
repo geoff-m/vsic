@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingMode.cs" />
+    <Compile Include="BreakpointHitException.cs" />
     <Compile Include="ByteMarker.cs" />
     <Compile Include="Breakpoint.cs" />
     <Compile Include="ConditionCode.cs" />
@@ -55,12 +56,14 @@
     <Compile Include="Disassembly.Designer.cs">
       <DependentUpon>Disassembly.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HexDisplay.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="HexDisplay.Designer.cs">
       <DependentUpon>HexDisplay.cs</DependentUpon>
     </Compile>
+    <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="IllegalInstructionException.cs" />
     <Compile Include="ILogSink.cs" />
     <Compile Include="Instructions.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="NullLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />
+    <Compile Include="SICXEException.cs" />
     <Compile Include="StreamReaderExtensions.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="WatchForm.cs">

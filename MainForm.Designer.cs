@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.memGrpBox = new System.Windows.Forms.GroupBox();
+            this.memGB = new System.Windows.Forms.GroupBox();
             this.hexDisplay = new vsic.HexDisplay();
-            this.regGrpBox = new System.Windows.Forms.GroupBox();
+            this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
@@ -47,7 +47,7 @@
             this.regFTB = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.regBTB = new System.Windows.Forms.TextBox();
-            this.pcGrpBox = new System.Windows.Forms.GroupBox();
+            this.pcGB = new System.Windows.Forms.GroupBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
@@ -59,11 +59,11 @@
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.button8 = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.bpEnabledCB = new System.Windows.Forms.CheckBox();
+            this.bpWriteCB = new System.Windows.Forms.CheckBox();
+            this.bpReadCB = new System.Windows.Forms.CheckBox();
+            this.bpButton = new System.Windows.Forms.Button();
+            this.bpGB = new System.Windows.Forms.GroupBox();
             this.openMemoryDialog = new System.Windows.Forms.OpenFileDialog();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,11 +94,11 @@
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
-            this.memGrpBox.SuspendLayout();
-            this.regGrpBox.SuspendLayout();
-            this.pcGrpBox.SuspendLayout();
+            this.memGB.SuspendLayout();
+            this.regGB.SuspendLayout();
+            this.pcGB.SuspendLayout();
             this.statusStrip.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.bpGB.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -108,17 +108,17 @@
             this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // memGrpBox
+            // memGB
             // 
-            this.memGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.memGB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.memGrpBox.Controls.Add(this.hexDisplay);
-            this.memGrpBox.Location = new System.Drawing.Point(159, 6);
-            this.memGrpBox.Name = "memGrpBox";
-            this.memGrpBox.Size = new System.Drawing.Size(698, 572);
-            this.memGrpBox.TabIndex = 0;
-            this.memGrpBox.TabStop = false;
-            this.memGrpBox.Text = "Memory";
+            this.memGB.Controls.Add(this.hexDisplay);
+            this.memGB.Location = new System.Drawing.Point(159, 6);
+            this.memGB.Name = "memGB";
+            this.memGB.Size = new System.Drawing.Size(698, 572);
+            this.memGB.TabIndex = 0;
+            this.memGB.TabStop = false;
+            this.memGB.Text = "Memory";
             // 
             // hexDisplay
             // 
@@ -141,31 +141,31 @@
             this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
             this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
-            // regGrpBox
+            // regGB
             // 
-            this.regGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.regGrpBox.Controls.Add(this.ccCB);
-            this.regGrpBox.Controls.Add(this.label10);
-            this.regGrpBox.Controls.Add(this.label8);
-            this.regGrpBox.Controls.Add(this.regSTB);
-            this.regGrpBox.Controls.Add(this.regLTB);
-            this.regGrpBox.Controls.Add(this.label1);
-            this.regGrpBox.Controls.Add(this.label7);
-            this.regGrpBox.Controls.Add(this.regATB);
-            this.regGrpBox.Controls.Add(this.label6);
-            this.regGrpBox.Controls.Add(this.regTTB);
-            this.regGrpBox.Controls.Add(this.label5);
-            this.regGrpBox.Controls.Add(this.regXTB);
-            this.regGrpBox.Controls.Add(this.label4);
-            this.regGrpBox.Controls.Add(this.regFTB);
-            this.regGrpBox.Controls.Add(this.label3);
-            this.regGrpBox.Controls.Add(this.regBTB);
-            this.regGrpBox.Location = new System.Drawing.Point(863, 6);
-            this.regGrpBox.Name = "regGrpBox";
-            this.regGrpBox.Size = new System.Drawing.Size(151, 238);
-            this.regGrpBox.TabIndex = 1;
-            this.regGrpBox.TabStop = false;
-            this.regGrpBox.Text = "Registers";
+            this.regGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.regGB.Controls.Add(this.ccCB);
+            this.regGB.Controls.Add(this.label10);
+            this.regGB.Controls.Add(this.label8);
+            this.regGB.Controls.Add(this.regSTB);
+            this.regGB.Controls.Add(this.regLTB);
+            this.regGB.Controls.Add(this.label1);
+            this.regGB.Controls.Add(this.label7);
+            this.regGB.Controls.Add(this.regATB);
+            this.regGB.Controls.Add(this.label6);
+            this.regGB.Controls.Add(this.regTTB);
+            this.regGB.Controls.Add(this.label5);
+            this.regGB.Controls.Add(this.regXTB);
+            this.regGB.Controls.Add(this.label4);
+            this.regGB.Controls.Add(this.regFTB);
+            this.regGB.Controls.Add(this.label3);
+            this.regGB.Controls.Add(this.regBTB);
+            this.regGB.Location = new System.Drawing.Point(863, 6);
+            this.regGB.Name = "regGB";
+            this.regGB.Size = new System.Drawing.Size(151, 238);
+            this.regGB.TabIndex = 1;
+            this.regGB.TabStop = false;
+            this.regGB.Text = "Registers";
             // 
             // ccCB
             // 
@@ -316,21 +316,21 @@
             this.regBTB.TabIndex = 8;
             this.regBTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
-            // pcGrpBox
+            // pcGB
             // 
-            this.pcGrpBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pcGrpBox.Controls.Add(this.checkBox4);
-            this.pcGrpBox.Controls.Add(this.button5);
-            this.pcGrpBox.Controls.Add(this.runButton);
-            this.pcGrpBox.Controls.Add(this.stepButton);
-            this.pcGrpBox.Controls.Add(this.pcTB);
-            this.pcGrpBox.Controls.Add(this.label2);
-            this.pcGrpBox.Location = new System.Drawing.Point(863, 256);
-            this.pcGrpBox.Name = "pcGrpBox";
-            this.pcGrpBox.Size = new System.Drawing.Size(151, 166);
-            this.pcGrpBox.TabIndex = 3;
-            this.pcGrpBox.TabStop = false;
-            this.pcGrpBox.Text = "Program Counter";
+            this.pcGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pcGB.Controls.Add(this.checkBox4);
+            this.pcGB.Controls.Add(this.button5);
+            this.pcGB.Controls.Add(this.runButton);
+            this.pcGB.Controls.Add(this.stepButton);
+            this.pcGB.Controls.Add(this.pcTB);
+            this.pcGB.Controls.Add(this.label2);
+            this.pcGB.Location = new System.Drawing.Point(863, 256);
+            this.pcGB.Name = "pcGB";
+            this.pcGB.Size = new System.Drawing.Size(151, 166);
+            this.pcGB.TabIndex = 3;
+            this.pcGB.TabStop = false;
+            this.pcGB.Text = "Program Counter";
             // 
             // checkBox4
             // 
@@ -417,7 +417,7 @@
             // toolStripStatusLabel
             // 
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(866, 17);
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(897, 17);
             this.toolStripStatusLabel.Spring = true;
             this.toolStripStatusLabel.Text = "Loading...";
             this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -436,58 +436,64 @@
             this.selectedBytesLabel.Text = "0 bytes selected";
             this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // checkBox1
+            // bpEnabledCB
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(7, 58);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(65, 17);
-            this.checkBox1.TabIndex = 5;
-            this.checkBox1.Text = "Enabled";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.bpEnabledCB.AutoSize = true;
+            this.bpEnabledCB.Location = new System.Drawing.Point(7, 58);
+            this.bpEnabledCB.Name = "bpEnabledCB";
+            this.bpEnabledCB.Size = new System.Drawing.Size(65, 17);
+            this.bpEnabledCB.TabIndex = 5;
+            this.bpEnabledCB.Text = "Enabled";
+            this.bpEnabledCB.UseVisualStyleBackColor = true;
+            this.bpEnabledCB.Visible = false;
+            this.bpEnabledCB.CheckedChanged += new System.EventHandler(this.bpEnabledCB_CheckedChanged);
             // 
-            // checkBox2
+            // bpWriteCB
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(7, 104);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(97, 17);
-            this.checkBox2.TabIndex = 4;
-            this.checkBox2.Text = "Break on Write";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.bpWriteCB.AutoSize = true;
+            this.bpWriteCB.Location = new System.Drawing.Point(7, 104);
+            this.bpWriteCB.Name = "bpWriteCB";
+            this.bpWriteCB.Size = new System.Drawing.Size(97, 17);
+            this.bpWriteCB.TabIndex = 4;
+            this.bpWriteCB.Text = "Break on Write";
+            this.bpWriteCB.UseVisualStyleBackColor = true;
+            this.bpWriteCB.Visible = false;
+            this.bpWriteCB.CheckedChanged += new System.EventHandler(this.bpWriteCB_CheckedChanged);
             // 
-            // checkBox3
+            // bpReadCB
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(7, 81);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(98, 17);
-            this.checkBox3.TabIndex = 3;
-            this.checkBox3.Text = "Break on Read";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.bpReadCB.AutoSize = true;
+            this.bpReadCB.Location = new System.Drawing.Point(7, 81);
+            this.bpReadCB.Name = "bpReadCB";
+            this.bpReadCB.Size = new System.Drawing.Size(98, 17);
+            this.bpReadCB.TabIndex = 3;
+            this.bpReadCB.Text = "Break on Read";
+            this.bpReadCB.UseVisualStyleBackColor = true;
+            this.bpReadCB.Visible = false;
+            this.bpReadCB.CheckedChanged += new System.EventHandler(this.bpReadCB_CheckedChanged);
             // 
-            // button8
+            // bpButton
             // 
-            this.button8.Location = new System.Drawing.Point(6, 19);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(133, 23);
-            this.button8.TabIndex = 9;
-            this.button8.Text = "Set (F9)";
-            this.button8.UseVisualStyleBackColor = true;
+            this.bpButton.Location = new System.Drawing.Point(6, 19);
+            this.bpButton.Name = "bpButton";
+            this.bpButton.Size = new System.Drawing.Size(133, 23);
+            this.bpButton.TabIndex = 9;
+            this.bpButton.Text = "Set (F9)";
+            this.bpButton.UseVisualStyleBackColor = true;
+            this.bpButton.Click += new System.EventHandler(this.setBkptButton_Click);
             // 
-            // groupBox3
+            // bpGB
             // 
-            this.groupBox3.Controls.Add(this.checkBox1);
-            this.groupBox3.Controls.Add(this.checkBox2);
-            this.groupBox3.Controls.Add(this.checkBox3);
-            this.groupBox3.Controls.Add(this.button8);
-            this.groupBox3.Enabled = false;
-            this.groupBox3.Location = new System.Drawing.Point(8, 347);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(145, 139);
-            this.groupBox3.TabIndex = 0;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Breakpoint";
+            this.bpGB.Controls.Add(this.bpEnabledCB);
+            this.bpGB.Controls.Add(this.bpWriteCB);
+            this.bpGB.Controls.Add(this.bpReadCB);
+            this.bpGB.Controls.Add(this.bpButton);
+            this.bpGB.Location = new System.Drawing.Point(8, 347);
+            this.bpGB.Name = "bpGB";
+            this.bpGB.Size = new System.Drawing.Size(145, 139);
+            this.bpGB.TabIndex = 0;
+            this.bpGB.TabStop = false;
+            this.bpGB.Text = "Breakpoint";
             // 
             // openMemoryDialog
             // 
@@ -746,12 +752,12 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.regGrpBox);
+            this.splitContainer1.Panel1.Controls.Add(this.regGB);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox4);
-            this.splitContainer1.Panel1.Controls.Add(this.memGrpBox);
+            this.splitContainer1.Panel1.Controls.Add(this.memGB);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox1);
-            this.splitContainer1.Panel1.Controls.Add(this.pcGrpBox);
-            this.splitContainer1.Panel1.Controls.Add(this.groupBox3);
+            this.splitContainer1.Panel1.Controls.Add(this.pcGB);
+            this.splitContainer1.Panel1.Controls.Add(this.bpGB);
             // 
             // splitContainer1.Panel2
             // 
@@ -779,15 +785,15 @@
             this.Text = "Virtual SIC";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.OnResize);
-            this.memGrpBox.ResumeLayout(false);
-            this.regGrpBox.ResumeLayout(false);
-            this.regGrpBox.PerformLayout();
-            this.pcGrpBox.ResumeLayout(false);
-            this.pcGrpBox.PerformLayout();
+            this.memGB.ResumeLayout(false);
+            this.regGB.ResumeLayout(false);
+            this.regGB.PerformLayout();
+            this.pcGB.ResumeLayout(false);
+            this.pcGB.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.bpGB.ResumeLayout(false);
+            this.bpGB.PerformLayout();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -805,8 +811,8 @@
 
         #endregion
 
-        private System.Windows.Forms.GroupBox memGrpBox;
-        private System.Windows.Forms.GroupBox regGrpBox;
+        private System.Windows.Forms.GroupBox memGB;
+        private System.Windows.Forms.GroupBox regGB;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox regSTB;
         private System.Windows.Forms.TextBox regLTB;
@@ -821,7 +827,7 @@
         private System.Windows.Forms.TextBox regFTB;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox regBTB;
-        private System.Windows.Forms.GroupBox pcGrpBox;
+        private System.Windows.Forms.GroupBox pcGB;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button runButton;
         private System.Windows.Forms.Button stepButton;
@@ -831,11 +837,11 @@
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox bpEnabledCB;
+        private System.Windows.Forms.CheckBox bpWriteCB;
+        private System.Windows.Forms.CheckBox bpReadCB;
+        private System.Windows.Forms.Button bpButton;
+        private System.Windows.Forms.GroupBox bpGB;
         private System.Windows.Forms.OpenFileDialog openMemoryDialog;
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;

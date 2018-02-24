@@ -15,7 +15,6 @@ namespace vsic
     {
         public Machine Machine
         { get; private set; }
-        SortedSet<Breakpoint> breakpoints;
 
         /// <summary>
         /// Creates a new, empty session.
@@ -23,8 +22,8 @@ namespace vsic
         public Session()
         {
             Machine = new Machine();
-            breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
             Logger = new NullLog();
+            
         }
 
         ILogSink logger;
@@ -81,5 +80,6 @@ namespace vsic
             }
             return 0; // Reachable only on error.
         }
+        
     }
 }

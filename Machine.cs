@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace vsic
 {
-    public class Machine
+    public sealed class Machine
     {
         /// <summary>
         /// The number of instructions this Machine has ever executed.
@@ -28,7 +28,8 @@ namespace vsic
         /// <param name="startAddress">The first address that was changed in memory.</param>
         /// <param name="count">Size of the region (measured in bytes) beginning at "startAddress" that contains all modified addresses.</param>
         /// <param name="written">Indicates whether the specified address was written or read.</param>
-        public delegate void MemoryEventHandler(Word startAddress, int count, bool written);
+        /// <returns>A bool indicating whether the machine should break execution.</returns>
+        public delegate bool MemoryEventHandler(Word startAddress, int count, bool written);
         public event MemoryEventHandler MemoryChanged;
 
         /// <summary>
@@ -72,15 +73,17 @@ namespace vsic
         { get; } // a readonly property
 
         private byte[] memory;
+
+        // Registers as private fields that don't have any side effects when accessed.
         Word regA, regB, regL, regS, regT, regX;
 
+        // Registers as public properties that raise event on WRITE ONLY.
         public Word RegisterA
         {
             get { return regA; }
             set
             {
-                regA = value;
-                RegisterChanged?.Invoke(Register.A, true);
+                regAwithevents = value;
             }
         }
 
@@ -89,8 +92,7 @@ namespace vsic
             get { return regB; }
             set
             {
-                regB = value;
-                RegisterChanged?.Invoke(Register.B, true);
+                regBwithevents = value;
             }
         }
 
@@ -99,8 +101,7 @@ namespace vsic
             get { return regL; }
             set
             {
-                regL = value;
-                RegisterChanged?.Invoke(Register.L, true);
+                regLwithevents = value;
             }
         }
 
@@ -109,8 +110,7 @@ namespace vsic
             get { return regS; }
             set
             {
-                regS = value;
-                RegisterChanged?.Invoke(Register.S, true);
+                regSwithevents = value;
             }
         }
 
@@ -119,14 +119,97 @@ namespace vsic
             get { return regT; }
             set
             {
-                regT = value;
-                RegisterChanged?.Invoke(Register.T, true);
+                regTwithevents = value;
             }
         }
 
         public Word RegisterX
         {
             get { return regX; }
+            set
+            {
+                regXwithevents = value;
+            }
+        }
+
+        // Registers as private properties that raise events on READ AND WRITE.
+        private Word regAwithevents
+        {
+            get
+            {
+                RegisterChanged?.Invoke(Register.A, false);
+                return regA;
+            }
+            set
+            {
+                regA = value;
+                RegisterChanged?.Invoke(Register.A, true);
+            }
+        }
+
+        private Word regBwithevents
+        {
+            get
+            {
+                RegisterChanged?.Invoke(Register.B, false);
+                return regB;
+            }
+            set
+            {
+                regB = value;
+                RegisterChanged?.Invoke(Register.B, true);
+            }
+        }
+
+        private Word regLwithevents
+        {
+            get
+            {
+                RegisterChanged?.Invoke(Register.L, false);
+                return regL;
+            }
+            set
+            {
+                regL = value;
+                RegisterChanged?.Invoke(Register.L, true);
+            }
+        }
+
+        private Word regSwithevents
+        {
+            get
+            {
+                RegisterChanged?.Invoke(Register.S, false);
+                return regS;
+            }
+            set
+            {
+                regS = value;
+                RegisterChanged?.Invoke(Register.S, true);
+            }
+        }
+
+        private Word regTwithevents
+        {
+            get
+            {
+                RegisterChanged?.Invoke(Register.T, false);
+                return regT;
+            }
+            set
+            {
+                regT = value;
+                RegisterChanged?.Invoke(Register.T, true);
+            }
+        }
+
+        private Word regXwithevents
+        {
+            get
+            {
+                RegisterChanged?.Invoke(Register.X, false);
+                return regX;
+            }
             set
             {
                 regX = value;
@@ -210,6 +293,30 @@ namespace vsic
             return stop - address;
         }
 
+        public enum RunResult
+        {
+            /// <summary>
+            /// Nominal result.
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// A breakpoint has been hit.
+            /// </summary>
+            HitBreakpoint = 1,
+            /// <summary>
+            /// The instruction at the program counter could not be decoded.
+            /// </summary>
+            IllegalInstruction = 2,
+            /// <summary>
+            /// A hardware fault has occurred. Right now, this is unused.
+            /// </summary>
+            HardwareFault = 3,
+            /// <summary>
+            /// No execution was done because the program counter is at the end of memory.
+            /// </summary>
+            EndOfMemory = 4
+        }
+
         public RunResult Run(Word address)
         {
             ProgramCounter = address; // We use property here to catch out-of-range.
@@ -238,31 +345,33 @@ namespace vsic
                 return LastResult;
             }
             int originalPC = PC; // Will be used to restore PC later if execution fails.
-            byte b1 = memory[PC];
-            if (PC < memory.Length)
+            try
             {
-                ++PC;
-            }
-            byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
-            if (Enum.IsDefined(typeof(Mnemonic), sextet))
-            {
-                var op = (Mnemonic)sextet;
-                byte b2;
-                int r1, r2;
-                Word reg1value, reg2value;
-                Word addr;
-                AddressingMode mode;
-                try
+                ThrowForRead((Word)PC, 1); // We're about to do a memory read that should honor breakpoints. 
+                byte b1 = memory[PC];
+                if (PC < memory.Length)
+                    ++PC;
+
+                byte sextet = (byte)(b1 & 0xfc); // no opcode ends with 1, 2, or 3.
+                if (Enum.IsDefined(typeof(Mnemonic), sextet))
                 {
+                    var op = (Mnemonic)sextet;
+                    byte b2;
+                    int r1, r2;
+                    Word reg1value, reg2value;
+                    Word addr;
+                    AddressingMode mode;
+
                     switch (op)
                     {
                         // Arithmetic ------------------------------------------------------
                         case Mnemonic.ADD:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = regA + ReadWord(addr, mode);
+                            regAwithevents = regA + ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.ADDR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -273,10 +382,11 @@ namespace vsic
                             break;
                         case Mnemonic.SUB:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = regA - ReadWord(addr, mode);
+                            regAwithevents = regA - ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.SUBR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -287,10 +397,11 @@ namespace vsic
                             break;
                         case Mnemonic.MUL:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = (Word)(regA * ReadWord(addr, mode));
+                            regAwithevents = (Word)(regA * ReadWord(addr, mode));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.MULR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -301,10 +412,11 @@ namespace vsic
                             break;
                         case Mnemonic.DIV:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = (Word)(regA / ReadWord(addr, mode));
+                            regAwithevents = (Word)(regA / ReadWord(addr, mode));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.DIVR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -316,15 +428,16 @@ namespace vsic
                         // Bitwise ---------------------------------------------------------
                         case Mnemonic.AND:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = (Word)(regA & ReadWord(addr, mode));
+                            regAwithevents = (Word)(regA & ReadWord(addr, mode));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.OR:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = (Word)(regA | ReadWord(addr, mode));
+                            regAwithevents = (Word)(regA | ReadWord(addr, mode));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.SHIFTL:
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -333,6 +446,7 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.SHIFTR:
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -343,65 +457,66 @@ namespace vsic
                         // Registers -------------------------------------------------------
                         case Mnemonic.LDA:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterA = ReadWord(addr, mode);
+                            regAwithevents = ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDB:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterB = ReadWord(addr, mode);
+                            regBwithevents = ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDL:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterL = ReadWord(addr, mode);
+                            regLwithevents = ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDS:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterS = ReadWord(addr, mode);
+                            regSwithevents = ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDT:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterT = ReadWord(addr, mode);
+                            regTwithevents = ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDX:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterX = ReadWord(addr, mode);
+                            regXwithevents = ReadWord(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STA:
                             addr = DecodeLongInstruction(b1, out mode);
-                            WriteWord(regA, addr, mode);
+                            WriteWord(regAwithevents, addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STB:
                             addr = DecodeLongInstruction(b1, out mode);
-                            WriteWord(regB, addr, mode);
+                            WriteWord(regBwithevents, addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STL:
                             addr = DecodeLongInstruction(b1, out mode);
-                            WriteWord(regL, addr, mode);
+                            WriteWord(regLwithevents, addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STS:
                             addr = DecodeLongInstruction(b1, out mode);
-                            WriteWord(regS, addr, mode);
+                            WriteWord(regSwithevents, addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STT:
                             addr = DecodeLongInstruction(b1, out mode);
-                            WriteWord(regT, addr, mode);
+                            WriteWord(regTwithevents, addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STX:
                             addr = DecodeLongInstruction(b1, out mode);
-                            WriteWord(regX, addr, mode);
+                            WriteWord(regXwithevents, addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.COMPR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
@@ -411,44 +526,47 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.RMO: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
                             switch ((Register)r2)
                             {
                                 case Register.A:
-                                    RegisterA = GetRegister(r1);
+                                    regAwithevents = GetRegister(r1);
                                     break;
                                 case Register.B:
-                                    RegisterB = GetRegister(r1);
+                                    regBwithevents = GetRegister(r1);
                                     break;
                                 case Register.L:
-                                    RegisterL = GetRegister(r1);
+                                    regLwithevents = GetRegister(r1);
                                     break;
                                 case Register.S:
-                                    RegisterS = GetRegister(r1);
+                                    regSwithevents = GetRegister(r1);
                                     break;
                                 case Register.T:
-                                    RegisterT = GetRegister(r1);
+                                    regTwithevents = GetRegister(r1);
                                     break;
                                 case Register.X:
-                                    RegisterX = GetRegister(r1);
+                                    regXwithevents = GetRegister(r1);
                                     break;
                             }
                             Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                             break;
                         case Mnemonic.CLEAR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             SetRegister(r1, Word.Zero);
                             Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
                             break;
                         case Mnemonic.TIXR: // format 2
+                            ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             // increment X, then compare it to the operand
                             ++regX;
-                            ConditionCode = CompareWords(RegisterX, GetRegister(r1));
+                            ConditionCode = CompareWords(regXwithevents, GetRegister(r1));
                             Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
                             break;
                         // Flow control ---------------------------------------------------
@@ -476,46 +594,60 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.RSUB:
-                            PC = RegisterL;
+                            PC = regLwithevents;
                             Logger.Log($"Executed {op.ToString()}.");
                             break;
                         // Other --------------------------------------------------------
                         case Mnemonic.COMP:
                             addr = DecodeLongInstruction(b1, out mode);
-                            ConditionCode = CompareWords(RegisterA, ReadWord(addr, mode));
+                            ConditionCode = CompareWords(regAwithevents, ReadWord(addr, mode));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.TIX:
                             // increment X, then compare it to the operand
                             addr = DecodeLongInstruction(b1, out mode);
                             ++regX;
-                            ConditionCode = CompareWords(RegisterX, ReadWord(addr, mode));
+                            ConditionCode = CompareWords(regXwithevents, ReadWord(addr, mode));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                     }
+
                 }
-                catch (IllegalInstructionException) // May be thrown by DecodeLongAddress.
+                else
                 {
                     PC = originalPC;
                     LastResult = RunResult.IllegalInstruction;
-                    return LastResult;
-                }
-                catch (IndexOutOfRangeException ior)
-                {
-                    if (PC < memory.Length - 4 || true)
-                    {
-                        Debug.WriteLine($"Unexpected: {ior.ToString()} at:\n{ior.StackTrace}");
-                    }
-                    PC = originalPC;
-                    LastResult = RunResult.EndOfMemory;
-                    return LastResult;
+                    return RunResult.IllegalInstruction;
                 }
             }
-            else
+            catch (IllegalInstructionException) // May be thrown by DecodeLongAddress.
             {
                 PC = originalPC;
                 LastResult = RunResult.IllegalInstruction;
-                return RunResult.IllegalInstruction;
+                return LastResult;
+            }
+            catch (IndexOutOfRangeException ior)
+            {
+                if (PC < memory.Length - 4 || true)
+                {
+                    Debug.WriteLine($"Unexpected: {ior.ToString()} at:\n{ior.StackTrace}");
+                }
+                PC = originalPC;
+                LastResult = RunResult.EndOfMemory;
+                return LastResult;
+            }
+            catch (BreakpointHitException bhe)
+            {
+                LastBreakpointHitException = bhe; // Store it so clients can inspect it (i.e. get the address that caused it, which is not necessarily the PC).
+                PC = originalPC;
+                LastResult = RunResult.HitBreakpoint;
+                return LastResult;
+            }
+            catch (SICXEException)
+            {
+                PC = originalPC;
+                LastResult = RunResult.HitBreakpoint;
+                return LastResult;
             }
 
             ++InstructionsExecuted;
@@ -531,6 +663,9 @@ namespace vsic
             get; private set;
         }
 
+        public BreakpointHitException LastBreakpointHitException
+        { get; private set; }
+
         /// <summary>
         /// Decodes the flags and operand of a standard SIC or SIC/XE format 3 or 4 instruction, while the progrm counter is at the second byte of the instruction.
         /// Advances the program counter to the end of the current instruction and returns the target address (operand) it indicates.
@@ -542,9 +677,10 @@ namespace vsic
         {
             ni &= 0x3; // keep only bottom 2 bits.
 
-            int oldPC = PC - 1; // for error reporting.
+            int oldPC = PC; // for error reporting.
 
-            byte b2 = memory[PC++];
+            ThrowForRead((Word)PC, 1);
+            byte b2 = memory[PC++]; // We don't test for OOB in this method--we let Step() catch it.
             byte flags = (byte)(ni << 4);
             /* 00100000 0x20    N 
              * 00010000 0x10    I
@@ -555,6 +691,7 @@ namespace vsic
              */
             if (flags == 0) // SIC-compatible instruction.
             {
+                ThrowForRead((Word)PC, 1);
                 // Format of standard SIC instruction (24 bits total):
                 //   8      1     15
                 // opcode   x   address
@@ -572,73 +709,89 @@ namespace vsic
             {
                 case 0b110000:   // disp
                     Debug.WriteLine("disp");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b110001: // addr (format 4)
                     Debug.WriteLine("addr");
+                    ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Simple;
                     // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b110010: // (PC) + disp
                     // "For PC-relative addressing, [the disp] is interpreted as a 12-bit signed integer." (p. 9)
                     Debug.WriteLine("pc + disp");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b110100: // (B) + disp
                     // "For base relative addressing, the displacement field disp in a Format 3 instruction is interpreted as a 12-bit unsigned integer." (p. 9)
                     Debug.WriteLine("b + disp");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)(regB + ((b2 & 0xf) << 8 | memory[PC++]));
                 case 0b111000: // disp + (X)
                     Debug.WriteLine("disp + x");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)(regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b111001: // addr + (X) (format 4)
                     Debug.WriteLine("addr + x");
+                    ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Simple;
                     return (Word)(regX + (b2 & 0xf | memory[PC++] << 8 | memory[PC++]));
                 case 0b111010: // (PC) + disp + (X)
                     Debug.WriteLine("pc + disp + x");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + regX + disp);
                 case 0b111100: // (B) + disp + (X)
                     Debug.WriteLine("b + disp + x");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)(regB + regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100000: // disp
                     Debug.WriteLine("disp (indirect)");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100001: // addr (format 4)
                     Debug.WriteLine("addr (indirect)");
+                    ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Indirect;
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b100010: // (PC) + disp
                     Debug.WriteLine("pc + disp (indirect)");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b100100: // (B) + disp
                     Debug.WriteLine("b + disp (indirect)");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
                     return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010000: // disp
                     Debug.WriteLine("disp (immediate)");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
                     return (Word)DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                 case 0b010001: // addr (format 4)
                     Debug.WriteLine("addr (immediate)");
+                    ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Immediate;
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b010010: // (PC) + disp
                     Debug.WriteLine("pc + disp (immediate)");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b010100: // (B) + disp
                     Debug.WriteLine("b + disp (immediate)");
+                    ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
                     return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
             }
@@ -647,8 +800,8 @@ namespace vsic
 
         private ConditionCode CompareWords(Word x, Word y)
         {
-            int xv = (int)x;
-            int yv = (int)y;
+            var xv = (int)x;
+            var yv = (int)y;
             if (xv < yv)
                 return ConditionCode.LessThan;
             if (xv > yv)
@@ -684,7 +837,7 @@ namespace vsic
         private Word GetRegister(int r)
         {
             var reg = (Register)r;
-            switch ((Register)r)
+            switch (reg)
             {
                 case Register.A:
                     RegisterChanged?.Invoke(reg, false);
@@ -705,7 +858,7 @@ namespace vsic
                     RegisterChanged?.Invoke(reg, false);
                     return regX;
             }
-            throw new ArgumentException(nameof(r));
+            throw new SICXEException($"Illegal register code: {r.ToString("X")}.");
         }
 
         /// <summary>
@@ -742,37 +895,58 @@ namespace vsic
             RegisterChanged?.Invoke(reg, true);
         }
 
-        public enum RunResult
-        {
-            /// <summary>
-            /// Nominal result.
-            /// </summary>
-            None = 0,
-            /// <summary>
-            /// A breakpoint has been hit.
-            /// </summary>
-            HitBreakpoint = 1,
-            /// <summary>
-            /// The instruction at the program counter could not be decoded.
-            /// </summary>
-            IllegalInstruction = 2,
-            /// <summary>
-            /// A hardware fault has occurred. Right now, this is unused.
-            /// </summary>
-            HardwareFault = 3,
-            /// <summary>
-            /// No execution was done because the program counter is at the end of memory.
-            /// </summary>
-            EndOfMemory = 4
-        }
-
         private Word ReadWord(Word address, AddressingMode mode)
         {
             if (mode == AddressingMode.Immediate)
                 return address;
             address = DecodeAddress(address, mode);
-            MemoryChanged?.Invoke(address, 3, false);
-            return Word.FromArray(memory, (int)address);
+
+            ThrowForRead(address, 3);
+
+            return Word.FromArray(memory, address);
+        }
+
+        private void WriteWord(Word w, Word address, AddressingMode mode)
+        {
+            if (mode != AddressingMode.Immediate)
+            {
+                address = DecodeAddress(address, mode);
+            }
+            var addr = (int)address;
+            ThrowForWrite(address, 3);
+            memory[addr] = w.High;
+            memory[addr + 1] = w.Middle;
+            memory[addr + 2] = w.Low;
+        }
+
+        /// <summary>
+        /// Creates and throws a BreakpointHitException if appropriate for memory read from the specified region.
+        /// </summary>
+        /// <param name="address">The address to be checked for breakpoints.</param>
+        /// <param name="count">Size in bytes of the region to check for breakpoints.</param>
+        private void ThrowForRead(Word address, int count)
+        {
+            // Throw if ANY listener returned true.
+            if (MemoryChanged.GetInvocationList().Aggregate(false,
+                (bool existing, Delegate handler) => existing |= (bool)handler.DynamicInvoke(address, count, false)))
+            {
+                throw new BreakpointHitException(address, false);
+            }
+        }
+
+        /// <summary>
+        /// Creates and throws a BreakpointHitException if appropriate for memory write to the specified region.
+        /// </summary>
+        /// <param name="address">The address to be checked for breakpoints.</param>
+        /// <param name="count">Size in bytes of the region to check for breakpoints.</param>
+        private void ThrowForWrite(Word address, int count)
+        {
+            // Throw if ANY listener returned true.
+            if (MemoryChanged.GetInvocationList().Aggregate(false,
+                (bool existing, Delegate handler) => existing |= (bool)handler.DynamicInvoke(address, count, true)))
+            {
+                throw new BreakpointHitException(address, true);
+            }
         }
 
         // Helper function for ReadWord and WriteWord.
@@ -791,22 +965,9 @@ namespace vsic
             }
         }
 
-        private void WriteWord(Word w, Word address, AddressingMode mode)
-        {
-            if (mode != AddressingMode.Immediate)
-            {
-                address = DecodeAddress(address, mode);
-            }
-            int addr = (int)address;
-            memory[addr] = w.High;
-            memory[addr + 1] = w.Middle;
-            memory[addr + 2] = w.Low;
-            MemoryChanged?.Invoke(address, 3, true);
-        }
-
         private void WriteByte(byte b, Word address)
         {
-            memory[(int)address] = b;
+            memory[address] = b;
             //Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
         }
 
@@ -878,6 +1039,7 @@ namespace vsic
                 line = read.ReadLine().Trim().ToLower();
                 ++lineCount;
                 entryPoint = Convert.ToInt32(line, 16);
+                Debug.WriteLine($"Read entry point {entryPoint.ToString("X")}.");
                 while (true)
                 {
                     line = read.ReadLine().Trim().ToLower();
@@ -922,6 +1084,7 @@ namespace vsic
         /// <param name="path"></param>
         public void LoadLst(string path)
         {
+            throw new NotImplementedException();
             // Let's care about only those lines that sicasm has formatted with a line number.
             // This method begins parsing by finding the first line number in the file, 001.
 

@@ -9,6 +9,10 @@ namespace vsic
         { get; private set; }
         public bool Enabled
         { get; set; }
+        public bool BreakOnRead
+        { get; set; }
+        public bool BreakOnWrite
+        { get; set; }
 
         public Breakpoint(int address)
         {

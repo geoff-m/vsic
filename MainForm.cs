@@ -21,6 +21,8 @@ namespace vsic
             ccCB.Items.Add("Equal to");
             ccCB.Items.Add("Greater than");
 
+            //breakpoints = new Dictionary<Word, Breakpoint>();
+            breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -70,6 +72,7 @@ namespace vsic
             sess.Logger = this;
 
             Log("Created new SIC/XE machine.");
+            breakpoints.Clear();
             InitializeMachineDisplay();
             UpdateMachineDisplay();
             SetStatusMessage("Ready");
@@ -173,26 +176,13 @@ namespace vsic
 
             hexDisplay.Boxes.Clear();
 
-            pcMarker = new ByteMarker((int)sess.Machine.ProgramCounter,
-                (int)sess.Machine.InstructionsExecuted,
+            pcMarker = new ByteMarker(sess.Machine.ProgramCounter,
                 PC_MARKER_COLOR,
+                sess.Machine.InstructionsExecuted,
                 false,
                 PC_MARKER_ID);
 
             ResetTextboxColors();
-        }
-
-        private void OnMemoryChanged(Word addr, int count, bool written)
-        {
-            int start = (int)addr;
-            for (int i = start; i < start + count; ++i)
-            {
-                var newBox = new ByteMarker(i,
-                    (int)sess.Machine.InstructionsExecuted,
-                    written ? Color.LightGreen : Color.Pink);
-
-                hexDisplay.Boxes.Add(newBox);
-            }
         }
 
         readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
@@ -276,8 +266,15 @@ namespace vsic
             }
 
             // Cull old markers.
-            int instr = (int)m.InstructionsExecuted;
-            int removed = hexDisplay.Boxes.RemoveWhere(bm => (instr - bm.Timestamp) > 1);
+            int instr = (int)m.InstructionsExecuted - 1;
+            int removed = hexDisplay.Boxes.RemoveWhere(bm =>
+            {
+                long? expiry = bm.ExpiresAfter;
+                bool ret = expiry.HasValue && instr > expiry.Value;
+                Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
+                return ret;
+            }
+            );
             //Debug.WriteLine($"Removed {removed} markers.");
 
             // Remove old program counter.
@@ -285,8 +282,8 @@ namespace vsic
 
             // Add new program counter marker.
             pcMarker = new ByteMarker(m.ProgramCounter,
-                instr - 1,
                 PC_MARKER_COLOR,
+                null,
                 false,
                 PC_MARKER_ID);
             hexDisplay.Boxes.Add(pcMarker);
@@ -297,7 +294,7 @@ namespace vsic
 
         private void OnResize(object sender, EventArgs e)
         {
-            memGrpBox.Width = regGrpBox.Location.X - memGrpBox.Location.X - 10;
+            memGB.Width = regGB.Location.X - memGB.Location.X - 10;
         }
 
         private void gotoTB_TextChanged(object sender, EventArgs e)
@@ -344,9 +341,12 @@ namespace vsic
 
         private void OnCursorMove(object sender, EventArgs e)
         {
-            string addr = hexDisplay.CursorAddress.ToString("X");
-            loadMemoryToolStripMenuItem.Text = $"Load Memory at {addr}...";
-            cursorPositionLabel.Text = $"0x{addr}";
+            int addr = hexDisplay.CursorAddress;
+            string addrString = addr.ToString("X");
+            loadMemoryToolStripMenuItem.Text = $"Load Memory at {addrString}...";
+            cursorPositionLabel.Text = $"0x{addrString}";
+
+            UpdateBreakpointGB();
         }
 
         private void loadOBJToolStripMenuItem_Click(object sender, EventArgs e)
@@ -357,7 +357,7 @@ namespace vsic
                 sess.Machine.LoadObj(openOBJdialog.FileName);
 
                 // Remove all temporary markers.
-                hexDisplay.Boxes.Clear();
+                hexDisplay.Boxes.RemoveWhere(bm => bm.ExpiresAfter.HasValue);
 
                 ResetTextboxColors();
 
@@ -451,7 +451,7 @@ namespace vsic
             hexDisplayFocused = false;
         }
 
-        // todo: use this function to handle key press for all registers
+        // This function to handles key press for all registers.
         private void onRegisterTBKeyPress(object sender, KeyPressEventArgs e)
         {
             TextBox tb = sender as TextBox;
@@ -511,7 +511,7 @@ namespace vsic
                     }
                     if (ReferenceEquals(tb, regTTB))
                     {
-                        sess.Machine.RegisterT = newValue;
+                        sess.Machine.RegisterS = newValue;
                         break;
                     }
                     if (ReferenceEquals(tb, regBTB))
@@ -529,7 +529,7 @@ namespace vsic
                         sess.Machine.RegisterL = newValue;
                         break;
                     }
-                    
+
                     // This should be unreachable.
                     Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {sender.ToString()}");
                     return;
@@ -542,6 +542,166 @@ namespace vsic
             e.Handled = true;
         }
 
+        private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
+        private readonly Color MEMORY_READ_COLOR = Color.FromArgb(64, Color.Red);
+        private bool OnMemoryChanged(Word addr, int count, bool written)
+        {
+            int stop = addr + count;
+            if (written)
+            {
+                Debug.WriteLine($"Memory written: {count} bytes at {addr}.");
+                for (int i = addr; i < stop; ++i)
+                {
+                    var newBox = new ByteMarker(i,
+                        MEMORY_WRITTEN_COLOR,
+                        sess.Machine.InstructionsExecuted);
+
+                    hexDisplay.Boxes.Add(newBox);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"Memory read: {count} bytes at {addr}.");
+                for (int i = addr; i < stop; ++i)
+                {
+                    var newBox = new ByteMarker(i,
+                        MEMORY_READ_COLOR,
+                        sess.Machine.InstructionsExecuted);
+
+                    hexDisplay.Boxes.Add(newBox);
+                }
+            }
+
+
+            foreach (var b in breakpoints)
+            {
+                int diff = b.Address - addr;
+                if (diff < 0 || diff > count)
+                    continue; // This breakpoint is out of range.
+                if (b.Enabled)
+                {
+                    if (b.BreakOnWrite == written || b.BreakOnRead == !written)
+                    {
+                        Log("Breakpoint hit at {0}.", addr);
+                        return true; // Tell machine to break.
+                    }
+                }
+            }
+            return false; // Allow execution to continue.
+        }
+
+        #region Breakpoints
+        // We use a sorted set instead of a dictionary because we want to search for breakpoints over intervals, not just at exact addresses.
+        private SortedSet<Breakpoint> breakpoints;
+
+        private readonly Color BREAKPOINT_COLOR = Color.FromArgb(127, Color.Red);
+
+        private void setBkptButton_Click(object sender, EventArgs e)
+        {
+            Word addr = (Word)hexDisplay.CursorAddress;
+            Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
+            //if (breakpoints.TryGetValue(addr, out bp))
+            if (bp != null)
+            {
+                // There is an existing breakpoint at the cursor. Clear it.
+                int removed;
+                removed = breakpoints.RemoveWhere(b => b.Address == addr);
+                if (removed != 1)
+                    Debug.WriteLine($"Removing breakpoint at address {addr}: SortedSet.RemoveWhere returned {removed}!");
+                removed = hexDisplay.Boxes.RemoveWhere(bm => bm.Address == addr && bm.Color == BREAKPOINT_COLOR);
+                if (removed != 1)
+                    Debug.WriteLine($"Removing ByteMarker at address {addr}: Boxes.RemoveWhere returned {removed}!");
+                Log("Removed breakpoint at {0}.", addr);
+            }
+            else
+            {
+                // No breakpoint exists at the cursor. Create one.
+                bp = new Breakpoint(addr)
+                {
+                    Enabled = true,
+                    BreakOnRead = true,
+                    BreakOnWrite = true
+                };
+                //breakpoints.Add(addr, bp);
+                breakpoints.Add(new Breakpoint(addr));
+                bool success = hexDisplay.Boxes.Add(new ByteMarker(addr, BREAKPOINT_COLOR, null));
+                if (success)
+                {
+                    Log("Added breakpoint at {0}.", addr);
+                }
+                else
+                {
+                    Debug.WriteLine($"Adding new ByteMarker for breakpoint at {addr} returned false!");
+                }
+            }
+            UpdateBreakpointGB();
+            hexDisplay.Invalidate();
+        }
+
+        private void UpdateBreakpointGB()
+        {
+            Breakpoint bp = breakpoints.FirstInRange(b => b.Address, hexDisplay.CursorAddress, 1);
+            if (bp != null)
+            {
+                bpButton.Text = "Clear (F9)";
+                bpEnabledCB.Visible = true;
+                bpEnabledCB.Checked = bp.Enabled;
+                bpReadCB.Visible = true;
+                bpReadCB.Checked = bp.BreakOnRead;
+                bpWriteCB.Visible = true;
+                bpWriteCB.Checked = bp.BreakOnWrite;
+            }
+            else
+            {
+                bpButton.Text = "Set (F9)";
+                bpEnabledCB.Visible = false;
+                bpReadCB.Visible = false;
+                bpWriteCB.Visible = false;
+            }
+        }
+
+        private void bpEnabledCB_CheckedChanged(object sender, EventArgs e)
+        {
+            var addr = (Word)hexDisplay.CursorAddress;
+            Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
+            if (bp != null)
+            {
+                bp.Enabled = bpEnabledCB.Checked;
+            }
+            else
+            {
+                Debug.WriteLine($"Enable checkbox checked but no breakpoint at {addr} was found!");
+            }
+        }
+
+        private void bpReadCB_CheckedChanged(object sender, EventArgs e)
+        {
+            var addr = (Word)hexDisplay.CursorAddress;
+            Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
+            if (bp != null)
+            {
+                bp.BreakOnRead = bpReadCB.Checked;
+            }
+            else
+            {
+                Debug.WriteLine($"Break on read checkbox checked but no breakpoint at {addr} was found!");
+            }
+        }
+
+        private void bpWriteCB_CheckedChanged(object sender, EventArgs e)
+        {
+            var addr = (Word)hexDisplay.CursorAddress;
+            Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
+            if (bp != null)
+            {
+                bp.BreakOnWrite = bpWriteCB.Checked;
+            }
+            else
+            {
+                Debug.WriteLine($"Break on write checkbox checked but no breakpoint at {addr} was found!");
+            }
+        }
+        #endregion
 
     }
 }

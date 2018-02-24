@@ -20,8 +20,6 @@ namespace vsic
         { get; private set; }
         public bool Hollow
         { get; private set; }
-        public int Timestamp
-        { get; private set; }
 
         /// <summary>
         /// Describes a colored marker to be drawn around a byte at a certain address.
@@ -29,10 +27,10 @@ namespace vsic
         /// <param name="address">The address to be marked.</param>
         /// <param name="color">The color that will be used for drawing.</param>
         /// <param name="uniqueId">User markers (from breakpoints) keyed on their addresses. However, special markers must be considered unique beyond address. For example, program counter needs to be considered unique at all times.</param>
-        public ByteMarker(int address, int timestamp, Color color, bool hollow = false, int uniqueId = 0, float penWidth = 0.2f)
+        public ByteMarker(int address, Color color, long? expiration, bool hollow = false, int uniqueId = 0, float penWidth = 0.2f)
         {
             Address = address;
-            Timestamp = timestamp;
+            ExpiresAfter = expiration;
             Color = color;
             id = uniqueId;
             if (hollow)
@@ -46,18 +44,20 @@ namespace vsic
             Hollow = hollow;
         }
 
+        public long? ExpiresAfter
+        { get; set; }
+
         int id;
         public override int GetHashCode()
         {
             if (id != 0)
                 return id;
-            //Debug.WriteLine($"hello from bytemarker at {Address} with timestamp {Timestamp}");
-            return Address ^ Timestamp << 24;
+            return Address ^ ExpiresAfter.GetHashCode() << 24;
         }
 
         public override string ToString()
         {
-            return $"{Address} ({Color}) (time={Timestamp})";
+            return $"{Address} ({Color}) (ExpiresAfter={ExpiresAfter.ToString()})";
         }
     }
 }
