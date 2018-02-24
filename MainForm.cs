@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Path = System.IO.Path;
 using System.Diagnostics;
@@ -21,7 +20,6 @@ namespace vsic
             ccCB.Items.Add("Equal to");
             ccCB.Items.Add("Greater than");
 
-            //breakpoints = new Dictionary<Word, Breakpoint>();
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
         }
 
@@ -132,7 +130,7 @@ namespace vsic
             }
             toolStripStatusLabel.Text = string.Format(str, args);
         }
-        #endregion Logging
+        #endregion
 
         // Load the binary file into memory at the cursor.
         private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -601,7 +599,6 @@ namespace vsic
         {
             Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
-            //if (breakpoints.TryGetValue(addr, out bp))
             if (bp != null)
             {
                 // There is an existing breakpoint at the cursor. Clear it.
@@ -623,7 +620,6 @@ namespace vsic
                     BreakOnRead = true,
                     BreakOnWrite = true
                 };
-                //breakpoints.Add(addr, bp);
                 breakpoints.Add(new Breakpoint(addr));
                 bool success = hexDisplay.Boxes.Add(new ByteMarker(addr, BREAKPOINT_COLOR, null));
                 if (success)

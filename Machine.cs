@@ -564,7 +564,6 @@ namespace vsic
                             ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
-                            // increment X, then compare it to the operand
                             ++regX;
                             ConditionCode = CompareWords(regXwithevents, GetRegister(r1));
                             Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
@@ -604,7 +603,6 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.TIX:
-                            // increment X, then compare it to the operand
                             addr = DecodeLongInstruction(b1, out mode);
                             ++regX;
                             ConditionCode = CompareWords(regXwithevents, ReadWord(addr, mode));
