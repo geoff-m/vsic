@@ -48,7 +48,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.regBTB = new System.Windows.Forms.TextBox();
             this.pcGB = new System.Windows.Forms.GroupBox();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.PCfromCursorLabel = new System.Windows.Forms.Label();
+            this.bpDisableOverrideCB = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
             this.stepButton = new System.Windows.Forms.Button();
@@ -319,7 +320,8 @@
             // pcGB
             // 
             this.pcGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pcGB.Controls.Add(this.checkBox4);
+            this.pcGB.Controls.Add(this.PCfromCursorLabel);
+            this.pcGB.Controls.Add(this.bpDisableOverrideCB);
             this.pcGB.Controls.Add(this.button5);
             this.pcGB.Controls.Add(this.runButton);
             this.pcGB.Controls.Add(this.stepButton);
@@ -332,21 +334,34 @@
             this.pcGB.TabStop = false;
             this.pcGB.Text = "Program Counter";
             // 
-            // checkBox4
+            // PCfromCursorLabel
             // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Enabled = false;
-            this.checkBox4.Location = new System.Drawing.Point(9, 139);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(134, 17);
-            this.checkBox4.TabIndex = 6;
-            this.checkBox4.Text = "Disable All Breakpoints";
-            this.checkBox4.UseVisualStyleBackColor = true;
+            this.PCfromCursorLabel.AutoSize = true;
+            this.PCfromCursorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.PCfromCursorLabel.Location = new System.Drawing.Point(102, 21);
+            this.PCfromCursorLabel.Name = "PCfromCursorLabel";
+            this.PCfromCursorLabel.Size = new System.Drawing.Size(43, 13);
+            this.PCfromCursorLabel.TabIndex = 19;
+            this.PCfromCursorLabel.Text = "000000";
+            this.PCfromCursorLabel.Click += new System.EventHandler(this.PCfromCursorLabel_Click);
+            // 
+            // bpDisableOverrideCB
+            // 
+            this.bpDisableOverrideCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bpDisableOverrideCB.AutoSize = true;
+            this.bpDisableOverrideCB.Location = new System.Drawing.Point(6, 56);
+            this.bpDisableOverrideCB.Name = "bpDisableOverrideCB";
+            this.bpDisableOverrideCB.Size = new System.Drawing.Size(134, 17);
+            this.bpDisableOverrideCB.TabIndex = 6;
+            this.bpDisableOverrideCB.Text = "Disable All Breakpoints";
+            this.bpDisableOverrideCB.UseVisualStyleBackColor = true;
+            this.bpDisableOverrideCB.CheckedChanged += new System.EventHandler(this.bpDisableOverrideCB_CheckedChanged);
             // 
             // button5
             // 
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(9, 81);
+            this.button5.Location = new System.Drawing.Point(6, 108);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(136, 23);
             this.button5.TabIndex = 6;
@@ -355,7 +370,8 @@
             // 
             // runButton
             // 
-            this.runButton.Location = new System.Drawing.Point(9, 52);
+            this.runButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.runButton.Location = new System.Drawing.Point(6, 79);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(136, 23);
             this.runButton.TabIndex = 0;
@@ -365,7 +381,8 @@
             // 
             // stepButton
             // 
-            this.stepButton.Location = new System.Drawing.Point(9, 110);
+            this.stepButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.stepButton.Location = new System.Drawing.Point(6, 137);
             this.stepButton.Name = "stepButton";
             this.stepButton.Size = new System.Drawing.Size(136, 23);
             this.stepButton.TabIndex = 10;
@@ -782,7 +799,7 @@
             this.MainMenuStrip = this.menuStrip;
             this.MinimumSize = new System.Drawing.Size(485, 728);
             this.Name = "MainForm";
-            this.Text = "Virtual SIC";
+            this.Text = "Virtual SICXE";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.OnResize);
             this.memGB.ResumeLayout(false);
@@ -836,7 +853,7 @@
         private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
-        private System.Windows.Forms.CheckBox checkBox4;
+        private System.Windows.Forms.CheckBox bpDisableOverrideCB;
         private System.Windows.Forms.CheckBox bpEnabledCB;
         private System.Windows.Forms.CheckBox bpWriteCB;
         private System.Windows.Forms.CheckBox bpReadCB;
@@ -877,6 +894,7 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripMenuItem loadLstToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openLSTdialog;
+        private System.Windows.Forms.Label PCfromCursorLabel;
     }
 }
 

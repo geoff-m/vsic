@@ -25,6 +25,21 @@ namespace vsic
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            // Global hotkeys.
+            switch (keyData)
+            {
+                case Keys.F5:
+                    runButton_Click(this, null);
+                    return true;
+                case Keys.F10:
+                    stepButton_Click(this, null);
+                    return true;
+                case Keys.F9:
+                    setBkptButton_Click(this, null);
+                    return true;
+            }
+
+            // Hexdisplay navigation.
             if (hexDisplayFocused)
             {
                 switch (keyData)
@@ -343,6 +358,7 @@ namespace vsic
             string addrString = addr.ToString("X");
             loadMemoryToolStripMenuItem.Text = $"Load Memory at {addrString}...";
             cursorPositionLabel.Text = $"0x{addrString}";
+            PCfromCursorLabel.Text = addrString.PadLeft(6, '0');
 
             UpdateBreakpointGB();
         }
@@ -572,18 +588,20 @@ namespace vsic
                 }
             }
 
-
-            foreach (var b in breakpoints)
+            if (breakpointsEnabled)
             {
-                int diff = b.Address - addr;
-                if (diff < 0 || diff > count)
-                    continue; // This breakpoint is out of range.
-                if (b.Enabled)
+                foreach (var b in breakpoints)
                 {
-                    if (b.BreakOnWrite == written || b.BreakOnRead == !written)
+                    int diff = b.Address - addr;
+                    if (diff < 0 || diff > count)
+                        continue; // This breakpoint is out of range.
+                    if (b.Enabled)
                     {
-                        Log("Breakpoint hit at {0}.", addr);
-                        return true; // Tell machine to break.
+                        if (b.BreakOnWrite == written || b.BreakOnRead == !written)
+                        {
+                            Log("Breakpoint hit at {0}.", addr);
+                            return true; // Tell machine to break.
+                        }
                     }
                 }
             }
@@ -593,8 +611,7 @@ namespace vsic
         #region Breakpoints
         // We use a sorted set instead of a dictionary because we want to search for breakpoints over intervals, not just at exact addresses.
         private SortedSet<Breakpoint> breakpoints;
-
-        private readonly Color BREAKPOINT_COLOR = Color.FromArgb(192, Color.Red);
+        private bool breakpointsEnabled = true;
 
         private void setBkptButton_Click(object sender, EventArgs e)
         {
@@ -603,25 +620,27 @@ namespace vsic
             if (bp != null)
             {
                 // There is an existing breakpoint at the cursor. Clear it.
-                int removed;
-                removed = breakpoints.RemoveWhere(b => b.Address == addr);
-                if (removed != 1)
-                    Debug.WriteLine($"Removing breakpoint at address {addr}: SortedSet.RemoveWhere returned {removed}!");
-                removed = hexDisplay.Boxes.RemoveWhere(bm => bm.Address == addr && bm.Color == BREAKPOINT_COLOR);
-                if (removed != 1)
-                    Debug.WriteLine($"Removing ByteMarker at address {addr}: Boxes.RemoveWhere returned {removed}!");
+                var toRemove = breakpoints.Where(b => b.Address == addr).ToList();
+                foreach (var bkpt in toRemove)
+                {
+                    breakpoints.Remove(bkpt);
+                    hexDisplay.Boxes.Remove(bkpt);
+                }
                 Log("Removed breakpoint at {0}.", addr);
             }
             else
             {
                 // No breakpoint exists at the cursor. Create one.
-                breakpoints.Add(new Breakpoint(addr)
+                var newbp = new Breakpoint(addr)
                 {
                     Enabled = true,
                     BreakOnRead = true,
                     BreakOnWrite = true
-                });
-                bool success = hexDisplay.Boxes.Add(new ByteMarker(addr, BREAKPOINT_COLOR, null));
+                };
+                if (!breakpointsEnabled)
+                    newbp.ForceDrawAsDisabled = true;
+                breakpoints.Add(newbp);
+                bool success = hexDisplay.Boxes.Add(newbp);
                 if (success)
                 {
                     Log("Added breakpoint at {0}.", addr);
@@ -664,6 +683,7 @@ namespace vsic
             if (bp != null)
             {
                 bp.Enabled = bpEnabledCB.Checked;
+                hexDisplay.Invalidate();
             }
             else
             {
@@ -700,5 +720,32 @@ namespace vsic
         }
         #endregion
 
+        private void PCfromCursorLabel_Click(object sender, EventArgs e)
+        {
+            sess.Machine.ProgramCounter = (Word)hexDisplay.CursorAddress;
+            UpdateMachineDisplay();
+        }
+
+        private void bpDisableOverrideCB_CheckedChanged(object sender, EventArgs e)
+        {
+            if (bpDisableOverrideCB.Checked)
+            {
+                breakpointsEnabled = false;
+                foreach (var bp in breakpoints)
+                {
+                    bp.ForceDrawAsDisabled = true;
+                }
+            }
+            else
+            {
+                breakpointsEnabled = true;
+                foreach (var bp in breakpoints)
+                {
+                    bp.ForceDrawAsDisabled = false;
+                }
+            }
+
+            hexDisplay.Invalidate();
+        }
     }
 }

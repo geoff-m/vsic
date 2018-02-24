@@ -6,20 +6,23 @@ using System.Diagnostics;
 
 namespace vsic
 {
+    /// <summary>
+    /// Represents a visual marker to be drawn on a particular byte.
+    /// </summary>
     public class ByteMarker
     {
         public float PenWidth
         { get; set; }
         public int Address
-        { get; private set; }
+        { get; protected set; }
         public Color Color
-        { get; private set; }
+        { get; protected set; }
         public Pen Pen
-        { get; private set; }
+        { get; protected set; }
         public Brush Brush
-        { get; private set; }
+        { get; protected set; }
         public bool Hollow
-        { get; private set; }
+        { get; protected set; }
 
         /// <summary>
         /// Describes a colored marker to be drawn around a byte at a certain address.
