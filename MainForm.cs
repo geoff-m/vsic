@@ -533,7 +533,8 @@ namespace vsic
                     return;
 
                 case (char)Keys.Back:
-                    tb.SelectionStart = cursorIndex - 1;
+                    if (cursorIndex > 0)
+                        tb.SelectionStart = cursorIndex - 1;
                     break;
             }
 
