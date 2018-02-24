@@ -273,7 +273,7 @@ namespace vsic
                 return ret;
             }
             );
-            //Debug.WriteLine($"Removed {removed} markers.");
+            Debug.WriteLine($"Removed {removed} byte markers.");
 
             // Remove old program counter.
             hexDisplay.Boxes.RemoveWhere(bm => bm.GetHashCode() == PC_MARKER_ID);
@@ -614,13 +614,12 @@ namespace vsic
             else
             {
                 // No breakpoint exists at the cursor. Create one.
-                bp = new Breakpoint(addr)
+                breakpoints.Add(new Breakpoint(addr)
                 {
                     Enabled = true,
                     BreakOnRead = true,
                     BreakOnWrite = true
-                };
-                breakpoints.Add(new Breakpoint(addr));
+                });
                 bool success = hexDisplay.Boxes.Add(new ByteMarker(addr, BREAKPOINT_COLOR, null));
                 if (success)
                 {

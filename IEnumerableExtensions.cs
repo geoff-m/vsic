@@ -45,7 +45,7 @@ namespace vsic
                 int diff = transform(item) - intervalStart;
                 if (diff >= 0 && diff < intervalSize)
                 {
-                    Debug.WriteLine($"{transform(item).ToString("X")} is inside [{intervalStart.ToString("X")}, {(intervalStart + intervalSize).ToString("X")}).");
+                    //Debug.WriteLine($"{transform(item).ToString("X")} is inside [{intervalStart.ToString("X")}, {(intervalStart + intervalSize).ToString("X")}).");
                     return item;
                 }
                     
