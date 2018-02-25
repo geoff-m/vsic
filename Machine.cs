@@ -261,8 +261,8 @@ namespace vsic
             if (address + data.Length > memory.Length)
                 throw new ArgumentException("Write would go past end of memory.");
 
-            //Array.ConstrainedCopy(data, 0, memory, 0, data.Length);
-            Buffer.BlockCopy(data, 0, memory, 0, data.Length);
+            Array.ConstrainedCopy(data, 0, memory, 0, data.Length);
+            //Buffer.BlockCopy(data, 0, memory, 0, data.Length);
         }
 
         /// <summary>

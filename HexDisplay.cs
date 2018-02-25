@@ -214,7 +214,7 @@ namespace vsic
         public bool MoveCursorDown()
         {
             int newaddr = CursorAddress + bytesPerLine;
-            if (newaddr > Data.Length)
+            if (newaddr >= Data.Length)
             {
                 // Do nothing if moving up would put us after the end.
                 return false;
