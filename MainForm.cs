@@ -316,30 +316,6 @@ namespace vsic
             memGB.Width = regGB.Location.X - memGB.Location.X - 10;
         }
 
-        private void gotoTB_TextChanged(object sender, EventArgs e)
-        {
-            // If currently entered address is on screen, move cursor to it.
-            // Else, wait for user to indicate they're done entering the address (e.g. on blur, press Enter)
-
-            string text = gotoTB.Text.Trim();
-            if (text.Length == 0)
-            {
-                gotoTB.BackColor = SystemColors.Window;
-                return;
-            }
-
-            try
-            {
-                int addr = (int)Convert.ToUInt32(text, 16);
-            }
-            catch (FormatException)
-            {
-                gotoTB.BackColor = Color.LightPink;
-                return;
-            }
-            gotoTB.BackColor = SystemColors.Window;
-        }
-
         private void changedEncodingSelection(object sender, EventArgs e)
         {
             do // Not a loop.
@@ -513,6 +489,22 @@ namespace vsic
                     // Commit changes to machine.
                     Word newValue = (Word)int.Parse(tb.Text, System.Globalization.NumberStyles.HexNumber);
 
+                    if (ReferenceEquals(tb, gotoTB))
+                    {
+                        int maxmem = sess.Machine.MemorySize;
+                        if (newValue < maxmem)
+                        {
+                            tb.BackColor = SystemColors.Window;
+                            hexDisplay.CursorAddress = newValue;
+                            UpdateMachineDisplay();
+                        }
+                        else
+                        {
+                            tb.BackColor = Color.LightPink;
+                            LogError($"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem.ToString("X")}).");
+                        }
+                        break;
+                    }
                     if (ReferenceEquals(tb, pcTB))
                     {
                         sess.Machine.ProgramCounter = newValue;
@@ -752,6 +744,11 @@ namespace vsic
             }
 
             hexDisplay.Invalidate();
+        }
+
+        private void onHexDisplayScroll(object sender, ScrollEventArgs e)
+        {
+            Debug.WriteLine($"Mainform: Scroll type: {e.Type.ToString()}");
         }
     }
 }

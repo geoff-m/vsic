@@ -101,6 +101,7 @@ namespace vsic
                 doRecalc = true;
                 //Debug.WriteLine($"StartAddress has been set to {startAddress.ToString("X")}.");
                 // redraw
+                Invalidate(); // todo: remove redundant calls to this. i think at least one caller to this setter is calling Invalidate after.
             }
         }
 
@@ -121,7 +122,7 @@ namespace vsic
 
                 if (bytesPerLine > 0)
                 {
-                    
+
                     int screenBytes = bytesPerLine * lineCount;
                     int stopAddress = startAddress + screenBytes;
                     int cursorLine = cursorAddress / bytesPerLine;
@@ -140,7 +141,7 @@ namespace vsic
                         StartAddress = Math.Max(0, bytesPerLine * (cursorLine));
                     }
                 }
-                
+
 
                 if (CursorAddressChanged != null)
                     CursorAddressChanged.Invoke(this, null);
@@ -570,7 +571,7 @@ namespace vsic
             float charGap = wordWidth / 3;
             int wordByte = (int)((me.X - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
 
-            int addr = line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
+            int addr = StartAddress + line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
             if (addr < Data.Length)
             {
                 CursorAddress = addr;
@@ -591,5 +592,12 @@ namespace vsic
 
         #endregion
 
+        private const float SCROLL_MULTIPLIER = -0.02f;
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            int newSA = startAddress + bytesPerLine * (int)Math.Round(e.Delta * SCROLL_MULTIPLIER, 0);
+            if (newSA >= 0 && newSA < Data.Length)
+                StartAddress = newSA;
+        }
     }
 }
