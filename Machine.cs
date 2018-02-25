@@ -592,6 +592,12 @@ namespace vsic
                                 PC = DecodeAddress(addr, mode);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
+                        case Mnemonic.JSUB:
+                            addr = DecodeLongInstruction(b1, out mode);
+                            RegisterL = (Word)PC;
+                            PC = DecodeAddress(addr, mode);
+                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            break;
                         case Mnemonic.RSUB:
                             PC = regLwithevents;
                             Logger.Log($"Executed {op.ToString()}.");

@@ -614,21 +614,24 @@
             // 
             // watchesToolStripMenuItem
             // 
+            this.watchesToolStripMenuItem.Enabled = false;
             this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.watchesToolStripMenuItem.Text = "Watches";
             this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
             // 
             // breakpointsToolStripMenuItem
             // 
+            this.breakpointsToolStripMenuItem.Enabled = false;
             this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.breakpointsToolStripMenuItem.Text = "Breakpoints";
             // 
             // disassemblyToolStripMenuItem
             // 
+            this.disassemblyToolStripMenuItem.Enabled = false;
             this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
             // 
             // groupBox1
