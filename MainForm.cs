@@ -63,6 +63,12 @@ namespace vsic
                     case Keys.End:
                         hexDisplay.MoveCursorEnd();
                         break;
+                    case Keys.PageUp:
+                        hexDisplay.MoveCursorUpFar();
+                        break;
+                    case Keys.PageDown:
+                        hexDisplay.MoveCursorDownFar();
+                        break;
                     default:
                         return base.ProcessCmdKey(ref msg, keyData);
                 }

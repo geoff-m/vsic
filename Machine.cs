@@ -16,8 +16,8 @@ namespace vsic
         { get; private set; }
 
         #region Memory and registers
-        public const int SIC_MEMORY_MAXIMUM = 0x8000; // 32K
-        public const int SICXE_MEMORY_MAXIMUM = 0x100000; // 1M
+        public const int SIC_MEMORY_SIZE = 0x8000; // 32K
+        public const int SICXE_MEMORY_SIZE = 0x100000; // 1M
 
         const byte MEMORY_INITIAL_VALUE = 0xff;
         readonly Word REG_INITIAL_VALUE = (Word)0xffffff;
@@ -224,7 +224,7 @@ namespace vsic
         }
         #endregion
 
-        public Machine(int memorySize = SICXE_MEMORY_MAXIMUM)
+        public Machine(int memorySize = SICXE_MEMORY_SIZE)
         {
             memory = new byte[memorySize];
             Memory = new MemoryStream(memory, true);

@@ -86,6 +86,9 @@ namespace vsic
         }
 
         int startAddress = 0;
+        /// <summary>
+        /// Represents the address of the lowest byte that will be displayed.
+        /// </summary>
         public int StartAddress
         {
             get
@@ -96,6 +99,7 @@ namespace vsic
             {
                 startAddress = value;
                 doRecalc = true;
+                //Debug.WriteLine($"StartAddress has been set to {startAddress.ToString("X")}.");
                 // redraw
             }
         }
@@ -112,8 +116,32 @@ namespace vsic
                 if ((Data != null && cursorAddress >= Data.Length) || cursorAddress < 0)
                     throw new ArgumentOutOfRangeException(nameof(value));
 
-                // todo: if address is not contained in display, update displayed window to contain it.
+                // If address is not contained in display, update displayed window to contain it.
                 cursorAddress = value;
+
+                if (bytesPerLine > 0)
+                {
+                    
+                    int screenBytes = bytesPerLine * lineCount;
+                    int stopAddress = startAddress + screenBytes;
+                    int cursorLine = cursorAddress / bytesPerLine;
+                    //Debug.WriteLine($"Cursor is on line {cursorLine + 1} of {lineCount}.");
+                    //Debug.WriteLine($"StopAddress: {stopAddress.ToString("X")}");
+
+                    // If this address is after the end of the window, move the window so that the cursor appears on the last line.
+                    if (cursorAddress > stopAddress)
+                    {
+                        StartAddress = Math.Max(0, bytesPerLine * (cursorLine - lineCount + 1));
+                    }
+
+                    // If this adderess is before the start of the window, move the window so that the cursor appears on the first line.
+                    if (cursorAddress < startAddress)
+                    {
+                        StartAddress = Math.Max(0, bytesPerLine * (cursorLine));
+                    }
+                }
+                
+
                 if (CursorAddressChanged != null)
                     CursorAddressChanged.Invoke(this, null);
             }
@@ -217,9 +245,57 @@ namespace vsic
         public bool MoveCursorRight()
         {
             int newaddr = CursorAddress + 1;
-            if (newaddr > Data.Length)
+            if (newaddr >= Data.Length)
             {
                 // Do nothing if moving right would put us after the end.
+                return false;
+            }
+            CursorAddress = newaddr;
+            return true;
+        }
+
+        /// <summary>
+        /// Represents the proportion of visible lines that the cursor moves when MoveCursorUpFar and MoveCursorDownFar are called.
+        /// </summary>
+        private const float PAGE_SIZE_RATIO = 0.67f;
+
+        /// <summary>
+        /// Moves the cursor up two thirds of the screen in distance.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorUpFar()
+        {
+            int newaddr = CursorAddress - bytesPerLine * (int)Math.Floor(lineCount * PAGE_SIZE_RATIO);
+            if (newaddr < 0)
+            {
+                // If paging up would put us before the beginning, just make sure we're scrolled to the top line.
+                if (StartAddress > 0)
+                {
+                    StartAddress = 0;
+                    return true;
+                }
+                return false;
+            }
+            CursorAddress = newaddr;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves the cursor down two thirds of the screen in distance.
+        /// </summary>
+        /// <returns>A Boolean value indicating whether the cursor position was changed.</returns>
+        public bool MoveCursorDownFar()
+        {
+            int newaddr = CursorAddress + bytesPerLine * (int)Math.Floor(lineCount * PAGE_SIZE_RATIO);
+            if (newaddr >= Data.Length)
+            {
+                // If paging down would put us after the end, just make sure we're scrolled to the bottom line.
+                int max = (int)(Data.Length - bytesPerLine * lineCount);
+                if (StartAddress < max)
+                {
+                    StartAddress = max;
+                    return true;
+                }
                 return false;
             }
             CursorAddress = newaddr;
@@ -258,9 +334,8 @@ namespace vsic
             float addrH = addressSize.Height;
             float addrW = addressSize.Width;
             textLineSpacing = 0.05f * addrH;
-            // addrH * lineCount + lineSpacing * (lineCount - 1) = BOUNDS.Height - textYoffset
-            // lineCount * (addrH + lineSpacing - 1) = BOUNDS.Height - textYoffset
-            lineCount = (int)((BOUNDS.Height - 1 - textYoffset) / (addrH + textLineSpacing - 1));
+
+            lineCount = (int)((BOUNDS.Height - textYoffset) / (addrH + textLineSpacing));
             lineHeight = addrH;
 
             dataXoffset = addressX + addrW + addressDataGap;
@@ -335,7 +410,7 @@ namespace vsic
                     case Encoding.Raw:
                         var lineWords = Word.FromArray(lineBytes, 0, bytesRead);
                         int lineWordCount = lineWords.Length; // The actual number of words we have to display on this line.
-                        if (lineWordCount < 0)
+                        if (lineWordCount == 0)
                             continue;
 
                         g.DrawString(lineWords[0].ToString(wordFormatString), Font, Brushes.Black, dataXoffset, y);
@@ -495,9 +570,12 @@ namespace vsic
             float charGap = wordWidth / 3;
             int wordByte = (int)((me.X - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
 
-            CursorAddress = line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
-
-            Invalidate();
+            int addr = line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
+            if (addr < Data.Length)
+            {
+                CursorAddress = addr;
+                Invalidate();
+            }
         }
 
 

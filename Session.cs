@@ -22,6 +22,7 @@ namespace vsic
         public Session()
         {
             Machine = new Machine();
+            //Machine.MemoryRainbowTest();
             Logger = new NullLog();
             
         }
