@@ -61,13 +61,14 @@ namespace vsic
         STX = 0x10,
         CLEAR = 0xB4,
         RMO = 0xAC,
+        LDCH = 0x50,
+        STCH = 0x54,
 
         // I/O
         RD = 0xD8, // not implemented
         TD = 0xE0, // not implemented
         WD = 0xDC, // not implemented
-        STCH = 0x54, // not implemented
-
+        
         // Other
         COMPR = 0xA0,
         COMP = 0x28,

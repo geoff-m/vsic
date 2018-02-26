@@ -22,6 +22,8 @@ namespace vsic
         public Session()
         {
             Machine = new Machine();
+            Machine.Devices[0x05] = new FileDevice(0x05, "goodbye.txt");
+            Machine.Devices[0xf1] = new FileDevice(0xf1, "hello.txt");
             //Machine.MemoryRainbowTest();
             Logger = new NullLog();
             

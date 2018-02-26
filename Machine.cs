@@ -246,6 +246,36 @@ namespace vsic
             Logger = new NullLog();
         }
 
+        IODevice[] devices = new IODevice[256];
+        public IODevice[] Devices
+        {
+            get { return devices; }
+        }
+
+        /// <summary>
+        /// Tells all this machine's I/O devices to flush their internal buffers.
+        /// </summary>
+        public void FlushDevices()
+        {
+            devices.AsParallel().ForAll(d =>
+            {
+                if (d != null)
+                    d.Flush();
+            });
+        }
+
+        /// <summary>
+        /// Closes all I/O devices associated with this machine.
+        /// </summary>
+        public void CloseDevices()
+        {
+            devices.AsParallel().ForAll(d =>
+            {
+                if (d != null)
+                    d.Dispose();
+            });
+        }
+
         /// <summary>
         /// Copies the given data into this Machine's memory, beginning at the specified address.
         /// Safety: This method will either perform the entire copy, or no memory will be changed.
@@ -361,6 +391,8 @@ namespace vsic
                     Word reg1value, reg2value;
                     Word addr;
                     AddressingMode mode;
+                    byte deviceID;
+                    IODevice dev;
 
                     switch (op)
                     {
@@ -568,6 +600,20 @@ namespace vsic
                             ConditionCode = CompareWords(regXwithevents, GetRegister(r1));
                             Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
                             break;
+                        case Mnemonic.LDCH:
+                            // This instruciton operates on a single byte, not a word.
+                            addr = DecodeLongInstruction(b1, out mode);
+                            regA = (Word)(regA & ~0xff); // Zero out lowest byte.
+                            addr = DecodeAddress(addr, mode);
+                            regAwithevents = (Word)(regA | memory[addr] & 0xff); // Or in lowest byte from memory.
+                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            break;
+                        case Mnemonic.STCH:
+                            // This instruction operates on a single byte, not a word.
+                            addr = DecodeLongInstruction(b1, out mode);
+                            memory[addr] = (byte)(regAwithevents & 0xff);
+                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            break;
                         // Flow control ---------------------------------------------------
                         case Mnemonic.J:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -601,6 +647,46 @@ namespace vsic
                         case Mnemonic.RSUB:
                             PC = regLwithevents;
                             Logger.Log($"Executed {op.ToString()}.");
+                            break;
+                        // I/O ----------------------------------------------------------
+                        case Mnemonic.TD:
+                            addr = DecodeLongInstruction(b1, out mode);
+                            deviceID = memory[DecodeAddress(addr, mode)];
+                            dev = devices[deviceID];
+                            if (dev != null)
+                            {
+                                if (dev.Test())
+                                {
+                                    CC = ConditionCode.GreaterThan;
+                                }
+                                else
+                                {
+                                    CC = ConditionCode.EqualTo; // Equal means not ready.
+                                    Debug.WriteLine($"Device {deviceID} is not ready.");
+                                }
+                            }
+                            else
+                            {
+                                CC = ConditionCode.EqualTo;
+                                Debug.WriteLine($"Device {deviceID} does not exist!");
+                            }
+                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            break;
+                        case Mnemonic.WD:
+                            addr = DecodeLongInstruction(b1, out mode);
+                            deviceID = memory[DecodeAddress(addr, mode)];
+                            dev = devices[deviceID];
+                            dev.WriteByte((byte)(regAwithevents & 0xff));
+                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            break;
+                        case Mnemonic.RD:
+                            addr = DecodeLongInstruction(b1, out mode);
+                            deviceID = memory[DecodeAddress(addr, mode)];
+                            dev = devices[deviceID];
+                            byte rb = dev.ReadByte();
+                            Debug.WriteLine($"devices[{deviceID}].ReadByte() returned {rb.ToString("X")}.");
+                            regAwithevents = (Word)(regA & ~0xff | rb);
+                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         // Other --------------------------------------------------------
                         case Mnemonic.COMP:

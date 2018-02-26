@@ -56,6 +56,7 @@
     <Compile Include="Disassembly.Designer.cs">
       <DependentUpon>Disassembly.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileDevice.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HexDisplay.cs">
       <SubType>UserControl</SubType>
@@ -67,6 +68,7 @@
     <Compile Include="Exceptions\IllegalInstructionException.cs" />
     <Compile Include="ILogSink.cs" />
     <Compile Include="Instructions.cs" />
+    <Compile Include="IODevice.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

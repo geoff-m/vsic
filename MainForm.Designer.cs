@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
+            this.hexDisplay = new vsic.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -94,7 +95,6 @@
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
-            this.hexDisplay = new vsic.HexDisplay();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
@@ -120,6 +120,28 @@
             this.memGB.TabIndex = 0;
             this.memGB.TabStop = false;
             this.memGB.Text = "Memory";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            this.hexDisplay.Scroll += new System.Windows.Forms.ScrollEventHandler(this.onHexDisplayScroll);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // regGB
             // 
@@ -616,7 +638,7 @@
             // 
             this.watchesToolStripMenuItem.Enabled = false;
             this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.watchesToolStripMenuItem.Text = "Watches";
             this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
             // 
@@ -624,14 +646,14 @@
             // 
             this.breakpointsToolStripMenuItem.Enabled = false;
             this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.breakpointsToolStripMenuItem.Text = "Breakpoints";
             // 
             // disassemblyToolStripMenuItem
             // 
             this.disassemblyToolStripMenuItem.Enabled = false;
             this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
             // 
             // groupBox1
@@ -771,28 +793,6 @@
             // 
             this.openLSTdialog.Filter = "sicasm LST files (*.lst)|*.lst";
             // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
-            this.hexDisplay.Scroll += new System.Windows.Forms.ScrollEventHandler(this.onHexDisplayScroll);
-            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
-            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -805,6 +805,7 @@
             this.MinimumSize = new System.Drawing.Size(485, 728);
             this.Name = "MainForm";
             this.Text = "Virtual SICXE";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.OnResize);
             this.memGB.ResumeLayout(false);

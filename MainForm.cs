@@ -99,8 +99,19 @@ namespace vsic
 
         private void UnloadSession()
         {
-            sess.Machine.MemoryChanged -= OnMemoryChanged;
-            sess.Machine.RegisterChanged -= OnRegisterChanged;
+            if (sess != null)
+            {
+                var m = sess.Machine;
+                if (m != null)
+                {
+                    m.MemoryChanged -= OnMemoryChanged;
+                    m.RegisterChanged -= OnRegisterChanged;
+                    Debug.WriteLine("Disposing I/O devices...");
+                    m.CloseDevices();
+                    Debug.WriteLine("Done disposing I/O devices.");
+                }
+            }
+            
         }
 
         #region ILogSink implementation
@@ -290,11 +301,11 @@ namespace vsic
             {
                 long? expiry = bm.ExpiresAfter;
                 bool ret = expiry.HasValue && instr > expiry.Value;
-                Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
+                //Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
                 return ret;
             }
             );
-            Debug.WriteLine($"Removed {removed} byte markers.");
+            //Debug.WriteLine($"Removed {removed} byte markers.");
 
             // Remove old program counter.
             hexDisplay.Boxes.RemoveWhere(bm => bm.GetHashCode() == PC_MARKER_ID);
@@ -365,7 +376,8 @@ namespace vsic
         {
             ResetTextboxColors();
             sess.Machine.Step();
-            handleExecutionResult();
+            sess.Machine.FlushDevices();
+            HandleExecutionResult();
             UpdateMachineDisplay();
         }
 
@@ -374,14 +386,15 @@ namespace vsic
             var m = sess.Machine;
             long startInstr = m.InstructionsExecuted;
             m.Run();
+            m.FlushDevices();
             long endInstr = m.InstructionsExecuted;
             long diff = endInstr - startInstr;
             Log($"Run: {diff.ToString()} instructions executed.");
-            handleExecutionResult();
+            HandleExecutionResult();
             UpdateMachineDisplay();
         }
 
-        private void handleExecutionResult()
+        private void HandleExecutionResult()
         {
             switch (sess.Machine.LastResult)
             {
@@ -582,7 +595,7 @@ namespace vsic
                         sess.Machine.InstructionsExecuted);
                     bool added;
                     added = hexDisplay.Boxes.Add(newBox);
-                    Debug.WriteLine($"Box was added? {added}");
+                    //Debug.WriteLine($"Box was added? {added}");
                 }
             }
 
@@ -749,6 +762,11 @@ namespace vsic
         private void onHexDisplayScroll(object sender, ScrollEventArgs e)
         {
             Debug.WriteLine($"Mainform: Scroll type: {e.Type.ToString()}");
+        }
+
+        private void OnClosing(object sender, FormClosingEventArgs e)
+        {
+            UnloadSession();
         }
     }
 }
