@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Diagnostics;
+using IOPath = System.IO.Path;
 
 namespace vsic
 {
@@ -71,6 +72,11 @@ namespace vsic
         {
             fs.Dispose();
             fs = null;
+        }
+
+        public override string ToString()
+        {
+            return $"{ID.ToString("X").PadLeft(2, '0')}: File ...{IOPath.DirectorySeparatorChar}{IOPath.GetFileName(Path)}";
         }
     }
 }

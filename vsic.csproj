@@ -46,6 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingMode.cs" />
+    <Compile Include="ConsoleWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConsoleWindow.Designer.cs">
+      <DependentUpon>ConsoleWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Exceptions\BreakpointHitException.cs" />
     <Compile Include="ByteMarker.cs" />
     <Compile Include="Breakpoint.cs" />
@@ -90,6 +96,9 @@
       <DependentUpon>WatchForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Word.cs" />
+    <EmbeddedResource Include="ConsoleWindow.resx">
+      <DependentUpon>ConsoleWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Disassembly.resx">
       <DependentUpon>Disassembly.cs</DependentUpon>
     </EmbeddedResource>

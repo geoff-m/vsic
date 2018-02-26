@@ -94,6 +94,7 @@ namespace vsic
             breakpoints.Clear();
             InitializeMachineDisplay();
             UpdateMachineDisplay();
+            UpdateIODevices();
             SetStatusMessage("Ready");
         }
 
@@ -767,6 +768,12 @@ namespace vsic
         private void OnClosing(object sender, FormClosingEventArgs e)
         {
             UnloadSession();
+        }
+
+        private void UpdateIODevices()
+        {
+            devLB.Items.Clear();
+            devLB.Items.AddRange(sess.Machine.Devices.Where(d => d != null).ToArray());
         }
     }
 }

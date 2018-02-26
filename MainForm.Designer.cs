@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new vsic.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -95,6 +94,9 @@
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.devLB = new System.Windows.Forms.ListBox();
+            this.hexDisplay = new vsic.HexDisplay();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
@@ -107,6 +109,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // memGB
@@ -120,28 +123,6 @@
             this.memGB.TabIndex = 0;
             this.memGB.TabStop = false;
             this.memGB.Text = "Memory";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
-            this.hexDisplay.Scroll += new System.Windows.Forms.ScrollEventHandler(this.onHexDisplayScroll);
-            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
-            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // regGB
             // 
@@ -774,6 +755,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.groupBox2);
             this.splitContainer1.Panel1.Controls.Add(this.regGB);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox4);
             this.splitContainer1.Panel1.Controls.Add(this.memGB);
@@ -792,6 +774,48 @@
             // openLSTdialog
             // 
             this.openLSTdialog.Filter = "sicasm LST files (*.lst)|*.lst";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.devLB);
+            this.groupBox2.Location = new System.Drawing.Point(863, 428);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(151, 147);
+            this.groupBox2.TabIndex = 9;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "I/O Devices";
+            // 
+            // devLB
+            // 
+            this.devLB.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.devLB.FormattingEnabled = true;
+            this.devLB.Location = new System.Drawing.Point(3, 16);
+            this.devLB.Name = "devLB";
+            this.devLB.Size = new System.Drawing.Size(145, 128);
+            this.devLB.TabIndex = 0;
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            this.hexDisplay.Scroll += new System.Windows.Forms.ScrollEventHandler(this.onHexDisplayScroll);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // MainForm
             // 
@@ -827,6 +851,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -901,6 +926,8 @@
         private System.Windows.Forms.ToolStripMenuItem loadLstToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openLSTdialog;
         private System.Windows.Forms.Label PCfromCursorLabel;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.ListBox devLB;
     }
 }
 
