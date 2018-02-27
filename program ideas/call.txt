@@ -1,0 +1,134 @@
+﻿
+Define a call structure to be two words.
+The first word is the address of a subroutine to call.
+The second word is the value that should be present in A when that subroutine is entered.
+
+A program to handle the save/restore of registers when calling a subroutine.
+
+	Preconditions
+We assume A contains the address of a call structure as defined above.
+
+
+. frame format
+. A--X--S--T--L--B--SW--
+
+start
+
+STKSZ	WORD	300
+stk		RESW	300
+stkptr	RESW	1	. the address of the beginning of the next (empty, inner) frame
+temp	RESW	1
+callstr	RESW	1
+frstrt	RESW	1	. the address of the beginning of the innermost frame
+lfrsrt	RESW	1
+		
+		STA		callstr
+
+		. check location of stack pointer
+		LDA		stkptr
+		COMP	#900
+		JLT		ok
+		
+		. if this is reached, the stack is full. raise an interrupt or something?
+		
+ok		STX		temp
+		LDX		stkptr
+		STX		frstrt	. remember where this frame starts.
+
+		. load the value A should have, which is the second word of callstr
+		LDA		callstr
+		ADD		#3
+		STA		lfrsrt	. this is not the true intent of this variable
+		LDA		@lfrsrt . --it's just used here as a hack to perform A = *A;
+
+		. push the value A should have
+		STA		stk,X
+		RMO		X,A
+		ADD		#3
+		RMO		A,X
+
+		. push X
+		LDA		temp
+		STA		stk,X
+		RMO		X,A
+		ADD		#3
+		RMO		A,X
+
+		. push S
+		STS		stk,X
+		ADD		#3
+		RMO		A,X
+
+		. push T
+		STT		stk,X
+		ADD		#3
+		RMO		A,X
+
+		. push L
+		STL		stk,X
+		ADD		#3
+		RMO		A,X
+
+		. push B
+		STB		stk,X
+		ADD		#3
+		RMO		A,X
+
+		. push SW
+		STSW	stk,X
+		ADD		#3
+
+		. we've now finished building the stack frame
+		
+		. remember the beginning of the frame we just wrote.
+		LDX		frstrt
+		STX		lfrsrt
+
+		. A now points to the first word following the frame we just wrote,
+		. which will be the beginning of the next frame to be created.
+		. Therefore, store it in frstrt.
+		STA		frstrt
+
+		. now restore A from stack
+		LDA		stk,X
+
+		. now restore X
+		LDX		temp
+
+		JSUB	callstr
+
+		. callee has returned.
+
+		. pop the last frame off the stack and restore everything.
+
+		. restore S
+		LDX		#6
+		LDS		lfrsrt,X
+		
+		. restore T
+		LDX		#12
+		LDT		lfrsrt,X
+
+		. restore B
+		LDX		#15
+		LDB		lfrsrt,X
+
+		. restore SW
+		LDX		#18
+		LDSW	lfrsrt,X
+
+		. restore X
+		LDX		#3
+		LDX		lfrsrt,X
+		
+		. move stack pointer back
+		LDA		lfrsrt
+		STA		stkptr
+
+		. restore A
+		LDA		lfrsrt
+
+		RSUB
+
+		
+		

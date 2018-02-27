@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressingMode.cs" />
+    <Compile Include="ConsoleDevice.cs" />
     <Compile Include="ConsoleWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -136,6 +137,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lst format.txt" />
+    <Content Include="program ideas\call.txt" />
+    <Content Include="program ideas\sicxe program plans.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

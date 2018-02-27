@@ -20,6 +20,7 @@ namespace vsic
             ccCB.Items.Add("Equal to");
             ccCB.Items.Add("Greater than");
 
+            conWindow = new ConsoleWindow();
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
         }
 
@@ -774,6 +775,16 @@ namespace vsic
         {
             devLB.Items.Clear();
             devLB.Items.AddRange(sess.Machine.Devices.Where(d => d != null).ToArray());
+        }
+
+        ConsoleWindow conWindow;
+        private void OnDevLBPick(object sender, EventArgs e)
+        {
+            var dev = (IODevice)devLB.SelectedItem;
+            if (dev is ConsoleDevice con)
+            {
+                conWindow.DisplayConsole(con);
+            }
         }
     }
 }

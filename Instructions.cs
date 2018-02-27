@@ -8,16 +8,16 @@ namespace vsic
 {
     public enum Register : byte
     {
-        A = 0,
-        X = 1,
-        L = 2,
-        PC = 8,
-        CC = 9,
+        A = 0,  // accumulator
+        X = 1,  // index
+        S = 4,  // general
+        T = 5,  // general
+        F = 6,  // floating accumulator
 
-        B = 3,
-        S = 4,
-        T = 5,
-        F = 6
+        L = 2,  // return address
+        B = 3,  // base address
+        PC = 8, // instruction pointer
+        CC = 9  // status word (result of comparison)
     }
 
     public enum Mnemonic : byte

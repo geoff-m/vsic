@@ -28,33 +28,49 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.conTB = new System.Windows.Forms.TextBox();
+            this.inputTB = new System.Windows.Forms.TextBox();
+            this.tabControl = new System.Windows.Forms.TabControl();
             this.SuspendLayout();
             // 
-            // conTB
+            // inputTB
             // 
-            this.conTB.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.conTB.Location = new System.Drawing.Point(0, 0);
-            this.conTB.Multiline = true;
-            this.conTB.Name = "conTB";
-            this.conTB.Size = new System.Drawing.Size(284, 261);
-            this.conTB.TabIndex = 0;
+            this.inputTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.inputTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.inputTB.Location = new System.Drawing.Point(0, 267);
+            this.inputTB.Name = "inputTB";
+            this.inputTB.Size = new System.Drawing.Size(473, 24);
+            this.inputTB.TabIndex = 0;
+            this.inputTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnInputTBKeyPress);
+            // 
+            // tabControl
+            // 
+            this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(473, 261);
+            this.tabControl.TabIndex = 2;
             // 
             // ConsoleWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
-            this.Controls.Add(this.conTB);
+            this.ClientSize = new System.Drawing.Size(473, 292);
+            this.Controls.Add(this.tabControl);
+            this.Controls.Add(this.inputTB);
             this.Name = "ConsoleWindow";
             this.Text = "Console";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox conTB;
+        private System.Windows.Forms.TextBox inputTB;
+        private System.Windows.Forms.TabControl tabControl;
     }
 }

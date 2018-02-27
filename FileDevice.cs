@@ -61,7 +61,7 @@ namespace vsic
                 // This is necessary because fs.Flush() does not actually guarantee disk update.
                 position = fs.Position;
                 fs.Dispose();
-                // --Race condition: hope nothing changes about the file between these two operations--
+                // Race condition: hope nothing changes about the file between these two operations.
                 fs = new FileStream(Path, FileMode.OpenOrCreate);
                 fs.Position = position; // restore position to what it was before close and reopen.
                 recentWrites = 0;
