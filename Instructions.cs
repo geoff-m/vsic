@@ -12,7 +12,7 @@ namespace vsic
         X = 1,  // index
         S = 4,  // general
         T = 5,  // general
-        F = 6,  // floating accumulator
+        F = 6,  // floating accumulator (not implemented)
 
         L = 2,  // return address
         B = 3,  // base address
