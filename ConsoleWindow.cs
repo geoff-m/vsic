@@ -72,7 +72,7 @@ namespace vsic
                 }
                 var tb = (TextBox)tab.Controls[0];
                 tb.AppendText(text);
-                tb.AppendText("\r\n"); // Just \n here was not enough.
+                tb.AppendText("\r\n"); // Just \n here was not enough to maintain line breaks after form resizing.
             }
         }
 

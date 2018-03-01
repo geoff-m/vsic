@@ -10,7 +10,7 @@ namespace vsic
     public class FileDevice : IODevice
     {
         private FileStream fs;
-        int recentWrites = 0;
+        long recentlyWritten = 0;
 
         public string Path
         { get; private set; }
@@ -41,12 +41,12 @@ namespace vsic
                 return EOF;
             return (byte)b;
         }
-        
+
         public override void WriteByte(byte b)
         {
             fs.WriteByte(b);
-            ++recentWrites;
-            if (recentWrites > 100)
+            ++recentlyWritten;
+            if (recentlyWritten > 100)
                 Flush();
         }
 
@@ -54,17 +54,22 @@ namespace vsic
         long position;
         public override void Flush()
         {
-            Debug.WriteLine($"Device {ID.ToString("X")}: Flushing.");
-            
-            if (recentWrites > 0)
+            if (recentlyWritten > 0)
             {
-                // This is necessary because fs.Flush() does not actually guarantee disk update.
+                Debug.WriteLine($"Device {ID.ToString("X")}: Flushing {recentlyWritten} bytes.");
+
+                // All this is necessary because fs.Flush() does not actually guarantee disk update.
                 position = fs.Position;
                 fs.Dispose();
                 // Race condition: hope nothing changes about the file between these two operations.
                 fs = new FileStream(Path, FileMode.OpenOrCreate);
                 fs.Position = position; // restore position to what it was before close and reopen.
-                recentWrites = 0;
+
+                recentlyWritten = 0;
+            }
+            else
+            {
+                //Debug.WriteLine($"Device {ID.ToString("X")}: Flushing not necessary.");
             }
         }
 

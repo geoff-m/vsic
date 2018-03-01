@@ -5,6 +5,24 @@ The second word is the value that should be present in A when that subroutine is
 
 A program to handle the save/restore of registers when calling a subroutine.
 
+Example usage: Let's say we want to call a procedure to convert an integer to a string.
+Then in the calling procedure we would have something like
+int		word	123
+
+. define call structure
+int2str	resw	1 . somehow populate the first word of this with the address of the function you want to call.
+arg		resw	1
+
+. populate argument in call structure
+		LDA		int
+		STA		arg
+. load address of call structure
+		LDA		#int2str
+		JSUB	call
+
+	
+
+
 	Preconditions
 We assume A contains the address of a call structure as defined above.
 

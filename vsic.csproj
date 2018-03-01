@@ -137,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lst format.txt" />
+    <Content Include="program ideas\call_v2.txt" />
     <Content Include="program ideas\call.txt" />
     <Content Include="program ideas\sicxe program plans.txt" />
   </ItemGroup>
