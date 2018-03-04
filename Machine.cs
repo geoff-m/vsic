@@ -911,8 +911,7 @@ namespace vsic
 
             if ((n & highBit) > 0) // If sign bit is set.
             {
-                // Number is negative: invert and increment
-                //Debug.WriteLine("It's a negative number!");
+                // Number is negative: invert and increment.
                 return -((~n + 1) & lowerMask);
             }
 
