@@ -30,13 +30,13 @@ namespace vsic
         }
 
         /// <summary>
-        /// Returns the first item the collection that lies on the specified closed interval when mapped to an int.
+        /// Returns the first item the collection that lies on the specified interval when mapped to an int.
         /// </summary>
         /// <typeparam name="T">The type of the item.</typeparam>
         /// <param name="o">The collection of items that can be mapped to an int.</param>
-        /// <param name="transform">A functionn that maps an item in the collection to an int.</param>
+        /// <param name="transform">A function that maps an item in the collection to an int.</param>
         /// <param name="intervalStart">The inclusive beginning of the interval.</param>
-        /// <param name="intervalSize">The exclusive end of the interval.</param>
+        /// <param name="intervalSize">The distance from the interval's lower bound to the exclusive upper bound.</param>
         /// <returns>The first item found that belongs to the specified interval under transformation, if any, or else null.</returns>
         public static T FirstInRange<T>(this IEnumerable<T> o, Func<T, int> transform, int intervalStart, int intervalSize)
         {
