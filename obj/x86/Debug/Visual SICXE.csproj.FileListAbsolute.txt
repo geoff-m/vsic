@@ -1,0 +1,15 @@
+C:\Users\geoff\Source\Repos\vsic\bin\Debug\WindowsApplication.exe.config
+C:\Users\geoff\Source\Repos\vsic\bin\Debug\WindowsApplication.exe
+C:\Users\geoff\Source\Repos\vsic\bin\Debug\WindowsApplication.pdb
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csprojResolveAssemblyReference.cache
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.ConsoleWindow.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.Disassembly.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.HexDisplay.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.MainForm.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.Properties.Resources.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.WatchForm.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csproj.GenerateResource.cache
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csproj.CoreCompileInputs.cache
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\WindowsApplication.exe
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\WindowsApplication.pdb
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.DeviceManager.resources

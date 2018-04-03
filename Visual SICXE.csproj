@@ -6,8 +6,9 @@
     <OutputType>WinExe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>WindowsApplication</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -19,6 +20,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Visual_SICXE</RootNamespace>
@@ -53,6 +56,12 @@
     </Compile>
     <Compile Include="ConsoleWindow.Designer.cs">
       <DependentUpon>ConsoleWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DeviceManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DeviceManager.Designer.cs">
+      <DependentUpon>DeviceManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Disassembly.cs">
       <SubType>Form</SubType>
@@ -134,6 +143,9 @@
   <ItemGroup>
     <EmbeddedResource Include="ConsoleWindow.resx">
       <DependentUpon>ConsoleWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceManager.resx">
+      <DependentUpon>DeviceManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Disassembly.resx">
       <DependentUpon>Disassembly.cs</DependentUpon>

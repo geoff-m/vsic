@@ -23,7 +23,7 @@ namespace vsic
         public HexDisplay()
         {
             InitializeComponent();
-            DoubleBuffered = true;
+            DoubleBuffered = true;            
             Click += OnClick;
             Enter += OnFocus;
             Leave += OnBlur;
@@ -361,6 +361,7 @@ namespace vsic
         private void OnPaint(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
+            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
             if (Data == null)
             {
                 PaintCenteredText(g, "No Data");
@@ -476,10 +477,10 @@ namespace vsic
             else
             {
                 g.FillRectangle(box.Brush,
-                   boxX,
-                   textYoffset + line * (textLineSpacing + lineHeight),
-                   byteWidth - 1,
-                   lineHeight - 1);
+                                   boxX,
+                                   textYoffset + line * (textLineSpacing + lineHeight),
+                                   byteWidth - 1,
+                                   lineHeight - 1);
             }
 
             return true;

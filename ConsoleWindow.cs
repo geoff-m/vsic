@@ -18,15 +18,6 @@ namespace vsic
             InitializeComponent();
         }
 
-        private void OnClosing(object sender, FormClosingEventArgs e)
-        {
-            if (e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-                Hide();
-            }
-        }
-
         public void DisplayConsole(ConsoleDevice con)
         {
             Show();
@@ -76,6 +67,17 @@ namespace vsic
             }
         }
 
-        
+
+
+        private void OnClosing(object sender, FormClosingEventArgs e)
+        {
+            // Hide-on-close behavior.
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
+        }
+
     }
 }

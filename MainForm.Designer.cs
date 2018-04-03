@@ -547,7 +547,7 @@
             // newMachineToolStripMenuItem
             // 
             this.newMachineToolStripMenuItem.Name = "newMachineToolStripMenuItem";
-            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newMachineToolStripMenuItem.Text = "New";
             this.newMachineToolStripMenuItem.Click += new System.EventHandler(this.newMachineToolStripMenuItem_Click);
             // 
@@ -555,27 +555,27 @@
             // 
             this.saveSessionToolStripMenuItem.Enabled = false;
             this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveSessionToolStripMenuItem.Text = "Load...";
             // 
             // revertToolStripMenuItem
             // 
             this.revertToolStripMenuItem.Enabled = false;
             this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-            this.revertToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.revertToolStripMenuItem.Text = "Revert";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Enabled = false;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -594,7 +594,7 @@
             // loadOBJToolStripMenuItem
             // 
             this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadOBJToolStripMenuItem.Text = "Load Obj...";
             this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
@@ -602,14 +602,14 @@
             // 
             this.loadLstToolStripMenuItem.Enabled = false;
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
-            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
             this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.loadLstToolStripMenuItem_Click);
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
-            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
             this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.loadMemoryToolStripMenuItem_Click);
             // 
@@ -617,15 +617,15 @@
             // 
             this.saveMemoryToolStripMenuItem.Enabled = false;
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
             // 
             // manageDevicesToolStripMenuItem
             // 
-            this.manageDevicesToolStripMenuItem.Enabled = false;
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
+            this.manageDevicesToolStripMenuItem.Click += new System.EventHandler(this.manageDevicesToolStripMenuItem_Click);
             // 
             // debugToolStripMenuItem
             // 
@@ -641,7 +641,7 @@
             // 
             this.watchesToolStripMenuItem.Enabled = false;
             this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.watchesToolStripMenuItem.Text = "Watches";
             this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
             // 
@@ -649,14 +649,14 @@
             // 
             this.breakpointsToolStripMenuItem.Enabled = false;
             this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.breakpointsToolStripMenuItem.Text = "Breakpoints";
             // 
             // disassemblyToolStripMenuItem
             // 
             this.disassemblyToolStripMenuItem.Enabled = false;
             this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
             // 
             // groupBox1

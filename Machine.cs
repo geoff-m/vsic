@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.IO;
 using System.Diagnostics;
@@ -246,10 +247,36 @@ namespace vsic
             Logger = new NullLog();
         }
 
+        #region Devices
         IODevice[] devices = new IODevice[256];
-        public IODevice[] Devices
+        /// <summary>
+        /// The devices this machine has.
+        /// </summary>
+        public IReadOnlyList<IODevice> Devices
         {
-            get { return devices; }
+            get { return devices.Where(d => d != null).ToList(); }
+        }
+
+        /// <summary>
+        /// Adds the given device to the machine, with the specified ID. If a device with the specified ID number already exists, an exception is thrown.
+        /// </summary>
+        /// <param name="id">The ID to be associated with the device to add.</param>
+        /// <param name="device">The device to add.</param>
+        public void AddDevice(byte id, IODevice device)
+        {
+            if (devices[id] != null)
+                throw new InvalidOperationException("A device with that ID already exists!");
+            devices[id] = device;
+        }
+
+        /// <summary>
+        /// Gets the device that has the specified ID.
+        /// </summary>
+        /// <param name="id">The ID of the device.</param>
+        /// <returns>The device that has the specified ID, or null if the machine has no such device.</returns>
+        public IODevice GetDevice(byte id)
+        {
+            return devices[id];
         }
 
         /// <summary>
@@ -257,7 +284,7 @@ namespace vsic
         /// </summary>
         public void FlushDevices()
         {
-            devices.AsParallel().ForAll(d =>
+            Devices.AsParallel().ForAll(d =>
             {
                 if (d != null)
                     d.Flush();
@@ -269,12 +296,14 @@ namespace vsic
         /// </summary>
         public void CloseDevices()
         {
-            devices.AsParallel().ForAll(d =>
+            Devices.AsParallel().ForAll(d =>
             {
                 if (d != null)
                     d.Dispose();
             });
         }
+
+        #endregion
 
         /// <summary>
         /// Copies the given data into this Machine's memory, beginning at the specified address.
@@ -322,6 +351,8 @@ namespace vsic
             }
             return stop - address;
         }
+
+        #region Execution
 
         public enum RunResult
         {
@@ -652,7 +683,7 @@ namespace vsic
                         case Mnemonic.TD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
-                            dev = devices[deviceID];
+                            dev = Devices[deviceID];
                             if (dev != null)
                             {
                                 if (dev.Test())
@@ -675,14 +706,14 @@ namespace vsic
                         case Mnemonic.WD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
-                            dev = devices[deviceID];
+                            dev = Devices[deviceID];
                             dev.WriteByte((byte)(regAwithevents & 0xff));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.RD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
-                            dev = devices[deviceID];
+                            dev = Devices[deviceID];
                             byte rb = dev.ReadByte();
                             Debug.WriteLine($"devices[{deviceID}].ReadByte() returned {rb.ToString("X")}.");
                             regAwithevents = (Word)(regA & ~0xff | rb);
@@ -1059,6 +1090,8 @@ namespace vsic
             memory[address] = b;
             //Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
         }
+
+        #endregion
 
         /// <summary>
         /// Writes a portion of this machine's memory to the console.

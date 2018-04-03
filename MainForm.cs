@@ -468,7 +468,7 @@ namespace vsic
             TextBox tb = sender as TextBox;
             if (tb == null)
             {
-                Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {sender.ToString()}");
+                Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {(sender ?? "null").ToString()}");
                 return;
             }
 
@@ -785,6 +785,12 @@ namespace vsic
             {
                 conWindow.DisplayConsole(con);
             }
+        }
+
+        DeviceManager devman = new DeviceManager();
+        private void manageDevicesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            devman.Show();
         }
     }
 }
