@@ -22,6 +22,9 @@ namespace vsic
 
             conWindow = new ConsoleWindow();
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
+
+            devman = new DeviceManager();
+            devman.Owner = this;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -90,12 +93,13 @@ namespace vsic
         {
             sess = new Session();
             sess.Logger = this;
+            devman.Machine = sess.Machine;
 
             Log("Created new SIC/XE machine.");
             breakpoints.Clear();
             InitializeMachineDisplay();
             UpdateMachineDisplay();
-            UpdateIODevices();
+            UpdateIODevices(null, null);
             SetStatusMessage("Ready");
         }
 
@@ -133,6 +137,8 @@ namespace vsic
             logBox.AppendText("\n");
 
             // Scroll to bottom.
+            // TODO: SKIP THESE CALLS DURING 'RUN'
+            // SuspendDrawing() DOES NOT PREVENT THESE CALLS FROM BEING VERY SLOW
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
         }
@@ -251,6 +257,32 @@ namespace vsic
                     regFTB.BackColor = written ? REGISTER_WRITTEN_COLOR : REGISTER_READ_COLOR;
                     break;
             }
+        }
+
+        private void SuspendMachineDisplayUpdates()
+        {
+            logBox.SuspendDrawing();
+            regATB.SuspendDrawing();
+            regXTB.SuspendDrawing();
+            regLTB.SuspendDrawing();
+            regBTB.SuspendDrawing();
+            regTTB.SuspendDrawing();
+            regFTB.SuspendDrawing();
+            pcTB.SuspendDrawing();
+            ccCB.SuspendDrawing();
+        }
+
+        private void ResumeMachineDisplayUpdates()
+        {
+            logBox.ResumeDrawing();
+            regATB.ResumeDrawing();
+            regXTB.ResumeDrawing();
+            regLTB.ResumeDrawing();
+            regBTB.ResumeDrawing();
+            regTTB.ResumeDrawing();
+            regFTB.ResumeDrawing();
+            pcTB.ResumeDrawing();
+            ccCB.ResumeDrawing();
         }
 
         private void ResetTextboxColors()
@@ -387,8 +419,10 @@ namespace vsic
         {
             var m = sess.Machine;
             long startInstr = m.InstructionsExecuted;
+            SuspendMachineDisplayUpdates();
             m.Run();
             m.FlushDevices();
+            ResumeMachineDisplayUpdates();
             long endInstr = m.InstructionsExecuted;
             long diff = endInstr - startInstr;
             Log($"Run: {diff.ToString()} instructions executed.");
@@ -771,7 +805,7 @@ namespace vsic
             UnloadSession();
         }
 
-        private void UpdateIODevices()
+        private void UpdateIODevices(object sender, EventArgs e)
         {
             devLB.Items.Clear();
             devLB.Items.AddRange(sess.Machine.Devices.Where(d => d != null).ToArray());
@@ -787,10 +821,16 @@ namespace vsic
             }
         }
 
-        DeviceManager devman = new DeviceManager();
+        DeviceManager devman;
         private void manageDevicesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             devman.Show();
+            devman.Deactivate += UpdateIODevices;
+        }
+
+        private void OnDeactivate(object sender, EventArgs e)
+        {
+            hexDisplay.Invalidate();
         }
     }
 }

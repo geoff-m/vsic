@@ -35,6 +35,12 @@ namespace vsic
         }
 
         /// <summary>
+        /// Gets or sets the Machine associated with this DeviceManager.
+        /// </summary>
+        public Machine Machine
+        { get; set; }
+
+        /// <summary>
         /// Returns the valid ID number the user has entered, or else null.
         /// </summary>
         private byte? GetID()
@@ -62,32 +68,61 @@ namespace vsic
                 return;
             }
 
+            var devname = nameTB.Text.Trim();
             string devtype = typeCB.Text.ToLower();
+            IODevice newDevice = null;
             switch (devtype)
             {
                 case "file":
                     // Need to get file path for this guy. Show special dialog for creating file device.
-
-                    // things in that dialog:
-                    // textbox for path
-                    // button to open file browser
-                    // cancel button
-                    // ok button
-
+                    // Let's just use a built-in file browser dialog for now.
+                    var fileBrowserDlg = new OpenFileDialog();
+                    fileBrowserDlg.Title = $"Choose path for file device 0x{id.Value.ToString("X")} (\"{devname}\")";
+                    fileBrowserDlg.CheckFileExists = false;
+                    if (fileBrowserDlg.ShowDialog() == DialogResult.OK)
+                    {
+                        var path = fileBrowserDlg.FileName;
+                        try
+                        {
+                            newDevice = new FileDevice(id.Value, path);
+                            
+                        }
+                        catch (System.IO.IOException ex)
+                        {
+                            MessageBox.Show(ex.Message, "Error creating file device", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
                     break;
                 case "console":
                     // No special options needed for this type of device? simply create it
+                    newDevice = new ConsoleDevice(id.Value);
 
                     break;
                 case "graphics":
-                    // Not implemented.
-
+                    // Not implemented yet.
+                    return;
                     break;
+
                 default:
                     MessageBox.Show($"\"{typeCB.Text}\" is not a valid device type.", "Create device", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     typeCB.Focus();
                     return;
             }
+
+            newDevice.Name = nameTB.Text;
+            try
+            {
+                Machine.AddDevice(id.Value, newDevice);
+                
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show($"Could not add the device to the machine:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            devLV.Items.Add(new ListViewItem(new string[] { newDevice.ID.ToString("X2"), newDevice.Type, newDevice.Name}));
         }
 
         private void onIdTBKeyPress(object sender, KeyPressEventArgs e)

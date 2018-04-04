@@ -21,7 +21,7 @@ namespace vsic
         public void DisplayConsole(ConsoleDevice con)
         {
             Show();
-            string tabName = con.ID.ToString("X").PadLeft(2, '0');
+            string tabName = con.ID.ToString("X2");
             if (tabControl.TabPages.ContainsKey(tabName))
             {
                 // Display existing tab.
@@ -37,15 +37,33 @@ namespace vsic
                 };
                 var tb = new TextBox
                 {
+                    Name = "consoleTB",
                     Multiline = true,
                     Dock = DockStyle.Fill,
                     Font = new Font("Courier New", 10f),
                     ReadOnly = true,
                     ScrollBars = ScrollBars.Both
                 };
+                con.OutputByteWritten += UpdateDisplay;
                 tab.Controls.Add(tb);
                 tabControl.TabPages.Add(tab);
                 tabControl.SelectTab(tab);
+            }
+        }
+
+        private void UpdateDisplay(ConsoleDevice sender, byte b)
+        {
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab.Tag == sender)
+            {
+                if (b == '\n')
+                {
+                    selectedTab.Controls["consoleTB"].Text += "\r\n";
+                }
+                else
+                {
+                    selectedTab.Controls["consoleTB"].Text += ((char)b).ToString();
+                }
             }
         }
 
@@ -55,18 +73,14 @@ namespace vsic
             {
                 var tab = tabControl.SelectedTab;
                 var con = (ConsoleDevice)tab.Tag;
-                var text = inputTB.Text;
+                var text = inputTB.Text + "\n";
                 inputTB.Clear();
                 foreach (char c in text)
                 {
-                    con.WriteByte((byte)c);
+                    con.WriteInputByte((byte)c);
                 }
-                var tb = (TextBox)tab.Controls[0];
-                tb.AppendText(text);
-                tb.AppendText("\r\n"); // Just \n here was not enough to maintain line breaks after form resizing.
             }
         }
-
 
 
         private void OnClosing(object sender, FormClosingEventArgs e)

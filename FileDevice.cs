@@ -81,7 +81,12 @@ namespace vsic
 
         public override string ToString()
         {
-            return $"{ID.ToString("X").PadLeft(2, '0')}: File ...{IOPath.DirectorySeparatorChar}{IOPath.GetFileName(Path)}";
+            return $"{ID.ToString("X2")}: File ...{IOPath.DirectorySeparatorChar}{IOPath.GetFileName(Path)}";
+        }
+
+        public override string Type
+        {
+            get { return "File"; }
         }
     }
 }

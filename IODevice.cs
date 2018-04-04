@@ -21,6 +21,31 @@ namespace vsic
         }
 
         /// <summary>
+        /// Gets the name of this type of device.
+        /// </summary>
+        public abstract string Type
+        { get; }
+
+        bool nameSet = false;
+        string name;
+        public string Name
+        {
+            get
+            {
+                if (!nameSet) // Provide a default name if none has ever been set.
+                {
+                    name = $"{Type}{ID.ToString("X")}";
+                }
+                return name;
+            }
+            set
+            {
+                nameSet = true;
+                name = value;
+            }
+        }
+
+        /// <summary>
         /// Checks whether or not the device is ready to read or write.
         /// </summary>
         /// <returns>A Boolean value indicating whether the device is ready.</returns>

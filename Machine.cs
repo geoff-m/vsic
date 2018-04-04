@@ -265,7 +265,7 @@ namespace vsic
         public void AddDevice(byte id, IODevice device)
         {
             if (devices[id] != null)
-                throw new InvalidOperationException("A device with that ID already exists!");
+                throw new ArgumentException("A device with that ID already exists!");
             devices[id] = device;
         }
 
@@ -284,7 +284,7 @@ namespace vsic
         /// </summary>
         public void FlushDevices()
         {
-            Devices.AsParallel().ForAll(d =>
+            devices.AsParallel().ForAll(d =>
             {
                 if (d != null)
                     d.Flush();
@@ -296,7 +296,7 @@ namespace vsic
         /// </summary>
         public void CloseDevices()
         {
-            Devices.AsParallel().ForAll(d =>
+            devices.AsParallel().ForAll(d =>
             {
                 if (d != null)
                     d.Dispose();
@@ -683,7 +683,7 @@ namespace vsic
                         case Mnemonic.TD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
-                            dev = Devices[deviceID];
+                            dev = devices[deviceID];
                             if (dev != null)
                             {
                                 if (dev.Test())
@@ -706,14 +706,14 @@ namespace vsic
                         case Mnemonic.WD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
-                            dev = Devices[deviceID];
+                            dev = devices[deviceID];
                             dev.WriteByte((byte)(regAwithevents & 0xff));
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.RD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
-                            dev = Devices[deviceID];
+                            dev = devices[deviceID];
                             byte rb = dev.ReadByte();
                             Debug.WriteLine($"devices[{deviceID}].ReadByte() returned {rb.ToString("X")}.");
                             regAwithevents = (Word)(regA & ~0xff | rb);

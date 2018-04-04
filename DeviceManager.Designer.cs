@@ -53,7 +53,10 @@
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3});
+            this.devLV.FullRowSelect = true;
+            this.devLV.GridLines = true;
             this.devLV.Location = new System.Drawing.Point(180, 12);
+            this.devLV.MultiSelect = false;
             this.devLV.Name = "devLV";
             this.devLV.Size = new System.Drawing.Size(565, 177);
             this.devLV.TabIndex = 5;

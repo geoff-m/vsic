@@ -13,3 +13,4 @@ C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csproj.CoreCompileIn
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\WindowsApplication.exe
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\WindowsApplication.pdb
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\vsic.DeviceManager.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.FileDeviceCreationDialog.resources
