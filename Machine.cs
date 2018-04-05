@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DEBUG_PRINT_ADDRESS_TYPE
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -829,89 +831,121 @@ namespace vsic
             switch (flags)
             {
                 case 0b110000:   // disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b110001: // addr (format 4)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("addr");
+#endif
                     ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Simple;
                     // Note: C# guarantees left-to-right evaluation, so stuff like this is fine.
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b110010: // (PC) + disp
-                    // "For PC-relative addressing, [the disp] is interpreted as a 12-bit signed integer." (p. 9)
+                               // "For PC-relative addressing, [the disp] is interpreted as a 12-bit signed integer." (p. 9)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("pc + disp");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b110100: // (B) + disp
-                    // "For base relative addressing, the displacement field disp in a Format 3 instruction is interpreted as a 12-bit unsigned integer." (p. 9)
+                               // "For base relative addressing, the displacement field disp in a Format 3 instruction is interpreted as a 12-bit unsigned integer." (p. 9)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("b + disp");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)(regB + ((b2 & 0xf) << 8 | memory[PC++]));
                 case 0b111000: // disp + (X)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp + x");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)(regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b111001: // addr + (X) (format 4)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("addr + x");
+#endif
                     ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Simple;
                     return (Word)(regX + (b2 & 0xf | memory[PC++] << 8 | memory[PC++]));
                 case 0b111010: // (PC) + disp + (X)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("pc + disp + x");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + regX + disp);
                 case 0b111100: // (B) + disp + (X)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("b + disp + x");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     return (Word)(regB + regX + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100000: // disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp (indirect)");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
                     return (Word)((b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100001: // addr (format 4)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("addr (indirect)");
+#endif
                     ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Indirect;
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b100010: // (PC) + disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("pc + disp (indirect)");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b100100: // (B) + disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("b + disp (indirect)");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
                     return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010000: // disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp (immediate)");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
                     return (Word)DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                 case 0b010001: // addr (format 4)
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("addr (immediate)");
+#endif
                     ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Immediate;
                     return (Word)((b2 & 0xf) << 16 | memory[PC++] << 8 | memory[PC++]);
                 case 0b010010: // (PC) + disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("pc + disp (immediate)");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
                     return (Word)(PC + disp);
                 case 0b010100: // (B) + disp
+#if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("b + disp (immediate)");
+#endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
                     return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
@@ -1091,7 +1125,7 @@ namespace vsic
             //Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
         }
 
-        #endregion
+        #endregion Execution
 
         /// <summary>
         /// Writes a portion of this machine's memory to the console.

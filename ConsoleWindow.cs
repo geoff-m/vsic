@@ -53,6 +53,11 @@ namespace vsic
 
         private void UpdateDisplay(ConsoleDevice sender, byte b)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateDisplay(sender, b)));
+                return;
+            }
             var selectedTab = tabControl.SelectedTab;
             if (selectedTab.Tag == sender)
             {

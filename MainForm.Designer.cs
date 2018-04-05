@@ -141,7 +141,7 @@
             this.hexDisplay.TabIndex = 1;
             this.hexDisplay.WordDigits = 6;
             this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnCursorMove);
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
             this.hexDisplay.Scroll += new System.Windows.Forms.ScrollEventHandler(this.onHexDisplayScroll);
             this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
             this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);

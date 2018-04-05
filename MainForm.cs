@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Path = System.IO.Path;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace vsic
 {
@@ -83,6 +84,7 @@ namespace vsic
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        Thread machineThread;
         Session sess;
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -130,24 +132,27 @@ namespace vsic
                 Invoke(new Action(() => Log(str, args)));
                 return;
             }
-            logBox.SelectionColor = COLOR_DEFAULT;
+            //logBox.SelectionColor = COLOR_DEFAULT;
             string s = string.Format(str, args);
             Debug.WriteLine(s);
             logBox.AppendText(s);
             logBox.AppendText("\n");
 
-            // Scroll to bottom.
             // TODO: SKIP THESE CALLS DURING 'RUN'
             // SuspendDrawing() DOES NOT PREVENT THESE CALLS FROM BEING VERY SLOW
-            logBox.SelectionStart = logBox.Text.Length;
-            logBox.ScrollToCaret();
+            if (machineThread == null || !machineThread.IsAlive)
+            {
+                // Scroll to bottom.
+                logBox.SelectionStart = logBox.Text.Length;
+                logBox.ScrollToCaret();
+            }
         }
 
         public void LogError(string str, params object[] args)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => Log(str, args)));
+                Invoke(new Action(() => LogError(str, args)));
                 return;
             }
             logBox.SelectionColor = COLOR_ERROR;
@@ -227,6 +232,11 @@ namespace vsic
         readonly Color REGISTER_READ_COLOR = Color.Pink;
         private void OnRegisterChanged(Register r, bool written)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => OnRegisterChanged(r, written)));
+                return;
+            }
             switch (r)
             {
                 case Register.A:
@@ -261,6 +271,11 @@ namespace vsic
 
         private void SuspendMachineDisplayUpdates()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => SuspendMachineDisplayUpdates()));
+                return;
+            }
             logBox.SuspendDrawing();
             regATB.SuspendDrawing();
             regXTB.SuspendDrawing();
@@ -274,6 +289,11 @@ namespace vsic
 
         private void ResumeMachineDisplayUpdates()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => ResumeMachineDisplayUpdates()));
+                return;
+            }
             logBox.ResumeDrawing();
             regATB.ResumeDrawing();
             regXTB.ResumeDrawing();
@@ -283,6 +303,9 @@ namespace vsic
             regFTB.ResumeDrawing();
             pcTB.ResumeDrawing();
             ccCB.ResumeDrawing();
+
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
         }
 
         private void ResetTextboxColors()
@@ -379,7 +402,7 @@ namespace vsic
             hexDisplay.Invalidate();
         }
 
-        private void OnCursorMove(object sender, EventArgs e)
+        private void OnHexDisplayCursorMove(object sender, EventArgs e)
         {
             int addr = hexDisplay.CursorAddress;
             string addrString = addr.ToString("X");
@@ -417,14 +440,27 @@ namespace vsic
 
         private void runButton_Click(object sender, EventArgs e)
         {
-            var m = sess.Machine;
-            long startInstr = m.InstructionsExecuted;
+            StartMachineRun();
+        }
+
+        long instructionsAtRunStart;
+        private void StartMachineRun()
+        {
+            Debug.Assert(machineThread == null || !machineThread.IsAlive, "Machine thread is already running?!");
+
+            instructionsAtRunStart = sess.Machine.InstructionsExecuted;
             SuspendMachineDisplayUpdates();
-            m.Run();
+            machineThread = new Thread(new ThreadStart(() => { sess.Machine.Run(); EndMachineRun(); }));
+            machineThread.Start();
+        }
+
+        private void EndMachineRun()
+        {
+            var m = sess.Machine;
             m.FlushDevices();
             ResumeMachineDisplayUpdates();
             long endInstr = m.InstructionsExecuted;
-            long diff = endInstr - startInstr;
+            long diff = endInstr - instructionsAtRunStart;
             Log($"Run: {diff.ToString()} instructions executed.");
             HandleExecutionResult();
             UpdateMachineDisplay();
