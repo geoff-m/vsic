@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new vsic.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -97,6 +96,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.devLB = new System.Windows.Forms.ListBox();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
+            this.hexDisplay = new vsic.HexDisplay();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
@@ -123,28 +123,6 @@
             this.memGB.TabIndex = 0;
             this.memGB.TabStop = false;
             this.memGB.Text = "Memory";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
-            this.hexDisplay.Scroll += new System.Windows.Forms.ScrollEventHandler(this.onHexDisplayScroll);
-            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
-            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // regGB
             // 
@@ -807,7 +785,9 @@
             // devLB
             // 
             this.devLB.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.devLB.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.devLB.FormattingEnabled = true;
+            this.devLB.ItemHeight = 15;
             this.devLB.Location = new System.Drawing.Point(3, 16);
             this.devLB.Name = "devLB";
             this.devLB.Size = new System.Drawing.Size(145, 128);
@@ -817,6 +797,27 @@
             // openLSTdialog
             // 
             this.openLSTdialog.Filter = "sicasm LST files (*.lst)|*.lst";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // MainForm
             // 

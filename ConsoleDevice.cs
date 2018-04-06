@@ -17,7 +17,7 @@ namespace vsic
         public delegate void ByteWrittenEventHandler(ConsoleDevice sender, byte b);
         public event ByteWrittenEventHandler OutputByteWritten;
 
-        public string OutData
+        public string OutString
         {
             get
             {
@@ -32,7 +32,7 @@ namespace vsic
         }
 
         /// <summary>
-        /// Reads a byte from the input string.
+        /// Reads a byte from the input.
         /// </summary>
         /// <returns></returns>
         public override byte ReadByte()
@@ -47,7 +47,7 @@ namespace vsic
         }
 
         /// <summary>
-        /// Writes a byte to the output string.
+        /// Writes a byte to the output.
         /// </summary>
         /// <param name="b"></param>
         public override void WriteByte(byte b)
@@ -64,11 +64,6 @@ namespace vsic
         public override bool Test()
         {
             return true;
-        }
-
-        public override string ToString()
-        {
-            return $"{ID.ToString("X2")}: Console";
         }
 
         public override void Dispose()

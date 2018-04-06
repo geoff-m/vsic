@@ -26,9 +26,9 @@ namespace vsic
         public abstract string Type
         { get; }
 
-        bool nameSet = false;
-        string name;
-        public string Name
+        protected bool nameSet = false;
+        protected string name;
+        public virtual string Name
         {
             get
             {
@@ -63,10 +63,14 @@ namespace vsic
         /// <returns>The byte that was read from the device.</returns>
         public abstract byte ReadByte();
 
-
         public abstract void Flush();
 
         public abstract void Dispose();
+
+        public override string ToString()
+        {
+            return $"{ID.ToString("X2")}: {Name}";
+        }
 
     }
 }

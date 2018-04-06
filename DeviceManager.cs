@@ -85,7 +85,6 @@ namespace vsic
                         try
                         {
                             newDevice = new FileDevice(id.Value, path);
-                            
                         }
                         catch (System.IO.IOException ex)
                         {
@@ -110,11 +109,11 @@ namespace vsic
                     return;
             }
 
-            newDevice.Name = nameTB.Text;
+            if (devname.Length > 0)
+                newDevice.Name = nameTB.Text;
             try
             {
-                Machine.AddDevice(id.Value, newDevice);
-                
+                Machine.AddDevice(id.Value, newDevice);   
             }
             catch (ArgumentException ex)
             {

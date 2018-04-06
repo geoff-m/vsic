@@ -138,8 +138,8 @@ namespace vsic
             logBox.AppendText(s);
             logBox.AppendText("\n");
 
-            // TODO: SKIP THESE CALLS DURING 'RUN'
-            // SuspendDrawing() DOES NOT PREVENT THESE CALLS FROM BEING VERY SLOW
+            // Skip these calls during 'Run'.
+            // SuspendDrawing() does not prevent these calls from being very slow.
             if (machineThread == null || !machineThread.IsAlive)
             {
                 // Scroll to bottom.
@@ -447,7 +447,6 @@ namespace vsic
         private void StartMachineRun()
         {
             Debug.Assert(machineThread == null || !machineThread.IsAlive, "Machine thread is already running?!");
-
             instructionsAtRunStart = sess.Machine.InstructionsExecuted;
             SuspendMachineDisplayUpdates();
             machineThread = new Thread(new ThreadStart(() => { sess.Machine.Run(); EndMachineRun(); }));
@@ -647,7 +646,7 @@ namespace vsic
             int stop = addr + count;
             if (written)
             {
-                Debug.WriteLine($"Memory written: {count} bytes at {addr}.");
+                //Debug.WriteLine($"Memory written: {count} bytes at {addr}.");
                 for (int i = addr; i < stop; ++i)
                 {
                     var newBox = new ByteMarker(i,
@@ -659,7 +658,7 @@ namespace vsic
             }
             else
             {
-                Debug.WriteLine($"Memory read: {count} bytes at {addr}.");
+                //Debug.WriteLine($"Memory read: {count} bytes at {addr}.");
                 for (int i = addr; i < stop; ++i)
                 {
                     var newBox = new ByteMarker(i,
@@ -688,7 +687,7 @@ namespace vsic
                     }
                 }
             }
-            return false; // Allow execution to continue.
+            return false; // Allow VM execution to continue.
         }
 
         #region Breakpoints
@@ -831,11 +830,6 @@ namespace vsic
             hexDisplay.Invalidate();
         }
 
-        private void onHexDisplayScroll(object sender, ScrollEventArgs e)
-        {
-            Debug.WriteLine($"Mainform: Scroll type: {e.Type.ToString()}");
-        }
-
         private void OnClosing(object sender, FormClosingEventArgs e)
         {
             UnloadSession();
@@ -844,7 +838,7 @@ namespace vsic
         private void UpdateIODevices(object sender, EventArgs e)
         {
             devLB.Items.Clear();
-            devLB.Items.AddRange(sess.Machine.Devices.Where(d => d != null).ToArray());
+            devLB.Items.AddRange(sess.Machine.Devices.ToArray());
         }
 
         ConsoleWindow conWindow;

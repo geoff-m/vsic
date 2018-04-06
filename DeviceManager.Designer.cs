@@ -53,6 +53,7 @@
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3});
+            this.devLV.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.devLV.FullRowSelect = true;
             this.devLV.GridLines = true;
             this.devLV.Location = new System.Drawing.Point(180, 12);
@@ -66,15 +67,17 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "ID";
+            this.columnHeader1.Width = 30;
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "Type";
+            this.columnHeader2.Width = 100;
             // 
             // columnHeader3
             // 
             this.columnHeader3.Text = "Name";
-            this.columnHeader3.Width = 441;
+            this.columnHeader3.Width = 431;
             // 
             // createButton
             // 
@@ -88,22 +91,24 @@
             // 
             // typeCB
             // 
+            this.typeCB.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.typeCB.FormattingEnabled = true;
             this.typeCB.Items.AddRange(new object[] {
             "File",
             "Console",
             "Graphics"});
-            this.typeCB.Location = new System.Drawing.Point(44, 59);
+            this.typeCB.Location = new System.Drawing.Point(44, 55);
             this.typeCB.Name = "typeCB";
-            this.typeCB.Size = new System.Drawing.Size(100, 21);
+            this.typeCB.Size = new System.Drawing.Size(100, 26);
             this.typeCB.TabIndex = 1;
             // 
             // idTB
             // 
-            this.idTB.Location = new System.Drawing.Point(44, 26);
+            this.idTB.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.idTB.Location = new System.Drawing.Point(44, 22);
             this.idTB.MaxLength = 2;
             this.idTB.Name = "idTB";
-            this.idTB.Size = new System.Drawing.Size(43, 20);
+            this.idTB.Size = new System.Drawing.Size(43, 24);
             this.idTB.TabIndex = 0;
             this.idTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onIdTBKeyPress);
             // 
@@ -125,9 +130,10 @@
             // 
             // nameTB
             // 
-            this.nameTB.Location = new System.Drawing.Point(44, 93);
+            this.nameTB.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nameTB.Location = new System.Drawing.Point(44, 88);
             this.nameTB.Name = "nameTB";
-            this.nameTB.Size = new System.Drawing.Size(100, 20);
+            this.nameTB.Size = new System.Drawing.Size(100, 24);
             this.nameTB.TabIndex = 2;
             // 
             // label3

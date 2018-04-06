@@ -79,9 +79,21 @@ namespace vsic
             fs = null;
         }
 
-        public override string ToString()
+        public override string Name
         {
-            return $"{ID.ToString("X2")}: File ...{IOPath.DirectorySeparatorChar}{IOPath.GetFileName(Path)}";
+            get
+            {
+                if (!nameSet) // Provide a default name if none has ever been set.
+                {
+                    name = $"...{IOPath.DirectorySeparatorChar}{IOPath.GetFileName(Path)}";
+                }
+                return name;
+            }
+            set
+            {
+                nameSet = true;
+                name = value;
+            }
         }
 
         public override string Type
