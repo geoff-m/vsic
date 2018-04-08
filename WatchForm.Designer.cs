@@ -30,9 +30,9 @@
         {
             this.watchLV = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // watchLV
@@ -43,6 +43,7 @@
             this.columnHeader2,
             this.columnHeader3});
             this.watchLV.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.watchLV.GridLines = true;
             this.watchLV.Location = new System.Drawing.Point(0, 0);
             this.watchLV.Name = "watchLV";
             this.watchLV.Size = new System.Drawing.Size(288, 261);
@@ -54,6 +55,10 @@
             // 
             this.columnHeader1.Text = "Symbol";
             // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Address";
+            // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "Size";
@@ -63,10 +68,6 @@
             // 
             this.columnHeader3.Text = "Value";
             this.columnHeader3.Width = 121;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "Address";
             // 
             // WatchForm
             // 

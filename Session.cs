@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.IO.Compression;
 
 namespace vsic
 {
@@ -22,12 +23,9 @@ namespace vsic
         public Session()
         {
             Machine = new Machine();
-            //Machine.Devices[0x05] = new FileDevice(0x05, "goodbye.txt");
-            //Machine.Devices[0xf1] = new FileDevice(0xf1, "hello.txt");
-            //Machine.Devices[0xc0] = new ConsoleDevice(0xc0);
             //Machine.MemoryRainbowTest();
             Logger = new NullLog();
-            
+
         }
 
         ILogSink logger;
@@ -84,6 +82,34 @@ namespace vsic
             }
             return 0; // Reachable only on error.
         }
-        
+
+        public void SaveToFile(string path)
+        {
+            FileStream stream = null;
+            try
+            {
+                stream = new FileStream(path, FileMode.Create);
+                Machine.Serialize(stream);
+            }
+            finally
+            {
+                stream?.Dispose();
+            }
+        }
+
+        public void LoadFromFile(string path)
+        {
+            FileStream stream = null;
+            try
+            {
+                stream = new FileStream(path, FileMode.Open);
+                Machine.Deserialize(stream);
+            }
+            finally
+            {
+                stream?.Dispose();
+            }
+        }
+
     }
 }

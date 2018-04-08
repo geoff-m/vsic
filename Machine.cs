@@ -7,11 +7,123 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+//using System.IO.Compression; // Don't use; GZipStream sucks
+using ICSharpCode.SharpZipLib.BZip2;
 
 namespace vsic
 {
-    public sealed class Machine
+    public sealed class Machine : ISerialize
     {
+        #region Serialization
+        const int SERIALIZATION_MACHINE_MAGIC_NUMBER = 0x3AC817E;
+        const int SERIALIZATION_VERSION = 0x00010001;
+        const int SERIALIZATION_MEMORY_MAGIC_NUMBER = 0x11223344;
+        const int SERIALIZATION_REGISTERS_MAGIC_NUMBER = 0x13E6157E;
+        const int BUFFER_SIZE = 4096;
+        public void Serialize(Stream stream)
+        {
+            var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
+            writer.Write(SERIALIZATION_MACHINE_MAGIC_NUMBER);
+            writer.Write(SERIALIZATION_VERSION);
+
+            // Write memory header.
+            writer.Write(SERIALIZATION_MEMORY_MAGIC_NUMBER);
+            int memoryLength = (int)Memory.Length;
+            Debug.WriteLine($"Writing memory length {memoryLength}");
+            writer.Write(memoryLength);
+            Debug.WriteLine($"Stream position is now {stream.Position}");
+            // Write memory with compression.
+            Memory.Seek(0, SeekOrigin.Begin);
+            BZip2.Compress(Memory, stream, false, 5);
+            // Write registers.
+            Debug.WriteLine($"About to write registers. Stream position is now {stream.Position}");
+            writer.Write(SERIALIZATION_REGISTERS_MAGIC_NUMBER);
+            writer.Write((int)Register.A);
+            writer.Write(regA);
+            writer.Write((int)Register.B);
+            writer.Write(regB);
+            writer.Write((int)Register.CC);
+            writer.Write((int)CC);
+            writer.Write((int)Register.L);
+            writer.Write(regL);
+            writer.Write((int)Register.PC);
+            writer.Write(PC);
+            writer.Write((int)Register.S);
+            writer.Write(regS);
+            writer.Write((int)Register.T);
+            writer.Write(regT);
+            writer.Write((int)Register.X);
+            writer.Write(regX);
+            Debug.WriteLine($"Wrote registers. Stream position is now {stream.Position}");
+            writer.Dispose();
+            Debug.WriteLine($"Disposed binarywriter. Stream position is now {stream.Position}");
+        }
+
+        public void Deserialize(Stream stream)
+        {
+            var reader = new BinaryReader(stream,System.Text.Encoding.UTF8, true);
+            int intbuf = reader.ReadInt32();
+            if (intbuf != SERIALIZATION_MACHINE_MAGIC_NUMBER)
+                throw new InvalidDataException();
+            intbuf = reader.ReadInt32();
+            if (intbuf != SERIALIZATION_VERSION)
+                throw new InvalidDataException($"Expected version {SERIALIZATION_VERSION.ToString("X")}, got version {intbuf.ToString("X")} instead.");
+
+            intbuf = reader.ReadInt32();
+            if (intbuf != SERIALIZATION_MEMORY_MAGIC_NUMBER)
+                throw new InvalidDataException();
+
+            int memoryLength = reader.ReadInt32();
+            Debug.WriteLine($"Read memory length {memoryLength}");
+            Memory.Dispose();
+            memory = new byte[memoryLength];
+            Memory = new MemoryStream(memory, true);
+
+            //Debug.WriteLine($"Stream position is now {stream.Position}");
+            Memory.Seek(0, SeekOrigin.Begin);
+            BZip2.Decompress(stream, Memory, false);
+            //Debug.WriteLine($"Stream position is now {stream.Position}");
+            intbuf = reader.ReadInt32();
+            if (intbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
+                throw new InvalidDataException();
+
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.A)
+                throw new InvalidDataException();
+            regA = (Word)reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.B)
+                throw new InvalidDataException();
+            regB = (Word)reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.CC)
+                throw new InvalidDataException();
+            CC = (ConditionCode)reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.L)
+                throw new InvalidDataException();
+            regL = (Word)reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.PC)
+                throw new InvalidDataException();
+            PC = reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.S)
+                throw new InvalidDataException();
+            regS = (Word)reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.T)
+                throw new InvalidDataException();
+            regT = (Word)reader.ReadInt32();
+            intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.X)
+                throw new InvalidDataException();
+            regX = (Word)reader.ReadInt32();
+
+            reader.Dispose();
+        }
+        #endregion
+
         /// <summary>
         /// The number of instructions this Machine has ever executed.
         /// </summary>
@@ -73,7 +185,9 @@ namespace vsic
         /// Gets the machine's memory size in bytes.
         /// </summary>
         public int MemorySize
-        { get; } // a readonly property
+        {
+            get { return memory.Length; }
+        }
 
         private byte[] memory;
 
@@ -231,7 +345,6 @@ namespace vsic
         {
             memory = new byte[memorySize];
             Memory = new MemoryStream(memory, true);
-            MemorySize = memory.Length;
 
             for (int i = 0; i < memory.Length; ++i)
             {
@@ -307,6 +420,7 @@ namespace vsic
 
         #endregion
 
+        #region DMA functions
         /// <summary>
         /// Copies the given data into this Machine's memory, beginning at the specified address.
         /// Safety: This method will either perform the entire copy, or no memory will be changed.
@@ -353,6 +467,7 @@ namespace vsic
             }
             return stop - address;
         }
+        #endregion
 
         #region Execution
 

@@ -862,5 +862,16 @@ namespace vsic
         {
             hexDisplay.Invalidate();
         }
+
+        private void loadSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sess.LoadFromFile("session.txt");
+            InitializeMachineDisplay();
+        }
+
+        private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sess.SaveToFile("session.txt");
+        }
     }
 }

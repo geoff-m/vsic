@@ -171,6 +171,7 @@
             this.destroyButton.TabIndex = 4;
             this.destroyButton.Text = "Destroy Device";
             this.destroyButton.UseVisualStyleBackColor = true;
+            this.destroyButton.Click += new System.EventHandler(this.destroyButton_Click);
             // 
             // DeviceManager
             // 

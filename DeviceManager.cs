@@ -171,5 +171,10 @@ namespace vsic
                 Hide();
             }
         }
+
+        private void destroyButton_Click(object sender, EventArgs e)
+        {
+            var selected = devLV.SelectedItems[0];
+        }
     }
 }

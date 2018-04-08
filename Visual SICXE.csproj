@@ -36,6 +36,9 @@
     <RootNamespace>Visual_SICXE</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -94,6 +97,7 @@
     <Compile Include="ILogSink.cs" />
     <Compile Include="Instructions.cs" />
     <Compile Include="IODevice.cs" />
+    <Compile Include="ISerialize.cs" />
     <Compile Include="Machine.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -149,6 +153,7 @@
     <None Include=".vs\vsic\v15\.suo" />
     <None Include=".vs\VSWorkspaceState.json" />
     <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings" />
     <None Include="README.md" />
   </ItemGroup>
@@ -184,6 +189,7 @@
     <Content Include="program ideas\call.txt" />
     <Content Include="program ideas\call_v2.txt" />
     <Content Include="program ideas\sicxe program plans.txt" />
+    <Content Include="Saving sessions.txt" />
     <Content Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>

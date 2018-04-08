@@ -29,9 +29,7 @@ namespace vsic
             Leave += OnBlur;
         }
 
-        HashSet<ByteMarker> boxes = new HashSet<ByteMarker>();
-        public HashSet<ByteMarker> Boxes
-        { get { return boxes; } }
+        public HashSet<ByteMarker> Boxes = new HashSet<ByteMarker>();
 
         public Stream Data
         { get; set; }
@@ -114,7 +112,7 @@ namespace vsic
             }
             set
             {
-                if ((Data != null && cursorAddress >= Data.Length) || cursorAddress < 0)
+                if ((Data != null && value >= Data.Length) || value < 0)
                     throw new ArgumentOutOfRangeException(nameof(value));
 
                 // If address is not contained in display, update displayed window to contain it.
@@ -370,8 +368,10 @@ namespace vsic
             else if (!Data.CanRead)
             {
                 PaintCenteredText(g, "Cannot read data");
+                Enabled = false;
                 return;
             }
+            Enabled = true;
 
             if (doRecalc)
                 UpdateMeasurements(g);
@@ -381,7 +381,7 @@ namespace vsic
 
             // Draw boxes.
             int boxesDrawn = 0; // for debug.
-            foreach (var box in boxes)
+            foreach (var box in Boxes)
             {
                 if (DrawBox(g, box))
                     ++boxesDrawn;
