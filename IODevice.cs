@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace vsic
 {
@@ -75,7 +74,8 @@ namespace vsic
 
         public void Serialize(Stream stream)
         {
-            // todo: write a magic number depending on the type i am, then call my (real class) serialize
+            // todo: write a magic number depending on the (concrete) type i am, then let that type's implementation do the rest of the work.
+            // for instance, maybe we set a convention that all subclass Serialize methods begin by calling base.Serialize(stream) (i.e. this method).
             throw new NotImplementedException();
         }
 
