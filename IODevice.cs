@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +10,12 @@ namespace vsic
     /// <summary>
     /// Represents a device that can be read from and written to by a SIC machine.
     /// </summary>
-    public abstract class IODevice : IDisposable
+    public abstract class IODevice : IDisposable, ISerialize
     {
         public const byte EOF = 0xFF;
 
         public byte ID
-        { get; private set; }
+        { get; protected set; }
         public IODevice(byte id)
         {
             ID = id;
@@ -72,5 +73,17 @@ namespace vsic
             return $"{ID.ToString("X2")}: {Name}";
         }
 
+        public void Serialize(Stream stream)
+        {
+            // todo: write a magic number depending on the type i am, then call my (real class) serialize
+            throw new NotImplementedException();
+        }
+
+        public void Deserialize(Stream stream)
+        {
+            // check magic number to determine which type's deserialize method should be used.
+            // that is, make this class have a static list of known subclasses, each paired with their serialization magic number.
+            throw new NotImplementedException();
+        }
     }
 }

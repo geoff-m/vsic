@@ -15,11 +15,12 @@ namespace vsic
     public sealed class Machine : ISerialize
     {
         #region Serialization
-        const int SERIALIZATION_MACHINE_MAGIC_NUMBER = 0x3AC817E;
-        const int SERIALIZATION_VERSION = 0x00010001;
-        const int SERIALIZATION_MEMORY_MAGIC_NUMBER = 0x11223344;
-        const int SERIALIZATION_REGISTERS_MAGIC_NUMBER = 0x13E6157E;
-        const int BUFFER_SIZE = 4096;
+        const uint SERIALIZATION_MACHINE_MAGIC_NUMBER = 0x3AC817E;
+        const uint SERIALIZATION_VERSION = 0x00010001;
+        const uint SERIALIZATION_MEMORY_MAGIC_NUMBER = 0x11223344;
+        const uint SERIALIZATION_REGISTERS_MAGIC_NUMBER = 0x13E6157E;
+        const uint SERIALIZATION_DEVICES_MAGIC_NUMBER = 0xDEFF1CE5;
+        const uint BUFFER_SIZE = 4096;
         public void Serialize(Stream stream)
         {
             var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
@@ -55,6 +56,10 @@ namespace vsic
             writer.Write((int)Register.X);
             writer.Write(regX);
             Debug.WriteLine($"Wrote registers. Stream position is now {stream.Position}");
+
+            writer.Write(SERIALIZATION_DEVICES_MAGIC_NUMBER);
+            // serialize devices by calling their own serialize implementations.
+
             writer.Dispose();
             Debug.WriteLine($"Disposed binarywriter. Stream position is now {stream.Position}");
         }
@@ -62,15 +67,15 @@ namespace vsic
         public void Deserialize(Stream stream)
         {
             var reader = new BinaryReader(stream,System.Text.Encoding.UTF8, true);
-            int intbuf = reader.ReadInt32();
-            if (intbuf != SERIALIZATION_MACHINE_MAGIC_NUMBER)
+            uint uintbuf = reader.ReadUInt32();
+            if (uintbuf != SERIALIZATION_MACHINE_MAGIC_NUMBER)
                 throw new InvalidDataException();
-            intbuf = reader.ReadInt32();
-            if (intbuf != SERIALIZATION_VERSION)
-                throw new InvalidDataException($"Expected version {SERIALIZATION_VERSION.ToString("X")}, got version {intbuf.ToString("X")} instead.");
+            uintbuf = reader.ReadUInt32();
+            if (uintbuf != SERIALIZATION_VERSION)
+                throw new InvalidDataException($"Expected version {SERIALIZATION_VERSION.ToString("X")}, got version {uintbuf.ToString("X")} instead.");
 
-            intbuf = reader.ReadInt32();
-            if (intbuf != SERIALIZATION_MEMORY_MAGIC_NUMBER)
+            uintbuf = reader.ReadUInt32();
+            if (uintbuf != SERIALIZATION_MEMORY_MAGIC_NUMBER)
                 throw new InvalidDataException();
 
             int memoryLength = reader.ReadInt32();
@@ -83,40 +88,41 @@ namespace vsic
             Memory.Seek(0, SeekOrigin.Begin);
             BZip2.Decompress(stream, Memory, false);
             //Debug.WriteLine($"Stream position is now {stream.Position}");
-            intbuf = reader.ReadInt32();
-            if (intbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
+            uintbuf = reader.ReadUInt32();
+            if (uintbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
                 throw new InvalidDataException();
 
+            int intbuf;
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.A)
+            if (uintbuf != (int)Register.A)
                 throw new InvalidDataException();
             regA = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.B)
+            if (uintbuf != (int)Register.B)
                 throw new InvalidDataException();
             regB = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.CC)
+            if (uintbuf != (int)Register.CC)
                 throw new InvalidDataException();
             CC = (ConditionCode)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.L)
+            if (uintbuf != (int)Register.L)
                 throw new InvalidDataException();
             regL = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.PC)
+            if (uintbuf != (int)Register.PC)
                 throw new InvalidDataException();
             PC = reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.S)
+            if (uintbuf != (int)Register.S)
                 throw new InvalidDataException();
             regS = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.T)
+            if (uintbuf != (int)Register.T)
                 throw new InvalidDataException();
             regT = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (intbuf != (int)Register.X)
+            if (uintbuf != (int)Register.X)
                 throw new InvalidDataException();
             regX = (Word)reader.ReadInt32();
 

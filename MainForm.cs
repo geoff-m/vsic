@@ -867,6 +867,7 @@ namespace vsic
         {
             sess.LoadFromFile("session.txt");
             InitializeMachineDisplay();
+            UpdateMachineDisplay();
         }
 
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)

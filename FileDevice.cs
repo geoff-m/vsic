@@ -7,7 +7,7 @@ using IOPath = System.IO.Path;
 
 namespace vsic
 {
-    public class FileDevice : IODevice
+    public class FileDevice : IODevice, ISerialize
     {
         private FileStream fs;
         long recentlyWritten = 0;
@@ -77,6 +77,24 @@ namespace vsic
         {
             fs.Dispose();
             fs = null;
+        }
+
+        public void Serialize(Stream stream)
+        {
+            var writer = new BinaryWriter(stream,System.Text.Encoding.UTF8, true);
+            writer.Write(ID);
+            writer.Write(name);
+            writer.Write(Path);
+            writer.Dispose();
+        }
+
+        public void Deserialize(Stream stream)
+        {
+            var reader  = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
+            ID = reader.ReadByte();
+            name = reader.ReadString();
+            Path = reader.ReadString();
+            reader.Dispose();
         }
 
         public override string Name
