@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new vsic.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -97,6 +96,9 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.devLB = new System.Windows.Forms.ListBox();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
+            this.openSessionDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveSessionDialog = new System.Windows.Forms.SaveFileDialog();
+            this.hexDisplay = new vsic.HexDisplay();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
@@ -123,27 +125,6 @@
             this.memGB.TabIndex = 0;
             this.memGB.TabStop = false;
             this.memGB.Text = "Memory";
-            // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
-            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
-            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // regGB
             // 
@@ -546,14 +527,14 @@
             // newMachineToolStripMenuItem
             // 
             this.newMachineToolStripMenuItem.Name = "newMachineToolStripMenuItem";
-            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.newMachineToolStripMenuItem.Text = "New";
             this.newMachineToolStripMenuItem.Click += new System.EventHandler(this.newMachineToolStripMenuItem_Click);
             // 
-            // saveSessionToolStripMenuItem
+            // loadSessionToolStripMenuItem
             // 
             this.loadSessionToolStripMenuItem.Name = "loadSessionToolStripMenuItem";
-            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.loadSessionToolStripMenuItem.Text = "Load...";
             this.loadSessionToolStripMenuItem.Click += new System.EventHandler(this.loadSessionToolStripMenuItem_Click);
             // 
@@ -561,20 +542,20 @@
             // 
             this.revertToolStripMenuItem.Enabled = false;
             this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-            this.revertToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.revertToolStripMenuItem.Text = "Revert";
             // 
-            // saveToolStripMenuItem
+            // saveSessionToolStripMenuItem
             // 
-            this.saveSessionToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.saveSessionToolStripMenuItem.Text = "Save";
             this.saveSessionToolStripMenuItem.Click += new System.EventHandler(this.saveSessionToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -819,6 +800,37 @@
             // 
             this.openLSTdialog.Filter = "sicasm LST files (*.lst)|*.lst";
             // 
+            // openSessionDialog
+            // 
+            this.openSessionDialog.Filter = "Saved sessions|*.sav";
+            this.openSessionDialog.Title = "Load saved session";
+            // 
+            // saveSessionDialog
+            // 
+            this.saveSessionDialog.DefaultExt = "sav";
+            this.saveSessionDialog.Filter = "Saved sessions|*.sav|All files|*.*";
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -931,6 +943,8 @@
         private System.Windows.Forms.Label PCfromCursorLabel;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListBox devLB;
+        private System.Windows.Forms.OpenFileDialog openSessionDialog;
+        private System.Windows.Forms.SaveFileDialog saveSessionDialog;
     }
 }
 

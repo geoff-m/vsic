@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Path = System.IO.Path;
+using System.IO; // We don't do IO in this class. This import is only for Path and IOException.
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -26,6 +26,16 @@ namespace vsic
 
             devman = new DeviceManager();
             devman.Owner = this;
+
+            Load += FormLoaded;
+        }
+
+        private void FormLoaded(object sender, EventArgs e)
+        {
+            foreach (var tb in new TextBox[] { regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB })
+            {
+                tb.Tag = tb.Text;
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -119,7 +129,7 @@ namespace vsic
                     Debug.WriteLine("Done disposing I/O devices.");
                 }
             }
-            
+
         }
 
         #region ILogSink implementation
@@ -570,17 +580,24 @@ namespace vsic
                     break;
 
                 case (char)Keys.Enter:
+                    string newText = tb.Text;
+                    if (newText.Length == 0) // If textbox is empty, replace in it whatever was last entered.
+                    {
+                        // todo: set each textbox's tag as its current text on text changed event, unless it is not the first such event since the last time the user pressed enter.
+                        tb.Text = (string)tb.Tag;
+                        break;
+                    }
                     // Commit changes to machine.
-                    Word newValue = (Word)int.Parse(tb.Text, System.Globalization.NumberStyles.HexNumber);
-
+                    Word newValue = (Word)int.Parse(newText, System.Globalization.NumberStyles.HexNumber);
+                    int maxmem = sess.Machine.MemorySize;
                     if (ReferenceEquals(tb, gotoTB))
                     {
-                        int maxmem = sess.Machine.MemorySize;
                         if (newValue < maxmem)
                         {
                             tb.BackColor = SystemColors.Window;
                             hexDisplay.CursorAddress = newValue;
                             UpdateMachineDisplay();
+                            tb.Tag = tb.Text;
                         }
                         else
                         {
@@ -591,8 +608,18 @@ namespace vsic
                     }
                     if (ReferenceEquals(tb, pcTB))
                     {
-                        sess.Machine.ProgramCounter = newValue;
-                        UpdateMachineDisplay();
+                        if (newValue < maxmem)
+                        {
+                            tb.BackColor = SystemColors.Window;
+                            sess.Machine.ProgramCounter = newValue;
+                            UpdateMachineDisplay();
+                            tb.Tag = tb.Text;
+                        }
+                        else
+                        {
+                            tb.BackColor = Color.LightPink;
+                            LogError($"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem.ToString("X")}).");
+                        }
                         break;
                     }
                     if (ReferenceEquals(tb, regATB))
@@ -605,19 +632,19 @@ namespace vsic
                         sess.Machine.RegisterX = newValue;
                         break;
                     }
-                    if (ReferenceEquals(tb, regTTB))
+                    if (ReferenceEquals(tb, regSTB))
                     {
                         sess.Machine.RegisterS = newValue;
+                        break;
+                    }
+                    if (ReferenceEquals(tb, regTTB))
+                    {
+                        sess.Machine.RegisterT = newValue;
                         break;
                     }
                     if (ReferenceEquals(tb, regBTB))
                     {
                         sess.Machine.RegisterB = newValue;
-                        break;
-                    }
-                    if (ReferenceEquals(tb, regSTB))
-                    {
-                        sess.Machine.RegisterS = newValue;
                         break;
                     }
                     if (ReferenceEquals(tb, regLTB))
@@ -865,14 +892,56 @@ namespace vsic
 
         private void loadSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            sess.LoadFromFile("session.txt");
-            InitializeMachineDisplay();
-            UpdateMachineDisplay();
+            var res = openSessionDialog.ShowDialog();
+            bool success = false;
+            if (res != DialogResult.OK)
+                return;
+            string path = openSessionDialog.FileName;
+            try
+            {
+                sess.LoadFromFile(path);
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is IOException || ex is InvalidDataException)
+                {
+                    MessageBox.Show($"Loading session from {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogError($"Failed to load session from {path}: {ex.Message}");
+                }
+                else
+                    throw;
+            }
+            if (success)
+            {
+                InitializeMachineDisplay();
+                UpdateMachineDisplay();
+                UpdateIODevices(null, null);
+                Log("Loaded session from {0}.", path);
+            }
         }
 
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            sess.SaveToFile("session.txt");
+            var res = saveSessionDialog.ShowDialog();
+            if (res != DialogResult.OK)
+                return;
+            string path = saveSessionDialog.FileName;
+            bool success = false;
+            try
+            {
+                sess.SaveToFile(path);
+                success = true;
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Saving session to {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogError($"Failed to save session to {path}: {ex.Message}");
+            }
+            if (success)
+            {
+                Log("Saved session to {0}.", path);
+            }
         }
     }
 }

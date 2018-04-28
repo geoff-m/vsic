@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace vsic
 {
@@ -11,10 +13,18 @@ namespace vsic
     /// </summary>
     public abstract class IODevice : IDisposable, ISerialize
     {
+        private const uint SERIALIZATION_FILE_DEVICE_MAGIC_NUMBER = 0xF11EF11E;
+        private const uint SERIALIZATION_CONSOLE_DEVICE_MAGIC_NUMBER = 0xC07501ED;
+        private static readonly IReadOnlyDictionary<uint, Type> _TYPES = new Dictionary<uint, Type>
+        {
+            {SERIALIZATION_FILE_DEVICE_MAGIC_NUMBER, typeof(FileDevice) },
+            {SERIALIZATION_CONSOLE_DEVICE_MAGIC_NUMBER, typeof(ConsoleDevice) }
+        };
+
         public const byte EOF = 0xFF;
 
         public byte ID
-        { get; protected set; }
+        { get; private set; }
         public IODevice(byte id)
         {
             ID = id;
@@ -72,18 +82,65 @@ namespace vsic
             return $"{ID.ToString("X2")}: {Name}";
         }
 
-        public void Serialize(Stream stream)
+        public virtual void Serialize(Stream stream)
         {
             // todo: write a magic number depending on the (concrete) type i am, then let that type's implementation do the rest of the work.
             // for instance, maybe we set a convention that all subclass Serialize methods begin by calling base.Serialize(stream) (i.e. this method).
-            throw new NotImplementedException();
+            var mytype = GetType().Name;
+            uint magicNumber = 0;
+            switch (mytype)
+            {
+                case nameof(FileDevice):
+                //case "FileDevice":
+                    magicNumber = SERIALIZATION_FILE_DEVICE_MAGIC_NUMBER;
+                    break;
+                case nameof(ConsoleDevice):
+                //case "ConsoleDevice":
+                    magicNumber = SERIALIZATION_CONSOLE_DEVICE_MAGIC_NUMBER;
+                    break;
+                default:
+                    Debug.Fail("I don't know how to serialize that type of IODevice.");
+                    break;
+            }
+            if (magicNumber != 0)
+            {
+                using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+                {
+                    writer.Write(magicNumber);
+                    writer.Write(ID);
+                }
+            }
+            
+            // (Now control flows back to subclass Serialize method...)
         }
 
-        public void Deserialize(Stream stream)
+        public static IODevice Deserialize(Stream stream)
         {
-            // check magic number to determine which type's deserialize method should be used.
-            // that is, make this class have a static list of known subclasses, each paired with their serialization magic number.
-            throw new NotImplementedException();
+            uint magicNumber;
+            byte id;
+            string name;
+            using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
+            {
+                magicNumber = reader.ReadUInt32();
+                id = reader.ReadByte();
+                name = reader.ReadString();
+            }
+            if (_TYPES.TryGetValue(magicNumber, out Type subclass))
+            {
+                var ret = (IODevice)subclass.GetConstructor(new Type[] { typeof(byte) }).Invoke(new object[] { id });
+                ret.Name = name;
+                const string SUBCLASS_DESERIALIZE_METHOD_NAME = "Deserialize";
+                var subdes = subclass.GetMethod(SUBCLASS_DESERIALIZE_METHOD_NAME, BindingFlags.NonPublic);
+                if (subdes != null)
+                    subdes.Invoke(ret, new object[] { stream });
+                else
+                    Debug.WriteLine($"IODevice type \"{subclass.Name}\" did not contain a \"{SUBCLASS_DESERIALIZE_METHOD_NAME}\" method. Subclass-specific deserialization will not be performed.");
+                return ret;
+            } else
+            {
+                Debug.Fail("IODevice deserialization failed: Unknown magic number");
+                throw new InvalidDataException();
+            }
         }
     }
 }

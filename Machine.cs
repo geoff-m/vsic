@@ -1,4 +1,5 @@
 ﻿//#define DEBUG_PRINT_ADDRESS_TYPE
+//#define ENABLE_FEATURE_SAVE_COMPRESSION
 
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,11 @@ namespace vsic
             Debug.WriteLine($"Stream position is now {stream.Position}");
             // Write memory with compression.
             Memory.Seek(0, SeekOrigin.Begin);
+#if ENABLE_FEATURE_SAVE_COMPRESSION
             BZip2.Compress(Memory, stream, false, 5);
+#else
+            Memory.CopyTo(stream);
+#endif
             // Write registers.
             Debug.WriteLine($"About to write registers. Stream position is now {stream.Position}");
             writer.Write(SERIALIZATION_REGISTERS_MAGIC_NUMBER);
@@ -58,7 +63,7 @@ namespace vsic
             Debug.WriteLine($"Wrote registers. Stream position is now {stream.Position}");
 
             writer.Write(SERIALIZATION_DEVICES_MAGIC_NUMBER);
-            // serialize devices by calling their own serialize implementations.
+            // todo: serialize devices 
 
             writer.Dispose();
             Debug.WriteLine($"Disposed binarywriter. Stream position is now {stream.Position}");
@@ -84,51 +89,65 @@ namespace vsic
             memory = new byte[memoryLength];
             Memory = new MemoryStream(memory, true);
 
-            //Debug.WriteLine($"Stream position is now {stream.Position}");
+            Debug.WriteLine($"Stream position is now {stream.Position}");
             Memory.Seek(0, SeekOrigin.Begin);
-            BZip2.Decompress(stream, Memory, false);
-            //Debug.WriteLine($"Stream position is now {stream.Position}");
+#if ENABLE_FEATURE_SAVE_COMPRESSION
+            BZip2.Decompress(stream, Memory, false); // todo: change how this is done.
+#else
+            int memoryBytesRead = stream.Read(memory, 0, memoryLength);
+            Debug.WriteLine($"{memoryBytesRead} bytes read into memory");
+#endif
+            Debug.WriteLine($"Stream position is now {stream.Position}");
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
                 throw new InvalidDataException();
 
             int intbuf;
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.A)
+            if (intbuf != (int)Register.A)
                 throw new InvalidDataException();
             regA = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.B)
+            if (intbuf != (int)Register.B)
                 throw new InvalidDataException();
             regB = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.CC)
+            if (intbuf != (int)Register.CC)
                 throw new InvalidDataException();
             CC = (ConditionCode)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.L)
+            if (intbuf != (int)Register.L)
                 throw new InvalidDataException();
             regL = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.PC)
+            if (intbuf != (int)Register.PC)
                 throw new InvalidDataException();
             PC = reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.S)
+            if (intbuf != (int)Register.S)
                 throw new InvalidDataException();
             regS = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.T)
+            if (intbuf != (int)Register.T)
                 throw new InvalidDataException();
             regT = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.X)
+            if (intbuf != (int)Register.X)
                 throw new InvalidDataException();
             regX = (Word)reader.ReadInt32();
 
             reader.Dispose();
         }
-        #endregion
+
+        private static void dumpstream(Stream s)
+        {
+            int buflen = (int)(s.Length - s.Position);
+            var buf = new byte[buflen];
+            s.Read(buf, 0, buflen);
+            var str = string.Join("", buf.Select(b => b.ToString("x2")));
+            Debug.WriteLine(str);
+        }
+#endregion
 
         /// <summary>
         /// The number of instructions this Machine has ever executed.
@@ -136,7 +155,7 @@ namespace vsic
         public long InstructionsExecuted
         { get; private set; }
 
-        #region Memory and registers
+#region Memory and registers
         public const int SIC_MEMORY_SIZE = 0x8000; // 32K
         public const int SICXE_MEMORY_SIZE = 0x100000; // 1M
 
@@ -345,7 +364,7 @@ namespace vsic
             get;
             private set;
         }
-        #endregion
+#endregion
 
         public Machine(int memorySize = SICXE_MEMORY_SIZE)
         {
@@ -368,7 +387,7 @@ namespace vsic
             Logger = new NullLog();
         }
 
-        #region Devices
+#region Devices
         IODevice[] devices = new IODevice[256];
         /// <summary>
         /// The devices this machine has.
@@ -388,6 +407,21 @@ namespace vsic
             if (devices[id] != null)
                 throw new ArgumentException("A device with that ID already exists!");
             devices[id] = device;
+        }
+
+        /// <summary>
+        /// Removes the device with the specified ID from the machine.
+        /// </summary>
+        /// <param name="id">The ID of the device to remove.</param>
+        /// <returns>True if the device was removed, false if no device had the specified ID.</returns>
+        public bool RemoveDevice(byte id)
+        {
+            if (devices[id] == null)
+                return false; // No such device.
+
+            devices[id].Dispose();
+            devices[id] = null;
+            return true;
         }
 
         /// <summary>
@@ -424,9 +458,9 @@ namespace vsic
             });
         }
 
-        #endregion
+#endregion
 
-        #region DMA functions
+#region DMA functions
         /// <summary>
         /// Copies the given data into this Machine's memory, beginning at the specified address.
         /// Safety: This method will either perform the entire copy, or no memory will be changed.
@@ -440,7 +474,7 @@ namespace vsic
             if (address < 0)
                 throw new ArgumentException("Address must be nonnegative.", nameof(address));
             if (address + data.Length > memory.Length)
-                throw new ArgumentException("Write would go past end of memory.");
+                throw new ArgumentException("Write would go past the end of memory.");
 
             Array.ConstrainedCopy(data, 0, memory, 0, data.Length);
             //Buffer.BlockCopy(data, 0, memory, 0, data.Length);
@@ -473,9 +507,9 @@ namespace vsic
             }
             return stop - address;
         }
-        #endregion
+#endregion
 
-        #region Execution
+#region Execution
 
         public enum RunResult
         {
@@ -1246,7 +1280,7 @@ namespace vsic
             //Debug.WriteLine($"memory[{(int)address}] = {memory[(int)address]}");
         }
 
-        #endregion Execution
+#endregion Execution
 
         /// <summary>
         /// Writes a portion of this machine's memory to the console.

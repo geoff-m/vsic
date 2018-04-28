@@ -76,22 +76,24 @@ namespace vsic
                 case "file":
                     // Need to get file path for this guy. Show special dialog for creating file device.
                     // Let's just use a built-in file browser dialog for now.
-                    var fileBrowserDlg = new OpenFileDialog();
-                    fileBrowserDlg.Title = $"Choose path for file device 0x{id.Value.ToString("X")} (\"{devname}\")";
-                    fileBrowserDlg.CheckFileExists = false;
-                    if (fileBrowserDlg.ShowDialog() == DialogResult.OK)
+                    var fileBrowserDlg = new OpenFileDialog
                     {
-                        var path = fileBrowserDlg.FileName;
-                        try
-                        {
-                            newDevice = new FileDevice(id.Value, path);
-                        }
-                        catch (System.IO.IOException ex)
-                        {
-                            MessageBox.Show(ex.Message, "Error creating file device", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
+                        Title = $"Choose path for file device 0x{id.Value.ToString("X")} (\"{devname}\")",
+                        CheckFileExists = false
+                    };
+                    if (fileBrowserDlg.ShowDialog() != DialogResult.OK)
+                        return;
+                    var path = fileBrowserDlg.FileName;
+                    try
+                    {
+                        newDevice = new FileDevice(id.Value, path);
                     }
+                    catch (System.IO.IOException ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error creating file device", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     break;
                 case "console":
                     // No special options needed for this type of device? simply create it
@@ -101,7 +103,7 @@ namespace vsic
                 case "graphics":
                     // Not implemented yet.
                     return;
-                    break;
+                //break;
 
                 default:
                     MessageBox.Show($"\"{typeCB.Text}\" is not a valid device type.", "Create device", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -113,7 +115,7 @@ namespace vsic
                 newDevice.Name = nameTB.Text;
             try
             {
-                Machine.AddDevice(id.Value, newDevice);   
+                Machine.AddDevice(id.Value, newDevice);
             }
             catch (ArgumentException ex)
             {
@@ -121,7 +123,10 @@ namespace vsic
                 return;
             }
 
-            devLV.Items.Add(new ListViewItem(new string[] { newDevice.ID.ToString("X2"), newDevice.Type, newDevice.Name}));
+            devLV.Items.Add(new ListViewItem(new string[] { newDevice.ID.ToString("X2"), newDevice.Type, newDevice.Name })
+            {
+                Tag = newDevice
+            });
         }
 
         private void onIdTBKeyPress(object sender, KeyPressEventArgs e)
@@ -174,8 +179,17 @@ namespace vsic
 
         private void destroyButton_Click(object sender, EventArgs e)
         {
+            if (devLV.SelectedItems.Count == 0)
+                return;
             var selected = devLV.SelectedItems[0];
-            // todo: finish implementing me
+            var dev = (IODevice)selected.Tag;
+            bool success = Machine.RemoveDevice(dev.ID);
+            devLV.Items.Remove(selected);
+            if (!success)
+            {
+                // This should never happen, and even if it did, we'd probably just want to ignore it anyway.
+                Debug.WriteLine($"Machine failed to remove device {dev.ToString()}!");
+            }
         }
     }
 }

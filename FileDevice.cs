@@ -79,8 +79,9 @@ namespace vsic
             fs = null;
         }
 
-        public void Serialize(Stream stream)
+        public override void Serialize(Stream stream)
         {
+            base.Serialize(stream);
             var writer = new BinaryWriter(stream,System.Text.Encoding.UTF8, true);
             writer.Write(ID);
             writer.Write(name);
@@ -88,13 +89,13 @@ namespace vsic
             writer.Dispose();
         }
 
-        public void Deserialize(Stream stream)
+        private new void Deserialize(Stream stream)
         {
             var reader  = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
-            ID = reader.ReadByte();
-            name = reader.ReadString();
-            Path = reader.ReadString();
+            string path = reader.ReadString();
             reader.Dispose();
+
+            Path = path;
         }
 
         public override string Name
