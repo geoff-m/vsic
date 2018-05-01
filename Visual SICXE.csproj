@@ -52,8 +52,9 @@
     <Compile Include="AddressingMode.cs" />
     <Compile Include="Breakpoint.cs" />
     <Compile Include="ByteMarker.cs" />
+    <Compile Include="CancelToken.cs" />
     <Compile Include="ConditionCode.cs" />
-    <Compile Include="ConsoleDevice.cs" />
+    <Compile Include="Devices\ConsoleDevice.cs" />
     <Compile Include="ConsoleWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,7 +81,7 @@
     <Compile Include="Extension classes\IEnumerableExtensions.cs" />
     <Compile Include="Extension classes\StreamReaderExtensions.cs" />
     <Compile Include="Extension classes\StringExtensions.cs" />
-    <Compile Include="FileDevice.cs" />
+    <Compile Include="Devices\FileDevice.cs" />
     <Compile Include="FileDeviceCreationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,7 +97,7 @@
     </Compile>
     <Compile Include="ILogSink.cs" />
     <Compile Include="Instructions.cs" />
-    <Compile Include="IODevice.cs" />
+    <Compile Include="Devices\IODevice.cs" />
     <Compile Include="ISerialize.cs" />
     <Compile Include="Machine.cs" />
     <Compile Include="MainForm.cs">

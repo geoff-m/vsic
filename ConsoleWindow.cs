@@ -16,6 +16,7 @@ namespace vsic
         public ConsoleWindow()
         {
             InitializeComponent();
+            
         }
 
         public void DisplayConsole(ConsoleDevice con)
@@ -42,8 +43,9 @@ namespace vsic
                     Dock = DockStyle.Fill,
                     Font = new Font("Courier New", 10f),
                     ReadOnly = true,
-                    ScrollBars = ScrollBars.Both,
+                    ScrollBars = ScrollBars.Both
                 };
+                tb.DoubleBuffer(true);
                 con.OutputByteWritten += UpdateDisplay;
                 tab.Controls.Add(tb);
                 tabControl.TabPages.Add(tab);

@@ -448,18 +448,45 @@ namespace vsic
             UpdateMachineDisplay();
         }
 
+        bool running = false;
+        CancelToken runCancelToken = new CancelToken();
         private void runButton_Click(object sender, EventArgs e)
         {
-            StartMachineRun();
+            if (running)
+            {
+                // stop machine thread without using Thread.Abort.
+                // we should never Abort machine execution thread because it may corrupt the VM.
+                runCancelToken.Cancel();
+                running = false;
+                runButton.Text = "Start (F5)";
+                EndMachineRun();
+            }
+            else
+            {
+                running = true;
+                runButton.Text = "Stop (F5)";
+                runCancelToken.Reset();
+                StartMachineRun();
+            }
         }
 
         long instructionsAtRunStart;
         private void StartMachineRun()
         {
-            Debug.Assert(machineThread == null || !machineThread.IsAlive, "Machine thread is already running?!");
+            Debug.Assert(running);
+            if (machineThread != null && machineThread.IsAlive)
+            {
+                // this should never be reached.
+                Debug.Assert(false, "Machine is already running?!");
+                return;
+            }
             instructionsAtRunStart = sess.Machine.InstructionsExecuted;
             SuspendMachineDisplayUpdates();
-            machineThread = new Thread(new ThreadStart(() => { sess.Machine.Run(); EndMachineRun(); }));
+            machineThread = new Thread(new ThreadStart(() =>
+            {
+                sess.Machine.Run(runCancelToken);
+                EndMachineRun();
+            }));
             machineThread.Start();
         }
 
@@ -897,10 +924,13 @@ namespace vsic
             if (res != DialogResult.OK)
                 return;
             string path = openSessionDialog.FileName;
+#if !DEBUG
             try
             {
+#endif
                 sess.LoadFromFile(path);
                 success = true;
+#if !DEBUG
             }
             catch (Exception ex)
             {
@@ -912,6 +942,7 @@ namespace vsic
                 else
                     throw;
             }
+#endif
             if (success)
             {
                 InitializeMachineDisplay();

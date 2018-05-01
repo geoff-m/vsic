@@ -26,6 +26,12 @@ namespace vsic
             fs = new FileStream(path, FileMode.OpenOrCreate);
         }
 
+        // This constructor is called by deserialization. The object requires further initialization before use.
+        public FileDevice(byte id) : base(id)
+        {
+            fs = null;
+        }
+
         public override bool Test()
         {
             // We could replace this with randomness if we wanted to simulate slowness.
@@ -82,16 +88,21 @@ namespace vsic
         public override void Serialize(Stream stream)
         {
             base.Serialize(stream);
-            var writer = new BinaryWriter(stream,System.Text.Encoding.UTF8, true);
-            writer.Write(ID);
-            writer.Write(name);
-            writer.Write(Path);
-            writer.Dispose();
+            BinaryWriter writer = null;
+            try
+            {
+                writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
+                writer.Write(Path);
+            }
+            finally
+            {
+                writer?.Dispose();
+            }
         }
 
         private new void Deserialize(Stream stream)
         {
-            var reader  = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
+            var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
             string path = reader.ReadString();
             reader.Dispose();
 

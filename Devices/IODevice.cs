@@ -22,6 +22,7 @@ namespace vsic
         };
 
         public const byte EOF = 0xFF;
+        internal const string SUBCLASS_DESERIALIZE_METHOD_NAME = "Deserialize";
 
         public byte ID
         { get; private set; }
@@ -108,6 +109,7 @@ namespace vsic
                 {
                     writer.Write(magicNumber);
                     writer.Write(ID);
+                    writer.Write(Name);
                 }
             }
             
@@ -129,7 +131,6 @@ namespace vsic
             {
                 var ret = (IODevice)subclass.GetConstructor(new Type[] { typeof(byte) }).Invoke(new object[] { id });
                 ret.Name = name;
-                const string SUBCLASS_DESERIALIZE_METHOD_NAME = "Deserialize";
                 var subdes = subclass.GetMethod(SUBCLASS_DESERIALIZE_METHOD_NAME, BindingFlags.NonPublic);
                 if (subdes != null)
                     subdes.Invoke(ret, new object[] { stream });

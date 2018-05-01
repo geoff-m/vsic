@@ -1,5 +1,5 @@
 ﻿//#define DEBUG_PRINT_ADDRESS_TYPE
-//#define ENABLE_FEATURE_SAVE_COMPRESSION
+//#define ENABLE_FEATURE_SAVE_COMPRESSION // this doesn't work yet.
 
 using System;
 using System.Collections.Generic;
@@ -63,10 +63,15 @@ namespace vsic
             Debug.WriteLine($"Wrote registers. Stream position is now {stream.Position}");
 
             writer.Write(SERIALIZATION_DEVICES_MAGIC_NUMBER);
-            // todo: serialize devices 
+            // serialize devices 
+            foreach (var dev in Devices)
+            {
+                dev.Serialize(stream);
+            }
 
             writer.Dispose();
             Debug.WriteLine($"Disposed binarywriter. Stream position is now {stream.Position}");
+            stream.Dispose();
         }
 
         public void Deserialize(Stream stream)
@@ -79,6 +84,7 @@ namespace vsic
             if (uintbuf != SERIALIZATION_VERSION)
                 throw new InvalidDataException($"Expected version {SERIALIZATION_VERSION.ToString("X")}, got version {uintbuf.ToString("X")} instead.");
 
+            // Deserialize memory
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_MEMORY_MAGIC_NUMBER)
                 throw new InvalidDataException();
@@ -98,6 +104,8 @@ namespace vsic
             Debug.WriteLine($"{memoryBytesRead} bytes read into memory");
 #endif
             Debug.WriteLine($"Stream position is now {stream.Position}");
+
+            // Deserialize registers
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
                 throw new InvalidDataException();
@@ -136,7 +144,19 @@ namespace vsic
                 throw new InvalidDataException();
             regX = (Word)reader.ReadInt32();
 
+            // Deserialize devices
+            uintbuf = reader.ReadUInt32();
+            if (uintbuf != SERIALIZATION_DEVICES_MAGIC_NUMBER)
+                throw new InvalidDataException();
+
+            while (stream.Position < stream.Length)
+            {
+                var newDev = IODevice.Deserialize(stream);
+                AddDevice(newDev.ID, newDev);
+            }
+
             reader.Dispose();
+            stream.Dispose();
         }
 
         private static void dumpstream(Stream s)
@@ -146,6 +166,9 @@ namespace vsic
             s.Read(buf, 0, buflen);
             var str = string.Join("", buf.Select(b => b.ToString("x2")));
             Debug.WriteLine(str);
+
+            var text = System.Text.UnicodeEncoding.UTF8.GetString(buf);
+            // this isn't rendering in debug output because it contains \0 chars
         }
 #endregion
 
@@ -551,6 +574,17 @@ namespace vsic
             return ret;
         }
 
+        public RunResult Run(CancelToken token)
+        {
+            RunResult ret;
+            do
+            {
+                ret = Step();
+            } while (ret == RunResult.None && !token.Cancelled);
+            token.Reset();
+            return ret;
+        }
+
         /// <summary>
         /// Executes the instruction at the program counter.
         /// </summary>
@@ -850,13 +884,13 @@ namespace vsic
                                 else
                                 {
                                     CC = ConditionCode.EqualTo; // Equal means not ready.
-                                    Debug.WriteLine($"Device {deviceID} is not ready.");
+                                    Debug.WriteLine($"Device {deviceID.ToString("X2")} is not ready.");
                                 }
                             }
                             else
                             {
                                 CC = ConditionCode.EqualTo;
-                                Debug.WriteLine($"Device {deviceID} does not exist!");
+                                Debug.WriteLine($"Device {deviceID.ToString("X2")} does not exist!");
                             }
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
@@ -872,7 +906,7 @@ namespace vsic
                             deviceID = memory[DecodeAddress(addr, mode)];
                             dev = devices[deviceID];
                             byte rb = dev.ReadByte();
-                            Debug.WriteLine($"devices[{deviceID}].ReadByte() returned {rb.ToString("X")}.");
+                            Debug.WriteLine($"devices[{deviceID.ToString("X2")}].ReadByte() returned {rb.ToString("X")}.");
                             regAwithevents = (Word)(regA & ~0xff | rb);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
@@ -889,7 +923,6 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                     }
-
                 }
                 else
                 {
