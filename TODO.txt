@@ -1,11 +1,18 @@
 ﻿
-Make clicking Session>>Save overwrite last save location rather than displaying dialog every time.
+Ensure deserialization of file devices is working properly.
+
+Ensure console I/O is working properly.
+
+Disable ByteMarker-creating listeners during VM run.
 
 Enable Session>>Revert.
 
-Reduce flicker in console window output.
+Enable editing of hex display contents.
 
+Enable drag-to-select in hex display.
 Add watches and watch window.
+
+Reduce flicker in console window output.
 
 Add disassembly and disassembly window.
 

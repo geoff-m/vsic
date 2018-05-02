@@ -129,7 +129,6 @@ namespace vsic
                     Debug.WriteLine("Done disposing I/O devices.");
                 }
             }
-
         }
 
         #region ILogSink implementation
@@ -295,6 +294,7 @@ namespace vsic
             regFTB.SuspendDrawing();
             pcTB.SuspendDrawing();
             ccCB.SuspendDrawing();
+            hexDisplay.SuspendDrawing();
         }
 
         private void ResumeMachineDisplayUpdates()
@@ -313,6 +313,7 @@ namespace vsic
             regFTB.ResumeDrawing();
             pcTB.ResumeDrawing();
             ccCB.ResumeDrawing();
+            hexDisplay.ResumeDrawing();
 
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
@@ -958,24 +959,38 @@ namespace vsic
 
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var res = saveSessionDialog.ShowDialog();
-            if (res != DialogResult.OK)
-                return;
             string path = saveSessionDialog.FileName;
             bool success = false;
+            if (path != null && path.Length > 0)
+            {
+                success = TrySaveSession(path);
+            }
+            if (!success)
+            {
+                var res = saveSessionDialog.ShowDialog();
+                if (res != DialogResult.OK)
+                    return;
+                path = saveSessionDialog.FileName;
+                success = TrySaveSession(path);
+            }           
+            if (success)
+            {
+                Log("Saved session to {0}.", path);
+            }
+        }
+
+        private bool TrySaveSession(string path)
+        {
             try
             {
                 sess.SaveToFile(path);
-                success = true;
+                return true;
             }
             catch (IOException ex)
             {
                 MessageBox.Show($"Saving session to {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 LogError($"Failed to save session to {path}: {ex.Message}");
-            }
-            if (success)
-            {
-                Log("Saved session to {0}.", path);
+                return false;
             }
         }
     }
