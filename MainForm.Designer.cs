@@ -845,7 +845,7 @@
             this.Text = "Visual SICXE";
             this.Deactivate += new System.EventHandler(this.OnDeactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.OnResize);
             this.memGB.ResumeLayout(false);
             this.regGB.ResumeLayout(false);

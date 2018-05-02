@@ -83,20 +83,18 @@ namespace vsic
             return $"{ID.ToString("X2")}: {Name}";
         }
 
+        // write a magic number depending on the (concrete) type i am, then let that type's implementation do the rest of the work.
+        // that is, we expect that all subclass Serialize methods begin by calling base.Serialize(stream) (i.e. this method).
         public virtual void Serialize(Stream stream)
         {
-            // todo: write a magic number depending on the (concrete) type i am, then let that type's implementation do the rest of the work.
-            // for instance, maybe we set a convention that all subclass Serialize methods begin by calling base.Serialize(stream) (i.e. this method).
             var mytype = GetType().Name;
             uint magicNumber = 0;
             switch (mytype)
             {
                 case nameof(FileDevice):
-                //case "FileDevice":
                     magicNumber = SERIALIZATION_FILE_DEVICE_MAGIC_NUMBER;
                     break;
                 case nameof(ConsoleDevice):
-                //case "ConsoleDevice":
                     magicNumber = SERIALIZATION_CONSOLE_DEVICE_MAGIC_NUMBER;
                     break;
                 default:

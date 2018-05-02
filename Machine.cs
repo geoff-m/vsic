@@ -167,7 +167,7 @@ namespace vsic
             var str = string.Join("", buf.Select(b => b.ToString("x2")));
             Debug.WriteLine(str);
 
-            var text = System.Text.UnicodeEncoding.UTF8.GetString(buf);
+            var text = System.Text.Encoding.UTF8.GetString(buf);
             // this isn't rendering in debug output because it contains \0 chars
         }
 #endregion

@@ -96,7 +96,7 @@ namespace vsic
 
         Thread machineThread;
         Session sess;
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             CreateNewSession();
         }
@@ -889,10 +889,13 @@ namespace vsic
             UnloadSession();
         }
 
-        private void UpdateIODevices(object sender, EventArgs e)
+        public void UpdateIODevices(object sender, EventArgs e)
         {
             devLB.Items.Clear();
             devLB.Items.AddRange(sess.Machine.Devices.ToArray());
+
+            if (devman != null && sender != devman)
+                devman.UpdateList();
         }
 
         ConsoleWindow conWindow;
@@ -929,6 +932,7 @@ namespace vsic
             {
 #endif
                 sess.LoadFromFile(path);
+                devman?.UpdateList();
                 success = true;
 #if !DEBUG
             }

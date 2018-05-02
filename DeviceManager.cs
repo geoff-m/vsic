@@ -58,6 +58,26 @@ namespace vsic
             return null;
         }
 
+        /// <summary>
+        /// Updates the list of devices from the machine.
+        /// </summary>
+        public void UpdateList()
+        {
+            devLV.Items.Clear();
+            foreach (var dev in Machine.Devices)
+            {
+                AddDeviceToList(dev);
+            }
+        }
+
+        private void AddDeviceToList(IODevice device)
+        {
+            devLV.Items.Add(new ListViewItem(new string[] { device.ID.ToString("X2"), device.Type, device.Name })
+            {
+                Tag = device
+            });
+        }
+
         private void createButton_Click(object sender, EventArgs e)
         {
             byte? id = GetID();
@@ -93,7 +113,6 @@ namespace vsic
                         MessageBox.Show(ex.Message, "Error creating file device", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-
                     break;
                 case "console":
                     // No special options needed for this type of device? simply create it
@@ -123,10 +142,8 @@ namespace vsic
                 return;
             }
 
-            devLV.Items.Add(new ListViewItem(new string[] { newDevice.ID.ToString("X2"), newDevice.Type, newDevice.Name })
-            {
-                Tag = newDevice
-            });
+            AddDeviceToList(newDevice);
+            ((MainForm)Owner).UpdateIODevices(this, null);
         }
 
         private void onIdTBKeyPress(object sender, KeyPressEventArgs e)
@@ -189,6 +206,9 @@ namespace vsic
             {
                 // This should never happen, and even if it did, we'd probably just want to ignore it anyway.
                 Debug.WriteLine($"Machine failed to remove device {dev.ToString()}!");
+            } else
+            {
+                ((MainForm)Owner).UpdateIODevices(this, null);
             }
         }
     }
