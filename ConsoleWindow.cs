@@ -11,7 +11,6 @@ namespace Visual_SICXE
         public ConsoleWindow()
         {
             InitializeComponent();
-            
         }
 
         public void DisplayConsole(ConsoleDevice con)
@@ -29,7 +28,8 @@ namespace Visual_SICXE
                 var tab = new TabPage(tabName)
                 {
                     Tag = con,
-                    Name = tabName
+                    Name = tabName,
+                    Text = $"{con.ID:X2}\\{con.Name}"
                 };
                 var tb = new TextBox
                 {
@@ -69,18 +69,31 @@ namespace Visual_SICXE
             }
         }
 
+        private void UpdateDisplayWithLine(ConsoleDevice sender, string s)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateDisplayWithLine(sender, s)));
+                return;
+            }
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab.Tag == sender)
+            {
+                selectedTab.Controls["consoleTB"].Text += s;
+            }
+        }
+
         private void OnInputTBKeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                var tab = tabControl.SelectedTab;
+                TabPage tab = tabControl.SelectedTab;
                 var con = (ConsoleDevice)tab.Tag;
-                var text = inputTB.Text + "\n";
+                string text = inputTB.Text + "\r\n";
                 inputTB.Clear();
-                foreach (char c in text)
-                {
-                    con.WriteInputByte((byte)c);
-                }
+                con.WriteInputLine(text);
+                UpdateDisplayWithLine(con, text);
+                e.Handled = true;
             }
         }
 

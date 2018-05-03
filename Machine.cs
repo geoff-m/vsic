@@ -112,8 +112,7 @@ namespace Visual_SICXE
             if (uintbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
                 throw new InvalidDataException();
 
-            int intbuf;
-            intbuf = reader.ReadInt32();
+            int intbuf = reader.ReadInt32();
             if (intbuf != (int)Register.A)
                 throw new InvalidDataException();
             regA = (Word)reader.ReadInt32();
@@ -161,6 +160,7 @@ namespace Visual_SICXE
             stream.Dispose();
         }
 
+        // for debug.
         private static void dumpstream(Stream s)
         {
             int buflen = (int)(s.Length - s.Position);

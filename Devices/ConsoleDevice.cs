@@ -57,6 +57,11 @@ namespace Visual_SICXE.Devices
             inStr.Append((char)b);
         }
 
+        public void WriteInputLine(string s)
+        {
+            inStr.AppendLine(s);
+        }
+
         public override bool Test()
         {
             return true;
