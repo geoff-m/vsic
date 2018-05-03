@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+﻿using System.Text;
 
-namespace vsic
+namespace Visual_SICXE.Devices
 {
     public class ConsoleDevice : IODevice
     {
@@ -25,7 +21,7 @@ namespace vsic
             }
         }
 
-        StringBuilder inStr, outStr;
+        private StringBuilder inStr, outStr;
         public override void Flush()
         {
             // Nothing to do.

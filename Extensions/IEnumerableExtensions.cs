@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
-namespace vsic
+namespace Visual_SICXE.Extensions
 {
-    static class IEnumerableExtensions
+    internal static class IEnumerableExtensions
     {
         /// <summary>
         /// Determines whether any item in the collection lies on the specified closed interval when mapped to an int.

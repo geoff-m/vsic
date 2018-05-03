@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace vsic
+namespace Visual_SICXE.Exceptions
 {
     /// <summary>
     /// Represents an exception that can be thrown by a SICXE machine.

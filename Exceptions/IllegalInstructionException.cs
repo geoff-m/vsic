@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace vsic
+﻿namespace Visual_SICXE.Exceptions
 {
     /// <summary>
     /// The exception thrown by a machine when it attempts to execute an illegal instruction.
     /// </summary>
-    class IllegalInstructionException : SICXEException
+    internal class IllegalInstructionException : SICXEException
     {
         /// <summary>
         /// The address where the instruction began.

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using System.IO;
-using System.IO.Compression;
+﻿using System.IO;
 
-namespace vsic
+namespace Visual_SICXE
 {
     /// <summary>
     /// Represents the entire state of a session in vsic, including whatever machine is present.
     /// </summary>
-    class Session
+    internal class Session
     {
         public Machine Machine
         { get; private set; }
@@ -28,7 +21,7 @@ namespace vsic
 
         }
 
-        ILogSink logger;
+        private ILogSink logger;
         public ILogSink Logger
         {
             get { return logger; }
@@ -77,8 +70,7 @@ namespace vsic
             }
             finally
             {
-                if (read != null)
-                    read.Dispose();
+                read?.Dispose();
             }
             return 0; // Reachable only on error.
         }

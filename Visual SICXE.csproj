@@ -21,6 +21,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -77,10 +78,10 @@
     <Compile Include="Exceptions\BreakpointHitException.cs" />
     <Compile Include="Exceptions\IllegalInstructionException.cs" />
     <Compile Include="Exceptions\SICXEException.cs" />
-    <Compile Include="Extension classes\ControlExtensions.cs" />
-    <Compile Include="Extension classes\IEnumerableExtensions.cs" />
-    <Compile Include="Extension classes\StreamReaderExtensions.cs" />
-    <Compile Include="Extension classes\StringExtensions.cs" />
+    <Compile Include="Extensions\ControlExtensions.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Extensions\StreamReaderExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Devices\FileDevice.cs" />
     <Compile Include="FileDeviceCreationDialog.cs">
       <SubType>Form</SubType>

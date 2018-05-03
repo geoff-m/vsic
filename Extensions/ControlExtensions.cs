@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
-namespace vsic
+namespace Visual_SICXE.Extensions
 {
     public static class ControlExtensions
     {

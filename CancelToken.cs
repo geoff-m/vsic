@@ -1,12 +1,11 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-namespace vsic
+namespace Visual_SICXE
 {
     public class CancelToken
     {
-        object locker = new object();
-        bool c = false;
+        private readonly object locker = new object();
+        private bool c = false;
         public bool Cancelled
         {
             get

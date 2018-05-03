@@ -1,9 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
-namespace vsic
+namespace Visual_SICXE.Extensions
 {
-    static class StreamReaderExtensions
+    internal static class StreamReaderExtensions
     {
         public static bool TryReadLine(this StreamReader reader, out string line)
         {

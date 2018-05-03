@@ -1,4 +1,4 @@
-﻿namespace vsic
+﻿namespace Visual_SICXE
 {
     partial class DeviceManager
     {
@@ -110,7 +110,7 @@
             this.idTB.Name = "idTB";
             this.idTB.Size = new System.Drawing.Size(43, 24);
             this.idTB.TabIndex = 0;
-            this.idTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onIdTBKeyPress);
+            this.idTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnIDTBKeyPress);
             // 
             // groupBox1
             // 

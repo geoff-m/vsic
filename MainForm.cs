@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO; // We don't do IO in this class. This import is only for Path and IOException.
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
+using Visual_SICXE.Devices;
+using Visual_SICXE.Extensions;
 
-namespace vsic
+// We don't do IO in this class. This import is only for Path and IOException.
+
+namespace Visual_SICXE
 {
     public partial class MainForm : Form, ILogSink
     {
@@ -24,18 +26,41 @@ namespace vsic
             conWindow = new ConsoleWindow();
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
 
-            devman = new DeviceManager();
-            devman.Owner = this;
+            devman = new DeviceManager {Owner = this};
 
             Load += FormLoaded;
         }
 
+        private const int PC_MARKER_ID = -1;
+        private readonly Color MEMORY_READ_COLOR = Color.FromArgb(64, Color.Red);
+
+        private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
+        private readonly Color PC_MARKER_COLOR = Color.Yellow;
+        private readonly Color REGISTER_READ_COLOR = Color.Pink;
+
+        private readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
+
+        private readonly ConsoleWindow conWindow;
+
+        private readonly DeviceManager devman;
+
+        private bool hexDisplayFocused;
+
+        private long instructionsAtRunStart;
+
+        private Thread machineThread;
+
+        private ByteMarker pcMarker;
+        private readonly CancelToken runCancelToken = new CancelToken();
+
+        private bool running;
+        private Session sess;
+
+        private readonly WatchForm watchForm = new WatchForm();
+
         private void FormLoaded(object sender, EventArgs e)
         {
-            foreach (var tb in new TextBox[] { regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB })
-            {
-                tb.Tag = tb.Text;
-            }
+            foreach (TextBox tb in new[] {regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB}) tb.Tag = tb.Text;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -91,11 +116,10 @@ namespace vsic
                 hexDisplay.Invalidate();
                 return true;
             }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        Thread machineThread;
-        Session sess;
         private void MainForm_Load(object sender, EventArgs e)
         {
             CreateNewSession();
@@ -103,8 +127,10 @@ namespace vsic
 
         private void CreateNewSession()
         {
-            sess = new Session();
-            sess.Logger = this;
+            sess = new Session
+            {
+                Logger = this
+            };
             devman.Machine = sess.Machine;
 
             Log("Created new SIC/XE machine.");
@@ -117,82 +143,24 @@ namespace vsic
 
         private void UnloadSession()
         {
-            if (sess != null)
+            Machine m = sess?.Machine;
+            if (m != null)
             {
-                var m = sess.Machine;
-                if (m != null)
-                {
-                    m.MemoryChanged -= OnMemoryChanged;
-                    m.RegisterChanged -= OnRegisterChanged;
-                    Debug.WriteLine("Disposing I/O devices...");
-                    m.CloseDevices();
-                    Debug.WriteLine("Done disposing I/O devices.");
-                }
+                m.MemoryChanged -= OnMemoryChanged;
+                m.RegisterChanged -= OnRegisterChanged;
+                Debug.WriteLine("Disposing I/O devices...");
+                m.CloseDevices();
+                Debug.WriteLine("Done disposing I/O devices.");
             }
         }
-
-        #region ILogSink implementation
-        readonly Color COLOR_DEFAULT = Color.Black;
-        readonly Color COLOR_ERROR = Color.DarkRed;
-        public void Log(string str, params object[] args)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => Log(str, args)));
-                return;
-            }
-            //logBox.SelectionColor = COLOR_DEFAULT;
-            string s = string.Format(str, args);
-            Debug.WriteLine(s);
-            logBox.AppendText(s);
-            logBox.AppendText("\n");
-
-            // Skip these calls during 'Run'.
-            // SuspendDrawing() does not prevent these calls from being very slow.
-            if (machineThread == null || !machineThread.IsAlive)
-            {
-                // Scroll to bottom.
-                logBox.SelectionStart = logBox.Text.Length;
-                logBox.ScrollToCaret();
-            }
-        }
-
-        public void LogError(string str, params object[] args)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => LogError(str, args)));
-                return;
-            }
-            logBox.SelectionColor = COLOR_ERROR;
-            string s = string.Format(str, args);
-            Debug.WriteLine(s);
-            logBox.AppendText(s);
-            logBox.AppendText("\n");
-
-            // Scroll to bottom.
-            logBox.SelectionStart = logBox.Text.Length;
-            logBox.ScrollToCaret();
-        }
-
-        public void SetStatusMessage(string str, params object[] args)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => SetStatusMessage(str, args)));
-                return;
-            }
-            toolStripStatusLabel.Text = string.Format(str, args);
-        }
-        #endregion
 
         // Load the binary file into memory at the cursor.
         private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var res = openMemoryDialog.ShowDialog();
+            DialogResult res = openMemoryDialog.ShowDialog();
             if (res == DialogResult.OK)
             {
-                bool success = true;
+                var success = true;
                 long bytesRead = 0;
                 int loadAddress = hexDisplay.CursorAddress;
                 try
@@ -209,17 +177,17 @@ namespace vsic
                     return;
 #endif
                 }
+
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (success)
-                    Log($"Loaded {bytesRead} bytes from {Path.GetFileName(openMemoryDialog.FileName)} at address {loadAddress.ToString("X")}.");
+                    Log($"Loaded {bytesRead} bytes from {Path.GetFileName(openMemoryDialog.FileName)} at address {loadAddress:X2}.");
                 UpdateMachineDisplay();
             }
         }
 
-        private const int PC_MARKER_ID = -1;
-        private readonly Color PC_MARKER_COLOR = Color.Yellow;
         private void InitializeMachineDisplay()
         {
-            if (sess != null && sess.Machine != null)
+            if (sess?.Machine != null)
             {
                 hexDisplay.Data = sess.Machine.Memory;
                 sess.Machine.MemoryChanged += OnMemoryChanged;
@@ -227,7 +195,6 @@ namespace vsic
             }
 
             hexDisplay.Boxes.Clear();
-
             pcMarker = new ByteMarker(sess.Machine.ProgramCounter,
                 PC_MARKER_COLOR,
                 sess.Machine.InstructionsExecuted,
@@ -237,8 +204,6 @@ namespace vsic
             ResetTextboxColors();
         }
 
-        readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
-        readonly Color REGISTER_READ_COLOR = Color.Pink;
         private void OnRegisterChanged(Register r, bool written)
         {
             if (InvokeRequired)
@@ -246,6 +211,7 @@ namespace vsic
                 Invoke(new Action(() => OnRegisterChanged(r, written)));
                 return;
             }
+
             switch (r)
             {
                 case Register.A:
@@ -282,9 +248,10 @@ namespace vsic
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => SuspendMachineDisplayUpdates()));
+                Invoke(new Action(SuspendMachineDisplayUpdates));
                 return;
             }
+
             logBox.SuspendDrawing();
             regATB.SuspendDrawing();
             regXTB.SuspendDrawing();
@@ -301,9 +268,10 @@ namespace vsic
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => ResumeMachineDisplayUpdates()));
+                Invoke(new Action(ResumeMachineDisplayUpdates));
                 return;
             }
+
             logBox.ResumeDrawing();
             regATB.ResumeDrawing();
             regXTB.ResumeDrawing();
@@ -331,17 +299,16 @@ namespace vsic
             regTTB.BackColor = SystemColors.Window;
         }
 
-        ByteMarker pcMarker;
         private void UpdateMachineDisplay()
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => UpdateMachineDisplay()));
+                Invoke(new Action(UpdateMachineDisplay));
                 return;
             }
 
             // Update labels.
-            var m = sess.Machine;
+            Machine m = sess.Machine;
             regATB.Text = m.RegisterA.ToString("X6");
             regBTB.Text = m.RegisterB.ToString("X6");
             regSTB.Text = m.RegisterS.ToString("X6");
@@ -366,12 +333,12 @@ namespace vsic
             // Cull old markers.
             int instr = (int)m.InstructionsExecuted - 1;
             int removed = hexDisplay.Boxes.RemoveWhere(bm =>
-            {
-                long? expiry = bm.ExpiresAfter;
-                bool ret = expiry.HasValue && instr > expiry.Value;
-                //Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
-                return ret;
-            }
+                {
+                    long? expiry = bm.ExpiresAfter;
+                    bool ret = expiry.HasValue && instr > expiry.Value;
+                    //Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
+                    return ret;
+                }
             );
             //Debug.WriteLine($"Removed {removed} byte markers.");
 
@@ -404,12 +371,14 @@ namespace vsic
                     hexDisplay.WordEncoding = HexDisplay.Encoding.Raw;
                     break;
                 }
+
                 if (utf8RB.Checked)
                 {
                     hexDisplay.WordEncoding = HexDisplay.Encoding.UTF8;
                     break;
                 }
             } while (false);
+
             hexDisplay.Invalidate();
         }
 
@@ -426,7 +395,7 @@ namespace vsic
 
         private void loadOBJToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var res = openOBJdialog.ShowDialog();
+            DialogResult res = openOBJdialog.ShowDialog();
             if (res == DialogResult.OK)
             {
                 sess.Machine.LoadObj(openOBJdialog.FileName);
@@ -449,8 +418,6 @@ namespace vsic
             UpdateMachineDisplay();
         }
 
-        bool running = false;
-        CancelToken runCancelToken = new CancelToken();
         private void runButton_Click(object sender, EventArgs e)
         {
             if (running)
@@ -471,7 +438,6 @@ namespace vsic
             }
         }
 
-        long instructionsAtRunStart;
         private void StartMachineRun()
         {
             Debug.Assert(running);
@@ -481,19 +447,20 @@ namespace vsic
                 Debug.Assert(false, "Machine is already running?!");
                 return;
             }
+
             instructionsAtRunStart = sess.Machine.InstructionsExecuted;
             SuspendMachineDisplayUpdates();
-            machineThread = new Thread(new ThreadStart(() =>
+            machineThread = new Thread(() =>
             {
                 sess.Machine.Run(runCancelToken);
                 EndMachineRun();
-            }));
+            });
             machineThread.Start();
         }
 
         private void EndMachineRun()
         {
-            var m = sess.Machine;
+            Machine m = sess.Machine;
             m.FlushDevices();
             ResumeMachineDisplayUpdates();
             long endInstr = m.InstructionsExecuted;
@@ -518,7 +485,7 @@ namespace vsic
                     toolStripStatusLabel.Text = "Hit breakpoint";
                     break;
                 case Machine.RunResult.IllegalInstruction:
-                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter).ToString("X")}!");
+                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter):X2}!");
                     toolStripStatusLabel.Text = "Illegal instruction";
                     break;
                 case Machine.RunResult.EndOfMemory:
@@ -527,7 +494,6 @@ namespace vsic
             }
         }
 
-        WatchForm watchForm = new WatchForm();
         private void watchesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             watchForm.Show();
@@ -546,7 +512,7 @@ namespace vsic
 
         private void loadLstToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var res = openLSTdialog.ShowDialog();
+            DialogResult res = openLSTdialog.ShowDialog();
             if (res == DialogResult.OK)
             {
                 sess.Machine.LoadLst(openLSTdialog.FileName);
@@ -558,7 +524,6 @@ namespace vsic
             }
         }
 
-        bool hexDisplayFocused;
         private void onHexDisplayFocus(object sender, EventArgs e)
         {
             hexDisplayFocused = true;
@@ -575,7 +540,8 @@ namespace vsic
             TextBox tb = sender as TextBox;
             if (tb == null)
             {
-                Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {(sender ?? "null").ToString()}");
+                Debug.WriteLine(
+                    $"Register textbox key press handler called from unexpected with unexpected sender: {sender ?? "null"}");
                 return;
             }
 
@@ -605,6 +571,7 @@ namespace vsic
                         tb.SelectionLength = 1;
                         tb.SelectedText = char.ToUpper(c).ToString();
                     }
+
                     break;
 
                 case (char)Keys.Enter:
@@ -615,8 +582,9 @@ namespace vsic
                         tb.Text = (string)tb.Tag;
                         break;
                     }
+
                     // Commit changes to machine.
-                    Word newValue = (Word)int.Parse(newText, System.Globalization.NumberStyles.HexNumber);
+                    Word newValue = (Word)int.Parse(newText, NumberStyles.HexNumber);
                     int maxmem = sess.Machine.MemorySize;
                     if (ReferenceEquals(tb, gotoTB))
                     {
@@ -630,10 +598,13 @@ namespace vsic
                         else
                         {
                             tb.BackColor = Color.LightPink;
-                            LogError($"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem.ToString("X")}).");
+                            LogError(
+                                $"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem:X2}).");
                         }
+
                         break;
                     }
+
                     if (ReferenceEquals(tb, pcTB))
                     {
                         if (newValue < maxmem)
@@ -646,35 +617,43 @@ namespace vsic
                         else
                         {
                             tb.BackColor = Color.LightPink;
-                            LogError($"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem.ToString("X")}).");
+                            LogError(
+                                $"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem:X2}).");
                         }
+
                         break;
                     }
+
                     if (ReferenceEquals(tb, regATB))
                     {
                         sess.Machine.RegisterA = newValue;
                         break;
                     }
+
                     if (ReferenceEquals(tb, regXTB))
                     {
                         sess.Machine.RegisterX = newValue;
                         break;
                     }
+
                     if (ReferenceEquals(tb, regSTB))
                     {
                         sess.Machine.RegisterS = newValue;
                         break;
                     }
+
                     if (ReferenceEquals(tb, regTTB))
                     {
                         sess.Machine.RegisterT = newValue;
                         break;
                     }
+
                     if (ReferenceEquals(tb, regBTB))
                     {
                         sess.Machine.RegisterB = newValue;
                         break;
                     }
+
                     if (ReferenceEquals(tb, regLTB))
                     {
                         sess.Machine.RegisterL = newValue;
@@ -682,7 +661,8 @@ namespace vsic
                     }
 
                     // This should be unreachable.
-                    Debug.WriteLine($"Register textbox key press handler called from unexpected with unexpected sender: {sender.ToString()}");
+                    Debug.WriteLine(
+                        $"Register textbox key press handler called from unexpected with unexpected sender: {sender}");
                     return;
 
                 case (char)Keys.Back:
@@ -694,60 +674,233 @@ namespace vsic
             e.Handled = true;
         }
 
-        private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
-        private readonly Color MEMORY_READ_COLOR = Color.FromArgb(64, Color.Red);
         private bool OnMemoryChanged(Word addr, int count, bool written)
         {
             int stop = addr + count;
             if (written)
-            {
-                //Debug.WriteLine($"Memory written: {count} bytes at {addr}.");
                 for (int i = addr; i < stop; ++i)
                 {
-                    var newBox = new ByteMarker(i,
+                    ByteMarker newBox = new ByteMarker(i,
                         MEMORY_WRITTEN_COLOR,
                         sess.Machine.InstructionsExecuted);
 
                     hexDisplay.Boxes.Add(newBox);
                 }
-            }
             else
-            {
-                //Debug.WriteLine($"Memory read: {count} bytes at {addr}.");
                 for (int i = addr; i < stop; ++i)
                 {
-                    var newBox = new ByteMarker(i,
+                    ByteMarker newBox = new ByteMarker(i,
                         MEMORY_READ_COLOR,
                         sess.Machine.InstructionsExecuted);
                     bool added;
                     added = hexDisplay.Boxes.Add(newBox);
                     //Debug.WriteLine($"Box was added? {added}");
                 }
-            }
 
             if (breakpointsEnabled)
-            {
-                foreach (var b in breakpoints)
+                foreach (Breakpoint b in breakpoints)
                 {
                     int diff = b.Address - addr;
                     if (diff < 0 || diff > count)
                         continue; // This breakpoint is out of range.
                     if (b.Enabled)
-                    {
                         if (b.BreakOnWrite == written || b.BreakOnRead == !written)
                         {
                             Log("Breakpoint hit at {0}.", addr);
                             return true; // Tell machine to break.
                         }
-                    }
                 }
-            }
+
             return false; // Allow VM execution to continue.
         }
 
+        private void PCfromCursorLabel_Click(object sender, EventArgs e)
+        {
+            sess.Machine.ProgramCounter = (Word)hexDisplay.CursorAddress;
+            UpdateMachineDisplay();
+        }
+
+        private void bpDisableOverrideCB_CheckedChanged(object sender, EventArgs e)
+        {
+            if (bpDisableOverrideCB.Checked)
+            {
+                breakpointsEnabled = false;
+                foreach (Breakpoint bp in breakpoints) bp.ForceDrawAsDisabled = true;
+            }
+            else
+            {
+                breakpointsEnabled = true;
+                foreach (Breakpoint bp in breakpoints) bp.ForceDrawAsDisabled = false;
+            }
+
+            hexDisplay.Invalidate();
+        }
+
+        private void OnClosing(object sender, FormClosingEventArgs e)
+        {
+            UnloadSession();
+        }
+
+        public void UpdateIODevices(object sender, EventArgs e)
+        {
+            devLB.Items.Clear();
+            devLB.Items.AddRange(sess.Machine.Devices.ToArray());
+
+            if (devman != null && sender != devman)
+                devman.UpdateList();
+        }
+
+        private void OnDevLBPick(object sender, EventArgs e)
+        {
+            IODevice dev = (IODevice)devLB.SelectedItem;
+            if (dev is ConsoleDevice con) conWindow.DisplayConsole(con);
+        }
+
+        private void manageDevicesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            devman.Show();
+            devman.Deactivate += UpdateIODevices;
+        }
+
+        private void OnDeactivate(object sender, EventArgs e)
+        {
+            hexDisplay.Invalidate();
+        }
+
+        private void loadSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult res = openSessionDialog.ShowDialog();
+            var success = false;
+            if (res != DialogResult.OK)
+                return;
+            string path = openSessionDialog.FileName;
+#if !DEBUG
+            try
+            {
+#endif
+            sess.LoadFromFile(path);
+            devman?.UpdateList();
+            success = true;
+#if !DEBUG
+            }
+            catch (Exception ex)
+            {
+                if (ex is IOException || ex is InvalidDataException)
+                {
+                    MessageBox.Show($"Loading session from {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LogError($"Failed to load session from {path}: {ex.Message}");
+                }
+                else
+                    throw;
+            }
+#endif
+            if (success)
+            {
+                InitializeMachineDisplay();
+                UpdateMachineDisplay();
+                UpdateIODevices(null, null);
+                Log("Loaded session from {0}.", path);
+            }
+        }
+
+        private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string path = saveSessionDialog.FileName;
+            var success = false;
+            if (!string.IsNullOrEmpty(path)) success = TrySaveSession(path);
+            if (!success)
+            {
+                DialogResult res = saveSessionDialog.ShowDialog();
+                if (res != DialogResult.OK)
+                    return;
+                path = saveSessionDialog.FileName;
+                success = TrySaveSession(path);
+            }
+
+            if (success) Log("Saved session to {0}.", path);
+        }
+
+        private bool TrySaveSession(string path)
+        {
+            try
+            {
+                sess.SaveToFile(path);
+                return true;
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show($"Saving session to {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                LogError($"Failed to save session to {path}: {ex.Message}");
+                return false;
+            }
+        }
+
+        #region ILogSink implementation
+
+        private readonly Color COLOR_DEFAULT = Color.Black;
+        private readonly Color COLOR_ERROR = Color.DarkRed;
+
+        public void Log(string str, params object[] args)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => Log(str, args)));
+                return;
+            }
+
+            //logBox.SelectionColor = COLOR_DEFAULT;
+            string s = string.Format(str, args);
+            Debug.WriteLine(s);
+            logBox.AppendText(s);
+            logBox.AppendText("\n");
+
+            // Skip these calls during 'Run'.
+            // SuspendDrawing() does not prevent these calls from being very slow.
+            if (machineThread == null || !machineThread.IsAlive)
+            {
+                // Scroll to bottom.
+                logBox.SelectionStart = logBox.Text.Length;
+                logBox.ScrollToCaret();
+            }
+        }
+
+        public void LogError(string str, params object[] args)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => LogError(str, args)));
+                return;
+            }
+
+            logBox.SelectionColor = COLOR_ERROR;
+            string s = string.Format(str, args);
+            Debug.WriteLine(s);
+            logBox.AppendText(s);
+            logBox.AppendText("\n");
+
+            // Scroll to bottom.
+            logBox.SelectionStart = logBox.Text.Length;
+            logBox.ScrollToCaret();
+        }
+
+        public void SetStatusMessage(string str, params object[] args)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => SetStatusMessage(str, args)));
+                return;
+            }
+
+            toolStripStatusLabel.Text = string.Format(str, args);
+        }
+
+        #endregion
+
         #region Breakpoints
+
         // We use a sorted set instead of a dictionary because we want to search for breakpoints over intervals, not just at exact addresses.
-        private SortedSet<Breakpoint> breakpoints;
+        private readonly SortedSet<Breakpoint> breakpoints;
         private bool breakpointsEnabled = true;
 
         private void setBkptButton_Click(object sender, EventArgs e)
@@ -757,18 +910,19 @@ namespace vsic
             if (bp != null)
             {
                 // There is an existing breakpoint at the cursor. Clear it.
-                var toRemove = breakpoints.Where(b => b.Address == addr).ToList();
-                foreach (var bkpt in toRemove)
+                List<Breakpoint> toRemove = breakpoints.Where(b => b.Address == addr).ToList();
+                foreach (Breakpoint bkpt in toRemove)
                 {
                     breakpoints.Remove(bkpt);
                     hexDisplay.Boxes.Remove(bkpt);
                 }
+
                 Log("Removed breakpoint at {0}.", addr);
             }
             else
             {
                 // No breakpoint exists at the cursor. Create one.
-                var newbp = new Breakpoint(addr)
+                Breakpoint newbp = new Breakpoint(addr)
                 {
                     Enabled = true,
                     BreakOnRead = true,
@@ -779,14 +933,11 @@ namespace vsic
                 breakpoints.Add(newbp);
                 bool success = hexDisplay.Boxes.Add(newbp);
                 if (success)
-                {
                     Log("Added breakpoint at {0}.", addr);
-                }
                 else
-                {
                     Debug.WriteLine($"Adding new ByteMarker for breakpoint at {addr} returned false!");
-                }
             }
+
             UpdateBreakpointGB();
             hexDisplay.Invalidate();
         }
@@ -815,7 +966,7 @@ namespace vsic
 
         private void bpEnabledCB_CheckedChanged(object sender, EventArgs e)
         {
-            var addr = (Word)hexDisplay.CursorAddress;
+            Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
             if (bp != null)
             {
@@ -830,168 +981,24 @@ namespace vsic
 
         private void bpReadCB_CheckedChanged(object sender, EventArgs e)
         {
-            var addr = (Word)hexDisplay.CursorAddress;
+            Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
             if (bp != null)
-            {
                 bp.BreakOnRead = bpReadCB.Checked;
-            }
             else
-            {
                 Debug.WriteLine($"Break on read checkbox checked but no breakpoint at {addr} was found!");
-            }
         }
 
         private void bpWriteCB_CheckedChanged(object sender, EventArgs e)
         {
-            var addr = (Word)hexDisplay.CursorAddress;
+            Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
             if (bp != null)
-            {
                 bp.BreakOnWrite = bpWriteCB.Checked;
-            }
             else
-            {
                 Debug.WriteLine($"Break on write checkbox checked but no breakpoint at {addr} was found!");
-            }
         }
+
         #endregion
-
-        private void PCfromCursorLabel_Click(object sender, EventArgs e)
-        {
-            sess.Machine.ProgramCounter = (Word)hexDisplay.CursorAddress;
-            UpdateMachineDisplay();
-        }
-
-        private void bpDisableOverrideCB_CheckedChanged(object sender, EventArgs e)
-        {
-            if (bpDisableOverrideCB.Checked)
-            {
-                breakpointsEnabled = false;
-                foreach (var bp in breakpoints)
-                {
-                    bp.ForceDrawAsDisabled = true;
-                }
-            }
-            else
-            {
-                breakpointsEnabled = true;
-                foreach (var bp in breakpoints)
-                {
-                    bp.ForceDrawAsDisabled = false;
-                }
-            }
-
-            hexDisplay.Invalidate();
-        }
-
-        private void OnClosing(object sender, FormClosingEventArgs e)
-        {
-            UnloadSession();
-        }
-
-        public void UpdateIODevices(object sender, EventArgs e)
-        {
-            devLB.Items.Clear();
-            devLB.Items.AddRange(sess.Machine.Devices.ToArray());
-
-            if (devman != null && sender != devman)
-                devman.UpdateList();
-        }
-
-        ConsoleWindow conWindow;
-        private void OnDevLBPick(object sender, EventArgs e)
-        {
-            var dev = (IODevice)devLB.SelectedItem;
-            if (dev is ConsoleDevice con)
-            {
-                conWindow.DisplayConsole(con);
-            }
-        }
-
-        DeviceManager devman;
-        private void manageDevicesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            devman.Show();
-            devman.Deactivate += UpdateIODevices;
-        }
-
-        private void OnDeactivate(object sender, EventArgs e)
-        {
-            hexDisplay.Invalidate();
-        }
-
-        private void loadSessionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var res = openSessionDialog.ShowDialog();
-            bool success = false;
-            if (res != DialogResult.OK)
-                return;
-            string path = openSessionDialog.FileName;
-#if !DEBUG
-            try
-            {
-#endif
-                sess.LoadFromFile(path);
-                devman?.UpdateList();
-                success = true;
-#if !DEBUG
-            }
-            catch (Exception ex)
-            {
-                if (ex is IOException || ex is InvalidDataException)
-                {
-                    MessageBox.Show($"Loading session from {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LogError($"Failed to load session from {path}: {ex.Message}");
-                }
-                else
-                    throw;
-            }
-#endif
-            if (success)
-            {
-                InitializeMachineDisplay();
-                UpdateMachineDisplay();
-                UpdateIODevices(null, null);
-                Log("Loaded session from {0}.", path);
-            }
-        }
-
-        private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string path = saveSessionDialog.FileName;
-            bool success = false;
-            if (path != null && path.Length > 0)
-            {
-                success = TrySaveSession(path);
-            }
-            if (!success)
-            {
-                var res = saveSessionDialog.ShowDialog();
-                if (res != DialogResult.OK)
-                    return;
-                path = saveSessionDialog.FileName;
-                success = TrySaveSession(path);
-            }           
-            if (success)
-            {
-                Log("Saved session to {0}.", path);
-            }
-        }
-
-        private bool TrySaveSession(string path)
-        {
-            try
-            {
-                sess.SaveToFile(path);
-                return true;
-            }
-            catch (IOException ex)
-            {
-                MessageBox.Show($"Saving session to {path} failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LogError($"Failed to save session to {path}: {ex.Message}");
-                return false;
-            }
-        }
     }
 }

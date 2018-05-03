@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 
-namespace vsic
+namespace Visual_SICXE
 {
-    class Breakpoint : ByteMarker
+    internal class Breakpoint : ByteMarker
     {
         private static readonly Color BREAKPOINT_COLOR = Color.FromArgb(192, Color.Red);
-
-        bool enabled;
+        private bool enabled;
         public bool Enabled
         {
             get { return enabled; }
@@ -42,11 +40,21 @@ namespace vsic
         {
             public int Compare(Breakpoint x, Breakpoint y)
             {
+                if (x == null)
+                {
+                    if (y == null)
+                        return 0;
+                    return -1;
+                }
+
+                if (y == null)
+                    return 1;
+
                 return y.Address - x.Address;
             }
         }
 
-        bool forceDrawAsDisabled = false;
+        private bool forceDrawAsDisabled = false;
         /// <summary>
         /// Marks the Breakpoint as disabled for graphical purposes without actually changing whether it is enabled.
         /// </summary>

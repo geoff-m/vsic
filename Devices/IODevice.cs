@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using System.Text;
 
-namespace vsic
+namespace Visual_SICXE.Devices
 {
     /// <summary>
     /// Represents a device that can be read from and written to by a SIC machine.
@@ -25,8 +24,8 @@ namespace vsic
         internal const string SUBCLASS_DESERIALIZE_METHOD_NAME = "Deserialize";
 
         public byte ID
-        { get; private set; }
-        public IODevice(byte id)
+        { get; }
+        protected IODevice(byte id)
         {
             ID = id;
         }
@@ -37,21 +36,24 @@ namespace vsic
         public abstract string Type
         { get; }
 
-        protected bool nameSet = false;
+        /// <summary>
+        /// Indicates whether the Name setter has ever been used.
+        /// </summary>
+        protected bool NameSet = false;
         protected string name;
         public virtual string Name
         {
             get
             {
-                if (!nameSet) // Provide a default name if none has ever been set.
+                if (!NameSet) // Provide a default name if none has ever been set.
                 {
-                    name = $"{Type}{ID.ToString("X")}";
+                    name = $"{Type}{ID:X}";
                 }
                 return name;
             }
             set
             {
-                nameSet = true;
+                NameSet = true;
                 name = value;
             }
         }
@@ -80,7 +82,7 @@ namespace vsic
 
         public override string ToString()
         {
-            return $"{ID.ToString("X2")}: {Name}";
+            return $"{ID:X2}: {Name}";
         }
 
         // write a magic number depending on the (concrete) type i am, then let that type's implementation do the rest of the work.
@@ -110,7 +112,7 @@ namespace vsic
                     writer.Write(Name);
                 }
             }
-            
+
             // (Now control flows back to subclass Serialize method...)
         }
 
@@ -135,7 +137,8 @@ namespace vsic
                 else
                     Debug.WriteLine($"IODevice type \"{subclass.Name}\" did not contain a \"{SUBCLASS_DESERIALIZE_METHOD_NAME}\" method. Subclass-specific deserialization will not be performed.");
                 return ret;
-            } else
+            }
+            else
             {
                 Debug.Fail("IODevice deserialization failed: Unknown magic number");
                 throw new InvalidDataException();

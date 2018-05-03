@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Diagnostics;
+using System.Windows.Forms;
+using Visual_SICXE.Devices;
 
 /*
  * "Name" of a device is an optional thing that's just used by VSIC for ease of use purposes--
@@ -25,7 +20,7 @@ using System.Diagnostics;
  * In general, other devices (like graphics) will most likely want to have dialogs to customize their creation.
  */
 
-namespace vsic
+namespace Visual_SICXE
 {
     public partial class DeviceManager : Form
     {
@@ -47,9 +42,9 @@ namespace vsic
         {
             string idtext = idTB.Text;
             int len = idtext.Length;
-            byte ret;
             if (len == 1 || len == 2)
             {
+                byte ret;
                 if (byte.TryParse(idtext, System.Globalization.NumberStyles.AllowHexSpecifier, null, out ret))
                     return ret;
                 else
@@ -98,12 +93,12 @@ namespace vsic
                     // Let's just use a built-in file browser dialog for now.
                     var fileBrowserDlg = new OpenFileDialog
                     {
-                        Title = $"Choose path for file device 0x{id.Value.ToString("X")} (\"{devname}\")",
+                        Title = $"Choose path for file device 0x{id.Value:X} (\"{devname}\")",
                         CheckFileExists = false
                     };
                     if (fileBrowserDlg.ShowDialog() != DialogResult.OK)
                         return;
-                    var path = fileBrowserDlg.FileName;
+                    string path = fileBrowserDlg.FileName;
                     try
                     {
                         newDevice = new FileDevice(id.Value, path);
@@ -146,7 +141,7 @@ namespace vsic
             ((MainForm)Owner).UpdateIODevices(this, null);
         }
 
-        private void onIdTBKeyPress(object sender, KeyPressEventArgs e)
+        private void OnIDTBKeyPress(object sender, KeyPressEventArgs e)
         {
             char c = e.KeyChar;
             int cursorIndex = idTB.SelectionStart;
@@ -205,7 +200,7 @@ namespace vsic
             if (!success)
             {
                 // This should never happen, and even if it did, we'd probably just want to ignore it anyway.
-                Debug.WriteLine($"Machine failed to remove device {dev.ToString()}!");
+                Debug.WriteLine($"Machine failed to remove device {dev}!");
             } else
             {
                 ((MainForm)Owner).UpdateIODevices(this, null);

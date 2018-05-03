@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Diagnostics;
+using Visual_SICXE.Devices;
+using Visual_SICXE.Extensions;
 
-namespace vsic
+namespace Visual_SICXE
 {
     public partial class ConsoleWindow : Form
     {
