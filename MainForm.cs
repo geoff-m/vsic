@@ -173,8 +173,6 @@ namespace Visual_SICXE
                     LogError("Error loading file: {0}", argex.Message);
 #if DEBUG
                     throw;
-#else
-                    return;
 #endif
                 }
 

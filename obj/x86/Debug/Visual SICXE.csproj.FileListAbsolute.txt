@@ -1,7 +1,6 @@
 C:\Users\geoff\Source\Repos\vsic\bin\Debug\WindowsApplication.exe.config
 C:\Users\geoff\Source\Repos\vsic\bin\Debug\WindowsApplication.exe
 C:\Users\geoff\Source\Repos\vsic\bin\Debug\WindowsApplication.pdb
-C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csprojResolveAssemblyReference.cache
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.Properties.Resources.resources
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csproj.GenerateResource.cache
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csproj.CoreCompileInputs.cache
@@ -16,3 +15,4 @@ C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.Disassembly.resource
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.HexDisplay.resources
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.MainForm.resources
 C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual_SICXE.WatchForm.resources
+C:\Users\geoff\Source\Repos\vsic\obj\x86\Debug\Visual SICXE.csprojAssemblyReference.cache

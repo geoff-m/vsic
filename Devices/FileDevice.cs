@@ -78,8 +78,7 @@ namespace Visual_SICXE.Devices
 
         public override void Dispose()
         {
-            fs.Dispose();
-            fs = null;
+            fs?.Dispose();
         }
 
         public override void Serialize(Stream stream)
@@ -97,6 +96,8 @@ namespace Visual_SICXE.Devices
             }
         }
 
+        // Called via reflection.
+        // ReSharper disable once UnusedMember.Local
         private new void Deserialize(Stream stream)
         {
             var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
@@ -104,6 +105,7 @@ namespace Visual_SICXE.Devices
             reader.Dispose();
 
             Path = path;
+            fs = new FileStream(path, FileMode.OpenOrCreate);
         }
 
         public override string Name

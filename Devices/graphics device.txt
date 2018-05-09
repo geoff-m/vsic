@@ -17,15 +17,14 @@ A command to toggle use of a color pallet.
 A command to set the contents of the color pallet.
 
 A command to fill with a specified color.
-A command to fill a specified rectangular region with a specified color.
 A command to draw text.
 
-A command to draw a specified region of memory at a specified location.
-A command to draw a specified region of memory at a specified location, scale, and rotation.
-A command to draw a specified region of memory at a specified location using a specified mask.
-A command to draw a specified region of memory at a specified location, scale, and rotation using a specified mask.
+A command to draw a bitmap at a specified location.
+A command to draw a bitmap at a specified location, scale, and rotation.
+A command to draw a bitmap at a specified location using a specified mask.
+A command to draw a bitmap at a specified location, scale, and rotation using a specified mask.
 
-All "draw" and "fill" operations may be done on the frame buffer or an any other specified bitmap.
+All "draw" and "fill" operations may be done on the frame buffer or an any other specified rectangular region.
 
 In general, this is what we mean by a 'mask':
 A mask's pixel format is either 1 bpp or 8 bpp grayscale.
@@ -34,4 +33,4 @@ A mask has the same number of pixels as the bitmap it's applied to.
 In general, this is what we mean by a 'bitmap':
 A bitmap has a pixel format.
 A bitmap has a length and a width.
-A bitmap's pixel data is stored in memory as a contiguous region.
+A bitmap's pixel data is stored in memory as a contiguous region in row-major order.

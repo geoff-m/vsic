@@ -1366,7 +1366,7 @@ namespace Visual_SICXE
                     ++lineCount;
                     while (line != "!")
                     {
-                        Debug.WriteLine($"Code/data in block {block}: {line}");
+                        Debug.WriteLine($"Text in block {block}: {line}");
                         // Pair will always succeeded (i.e. find an even number of digits) for files assembled by sicasm.
                         foreach (var b in Pair(line).Select(p => Convert.ToByte(p, 16)))
                         {

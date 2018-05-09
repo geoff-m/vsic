@@ -131,18 +131,16 @@ namespace Visual_SICXE.Devices
             {
                 var ret = (IODevice)subclass.GetConstructor(new Type[] { typeof(byte) }).Invoke(new object[] { id });
                 ret.Name = name;
-                var subdes = subclass.GetMethod(SUBCLASS_DESERIALIZE_METHOD_NAME, BindingFlags.NonPublic);
+                var subdes = subclass.GetMethod(SUBCLASS_DESERIALIZE_METHOD_NAME, BindingFlags.NonPublic | BindingFlags.Instance);
                 if (subdes != null)
                     subdes.Invoke(ret, new object[] { stream });
                 else
                     Debug.WriteLine($"IODevice type \"{subclass.Name}\" did not contain a \"{SUBCLASS_DESERIALIZE_METHOD_NAME}\" method. Subclass-specific deserialization will not be performed.");
                 return ret;
             }
-            else
-            {
-                Debug.Fail("IODevice deserialization failed: Unknown magic number");
-                throw new InvalidDataException();
-            }
+
+            Debug.Fail("IODevice deserialization failed: Unknown magic number");
+            throw new InvalidDataException();
         }
     }
 }
