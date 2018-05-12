@@ -1204,7 +1204,7 @@ namespace Visual_SICXE
         }
 
         /// <summary>
-        /// Helper function to set the value of a register specified by its binart code.
+        /// Helper function to set the value of a register specified by its binary code.
         /// </summary>
         /// <param name="r"></param>
         /// <param name="value">The value to store in the register.</param>
