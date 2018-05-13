@@ -142,8 +142,8 @@
             this.hexDisplay.WordDigits = 6;
             this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
             this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
-            this.hexDisplay.Enter += new System.EventHandler(this.OnHexDisplay_Focus);
-            this.hexDisplay.Leave += new System.EventHandler(this.OnHexDisplay_Blur);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
             // 
             // regGB
             // 
@@ -205,7 +205,7 @@
             this.regSTB.Name = "regSTB";
             this.regSTB.Size = new System.Drawing.Size(71, 24);
             this.regSTB.TabIndex = 9;
-            this.regSTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.regSTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // regLTB
             // 
@@ -215,7 +215,7 @@
             this.regLTB.Name = "regLTB";
             this.regLTB.Size = new System.Drawing.Size(71, 24);
             this.regLTB.TabIndex = 15;
-            this.regLTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.regLTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label1
             // 
@@ -243,7 +243,7 @@
             this.regATB.Name = "regATB";
             this.regATB.Size = new System.Drawing.Size(71, 24);
             this.regATB.TabIndex = 4;
-            this.regATB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.regATB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label6
             // 
@@ -262,7 +262,7 @@
             this.regTTB.Name = "regTTB";
             this.regTTB.Size = new System.Drawing.Size(71, 24);
             this.regTTB.TabIndex = 5;
-            this.regTTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.regTTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label5
             // 
@@ -281,7 +281,7 @@
             this.regXTB.Name = "regXTB";
             this.regXTB.Size = new System.Drawing.Size(71, 24);
             this.regXTB.TabIndex = 6;
-            this.regXTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.regXTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label4
             // 
@@ -318,7 +318,7 @@
             this.regBTB.Name = "regBTB";
             this.regBTB.Size = new System.Drawing.Size(71, 24);
             this.regBTB.TabIndex = 8;
-            this.regBTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.regBTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // pcGB
             // 
@@ -358,7 +358,7 @@
             this.bpDisableOverrideCB.TabIndex = 6;
             this.bpDisableOverrideCB.Text = "Disable All Breakpoints";
             this.bpDisableOverrideCB.UseVisualStyleBackColor = true;
-            this.bpDisableOverrideCB.CheckedChanged += new System.EventHandler(this.OnBreakpointDisableOverrideCB_CheckedChanged);
+            this.bpDisableOverrideCB.CheckedChanged += new System.EventHandler(this.bpDisableOverrideCB_CheckedChanged);
             // 
             // button5
             // 
@@ -380,7 +380,7 @@
             this.runButton.TabIndex = 0;
             this.runButton.Text = "Run (F5)";
             this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.OnRunButton_Click);
+            this.runButton.Click += new System.EventHandler(this.runButton_Click);
             // 
             // stepButton
             // 
@@ -391,7 +391,7 @@
             this.stepButton.TabIndex = 10;
             this.stepButton.Text = "Step (F10)";
             this.stepButton.UseVisualStyleBackColor = true;
-            this.stepButton.Click += new System.EventHandler(this.OnStepButton_Click);
+            this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
             // 
             // pcTB
             // 
@@ -401,7 +401,7 @@
             this.pcTB.Name = "pcTB";
             this.pcTB.Size = new System.Drawing.Size(71, 24);
             this.pcTB.TabIndex = 17;
-            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label2
             // 
@@ -466,7 +466,7 @@
             this.bpEnabledCB.Text = "Enabled";
             this.bpEnabledCB.UseVisualStyleBackColor = true;
             this.bpEnabledCB.Visible = false;
-            this.bpEnabledCB.CheckedChanged += new System.EventHandler(this.OnBreakpointEnabledCB_CheckedChanged);
+            this.bpEnabledCB.CheckedChanged += new System.EventHandler(this.bpEnabledCB_CheckedChanged);
             // 
             // bpWriteCB
             // 
@@ -478,7 +478,7 @@
             this.bpWriteCB.Text = "Break on Write";
             this.bpWriteCB.UseVisualStyleBackColor = true;
             this.bpWriteCB.Visible = false;
-            this.bpWriteCB.CheckedChanged += new System.EventHandler(this.OnBreakpointWriteCB_CheckedChanged);
+            this.bpWriteCB.CheckedChanged += new System.EventHandler(this.bpWriteCB_CheckedChanged);
             // 
             // bpReadCB
             // 
@@ -490,7 +490,7 @@
             this.bpReadCB.Text = "Break on Read";
             this.bpReadCB.UseVisualStyleBackColor = true;
             this.bpReadCB.Visible = false;
-            this.bpReadCB.CheckedChanged += new System.EventHandler(this.OnBreakpointReadCB_CheckedChanged);
+            this.bpReadCB.CheckedChanged += new System.EventHandler(this.bpReadCB_CheckedChanged);
             // 
             // bpButton
             // 
@@ -500,7 +500,7 @@
             this.bpButton.TabIndex = 9;
             this.bpButton.Text = "Set (F9)";
             this.bpButton.UseVisualStyleBackColor = true;
-            this.bpButton.Click += new System.EventHandler(this.OnSetBreakpointButton_Click);
+            this.bpButton.Click += new System.EventHandler(this.setBkptButton_Click);
             // 
             // bpGB
             // 
@@ -546,37 +546,37 @@
             // newMachineToolStripMenuItem
             // 
             this.newMachineToolStripMenuItem.Name = "newMachineToolStripMenuItem";
-            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newMachineToolStripMenuItem.Text = "New";
-            this.newMachineToolStripMenuItem.Click += new System.EventHandler(this.OnNewMachineToolStripMenuItem_Click);
+            this.newMachineToolStripMenuItem.Click += new System.EventHandler(this.newMachineToolStripMenuItem_Click);
             // 
-            // loadSessionToolStripMenuItem
+            // saveSessionToolStripMenuItem
             // 
             this.loadSessionToolStripMenuItem.Name = "loadSessionToolStripMenuItem";
-            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadSessionToolStripMenuItem.Text = "Load...";
-            this.loadSessionToolStripMenuItem.Click += new System.EventHandler(this.OnLadSessionToolStripMenuItem_Click);
+            this.loadSessionToolStripMenuItem.Click += new System.EventHandler(this.loadSessionToolStripMenuItem_Click);
             // 
             // revertToolStripMenuItem
             // 
             this.revertToolStripMenuItem.Enabled = false;
             this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-            this.revertToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.revertToolStripMenuItem.Text = "Revert";
             // 
-            // saveSessionToolStripMenuItem
+            // saveToolStripMenuItem
             // 
-            this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.saveSessionToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveSessionToolStripMenuItem.Text = "Save";
-            this.saveSessionToolStripMenuItem.Click += new System.EventHandler(this.OnSaveSessionToolStripMenuItem_Click);
+            this.saveSessionToolStripMenuItem.Click += new System.EventHandler(this.saveSessionToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.OnExitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // machineToolStripMenuItem
             // 
@@ -593,38 +593,38 @@
             // loadOBJToolStripMenuItem
             // 
             this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadOBJToolStripMenuItem.Text = "Load Obj...";
-            this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.OnLoadOBJToolStripMenuItem_Click);
+            this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
             // loadLstToolStripMenuItem
             // 
             this.loadLstToolStripMenuItem.Enabled = false;
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
-            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
-            this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.OnLoadLstToolStripMenuItem_Click);
+            this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.loadLstToolStripMenuItem_Click);
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
-            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
-            this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.OnLoadMemoryToolStripMenuItem_Click);
+            this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.loadMemoryToolStripMenuItem_Click);
             // 
             // saveMemoryToolStripMenuItem
             // 
             this.saveMemoryToolStripMenuItem.Enabled = false;
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
             // 
             // manageDevicesToolStripMenuItem
             // 
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
-            this.manageDevicesToolStripMenuItem.Click += new System.EventHandler(this.OnManageDevicesToolStripMenuItem_Click);
+            this.manageDevicesToolStripMenuItem.Click += new System.EventHandler(this.manageDevicesToolStripMenuItem_Click);
             // 
             // debugToolStripMenuItem
             // 
@@ -638,23 +638,24 @@
             // 
             // watchesToolStripMenuItem
             // 
+            this.watchesToolStripMenuItem.Enabled = false;
             this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.watchesToolStripMenuItem.Text = "Watches";
-            this.watchesToolStripMenuItem.Click += new System.EventHandler(this.OnWatchesToolStripMenuItem_Click);
+            this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
             // 
             // breakpointsToolStripMenuItem
             // 
             this.breakpointsToolStripMenuItem.Enabled = false;
             this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.breakpointsToolStripMenuItem.Text = "Breakpoints";
             // 
             // disassemblyToolStripMenuItem
             // 
             this.disassemblyToolStripMenuItem.Enabled = false;
             this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
             // 
             // groupBox1
@@ -678,7 +679,7 @@
             this.gotoTB.Size = new System.Drawing.Size(68, 24);
             this.gotoTB.TabIndex = 1;
             this.gotoTB.Text = "000000";
-            this.gotoTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnRegisterTB_KeyPress);
+            this.gotoTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // label9
             // 
@@ -723,7 +724,7 @@
             this.radioButton3.TabIndex = 2;
             this.radioButton3.Text = "Decimal Unsigned";
             this.radioButton3.UseVisualStyleBackColor = true;
-            this.radioButton3.CheckedChanged += new System.EventHandler(this.OnEncodingSelectionChanged);
+            this.radioButton3.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
             // 
             // utf8RB
             // 
@@ -734,7 +735,7 @@
             this.utf8RB.TabIndex = 1;
             this.utf8RB.Text = "Text (UTF-8)";
             this.utf8RB.UseVisualStyleBackColor = true;
-            this.utf8RB.CheckedChanged += new System.EventHandler(this.OnEncodingSelectionChanged);
+            this.utf8RB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
             // 
             // radioButton4
             // 
@@ -746,7 +747,7 @@
             this.radioButton4.TabIndex = 3;
             this.radioButton4.Text = "Decimal Signed";
             this.radioButton4.UseVisualStyleBackColor = true;
-            this.radioButton4.CheckedChanged += new System.EventHandler(this.OnEncodingSelectionChanged);
+            this.radioButton4.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
             // 
             // rawRB
             // 
@@ -759,7 +760,7 @@
             this.rawRB.TabStop = true;
             this.rawRB.Text = "Raw Hex";
             this.rawRB.UseVisualStyleBackColor = true;
-            this.rawRB.CheckedChanged += new System.EventHandler(this.OnEncodingSelectionChanged);
+            this.rawRB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
             // 
             // openOBJdialog
             // 
@@ -832,7 +833,7 @@
             this.Text = "Visual SICXE";
             this.Deactivate += new System.EventHandler(this.OnDeactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
-            this.Load += new System.EventHandler(this.OnLoad);
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.OnResize);
             this.memGB.ResumeLayout(false);
             this.regGB.ResumeLayout(false);

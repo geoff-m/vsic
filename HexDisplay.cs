@@ -23,12 +23,10 @@ namespace vsic
         public HexDisplay()
         {
             InitializeComponent();
-            DoubleBuffered = true;
+            DoubleBuffered = true;            
+            Click += OnClick;
             Enter += OnFocus;
             Leave += OnBlur;
-            MouseDown += OnMouseDown;
-            MouseMove += OnMouseMove;
-            MouseUp += OnMouseUp;
         }
 
         public HashSet<ByteMarker> Boxes = new HashSet<ByteMarker>();
@@ -104,11 +102,6 @@ namespace vsic
                 Invalidate(); // todo: remove redundant calls to this. i think at least one caller to this setter is calling Invalidate after.
             }
         }
-
-        public int SelectionStartAddress
-        { get; private set; }
-        public int SelectionEndAddress
-        { get; private set; }
 
         int cursorAddress = 0;
         public int CursorAddress
@@ -326,7 +319,6 @@ namespace vsic
         int lineCount; // computed number of lines to display.
         float textLineSpacing; // computed distance between lines.
         float lineHeight; // computed height of a line of text.
-        int screenByteCount; // computed number of bytes that fit on the screen.
 
         bool doRecalc = true;
         #region Painting
@@ -361,8 +353,6 @@ namespace vsic
                 wordsPerLine = 0;
             bytesPerLine = wordsPerLine * WordDigits / 2; // div by 2 because each digit is half a byte.
 
-            screenByteCount = lineCount * wordsPerLine * AddressDigits;
-
             doRecalc = false;
         }
 
@@ -396,8 +386,6 @@ namespace vsic
                 if (DrawBox(g, box))
                     ++boxesDrawn;
             }
-
-            HighlightSelection(g);
 
             // Draw addresses and data.
             int bytesPerLine = wordsPerLine * 3;
@@ -463,80 +451,11 @@ namespace vsic
             DrawCursor(g);
         }
 
-        private static Brush _highlightBrush = new SolidBrush(Color.FromArgb(127, Color.Blue));
-        private void HighlightSelection(Graphics g)
-        {
-            if (SelectionStartAddress > startAddress + screenByteCount)
-                return; // If selection begins after screen, abort.
-
-            int highlightStart = SelectionStartAddress - startAddress;
-
-            if (SelectionStartAddress < startAddress)
-                highlightStart = startAddress; // The beginning of the selection will be cut off.
-
-            int endAddress = startAddress + screenByteCount;
-            int highlightEnd = SelectionEndAddress - startAddress;
-            if (SelectionEndAddress > endAddress)
-                highlightEnd = endAddress; // The end of the selection will be cut off.
-
-            // Find the first line to be highlighted.
-            int startLine = highlightStart / bytesPerLine;
-            // Find the first byte in the first line to be highlighted.
-            int firstByteInLine = highlightStart % bytesPerLine;
-            // Find the word containing the first byte.
-            int firstByteWordInLine = firstByteInLine / WordBytes;
-            // Identify the byte inside the word.
-            int firstByteInWord = highlightStart % WordBytes;
-
-            // Find the last line to be highlighted.
-            int endLine = highlightEnd / bytesPerLine;
-            // Find the last byte in the last line to be highlighted.
-            int lastByteInLine = highlightEnd % bytesPerLine;
-            // Find the word containing the last byte.
-            int lastByteWordInLine = lastByteInLine / WordBytes;
-            // Identify the byte inside the word.
-            int lastByteInWord = highlightEnd % WordBytes;
-
-            if (startLine == endLine)
-            {
-                // Highlight the only line.
-                g.FillRectangle(_highlightBrush,
-                    dataXoffset + firstByteWordInLine * (wordWidth + wordXgap) + firstByteInWord * byteWidth,
-                    textYoffset + startLine * (lineHeight + textLineSpacing),
-                    byteWidth * (lastByteInLine - firstByteInLine),
-                    lineHeight);
-                return;
-            }
-
-            // Highlight the first line.            
-            g.FillRectangle(_highlightBrush,
-                 dataXoffset + firstByteWordInLine * (wordWidth + wordXgap) + firstByteInWord * byteWidth,
-                 textYoffset + startLine * (lineHeight + textLineSpacing),
-                 byteWidth * (bytesPerLine - firstByteInLine),
-                 lineHeight);
-
-            // Highlight the middle lines.
-            for (int line = startLine + 1; line < endLine; ++line)
-            {
-                g.FillRectangle(_highlightBrush,
-                     dataXoffset,
-                     textYoffset + line * (lineHeight + textLineSpacing),
-                     wordsPerLine * wordXgap + byteWidth * bytesPerLine,
-                     lineHeight);
-            }
-
-            // Highlight the last line.
-            g.FillRectangle(_highlightBrush,
-                 dataXoffset + lastByteInWord * byteWidth,
-                 textYoffset + endLine * (lineHeight + textLineSpacing),
-                 wordXgap * (lastByteInLine / 3) + byteWidth * lastByteInLine,
-                 lineHeight);
-        }
-
         private bool DrawBox(Graphics g, ByteMarker box)
         {
             int addr = box.Address;
             int screenByte = addr - StartAddress;
+            int screenByteCount = lineCount * wordsPerLine * AddressDigits;
             if (screenByte < 0 || screenByte > screenByteCount)
                 return false; // Ignore if address is not on screen.
 
@@ -634,18 +553,6 @@ namespace vsic
             return new string(ret);
         }
 
-        // Returns the address under the specified screen coordinates.
-        // The result is not guaranteed to be a valid memory address.
-        private int GetAddressFromPoint(int x, int y)
-        {
-            int line = (int)((y - textYoffset) / (lineHeight + textLineSpacing));
-            int wordIdx = (int)((x - dataXoffset) / (wordWidth + wordXgap));
-            float charGap = wordWidth / 3;
-            int wordByte = (int)((x - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
-            int addr = StartAddress + line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
-            return addr;
-        }
-
         #region Event Handlers
 
         private void OnResize(object sender, EventArgs e)
@@ -654,91 +561,25 @@ namespace vsic
             Invalidate();
         }
 
-        private void UpdateCursorLocation(int x, int y)
+        private void OnClick(object sender, EventArgs e)
         {
-            int addr = GetAddressFromPoint(x, y);
-            if (addr >= 0 && addr < Data.Length)
+            MouseEventArgs me = e as MouseEventArgs;
+            if (me == null || me.Button != MouseButtons.Left)
+                return;
+
+            int line = (int)((me.Y - textYoffset) / (lineHeight + textLineSpacing));
+            int wordIdx = (int)((me.X - dataXoffset) / (wordWidth + wordXgap));
+            float charGap = wordWidth / 3;
+            int wordByte = (int)((me.X - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
+
+            int addr = StartAddress + line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
+            if (addr < Data.Length)
             {
                 CursorAddress = addr;
                 Invalidate();
             }
         }
 
-        private bool dragging = false;
-        private int dragStartAddress;
-        private int dragEndAddress;
-        private void OnMouseDown(object sender, MouseEventArgs me)
-        {
-            if (me.Button != MouseButtons.Left)
-                return;
-
-            UpdateCursorLocation(me.X, me.Y);
-            dragging = true;
-            dragStartAddress = GetAddressFromPoint(me.X, me.Y);
-            dragEndAddress = dragStartAddress;
-        }
-
-        public void OnMouseMove(object sender, MouseEventArgs me)
-        {
-            if (!dragging)
-                return;
-
-            UpdateCursorLocation(me.X, me.Y);
-            dragEndAddress = GetAddressFromPoint(me.X, me.Y);
-            UpdateSelection();
-            Invalidate();
-        }
-
-        public struct Selection
-        {
-            public int StartAddress
-            { get; private set; }
-
-            public int EndAddress
-            { get; private set; }
-
-            public Selection(int start, int end)
-            {
-                StartAddress = start;
-                EndAddress = end;
-            }
-        }
-
-        public event EventHandler<Selection> SelectionChanged;
-
-        public const int SELECTION_BYTE_MARKER_ID = 0x5e1ec7;
-        // This method publishes information about the selection.
-        private void UpdateSelection()
-        {
-            if (dragStartAddress < dragEndAddress)
-            {
-                SelectionStartAddress = dragStartAddress;
-                SelectionEndAddress = dragEndAddress;
-            }
-            else
-            {
-                SelectionStartAddress = dragEndAddress;
-                SelectionEndAddress = dragStartAddress;
-            }
-            //Boxes.RemoveWhere(bm => bm.GetHashCode() == SELECTION_BYTE_MARKER_ID);
-            //for (int i = SelectionStartAddress; i < SelectionEndAddress; ++i)
-            //{
-            //    Boxes.Add(new ByteMarker(i, Color.FromArgb(127, Color.Blue), null, false, SELECTION_BYTE_MARKER_ID));
-            //}
-            SelectionChanged?.Invoke(this, new Selection(SelectionStartAddress, SelectionEndAddress));
-        }
-
-        public void OnMouseUp(object sender, MouseEventArgs me)
-        {
-            if (!dragging || me.Button != MouseButtons.Left)
-                return;
-
-            dragEndAddress = GetAddressFromPoint(me.X, me.Y);
-            // complete the drag selection and make results public.
-            dragging = false;
-            UpdateSelection();
-            Invalidate();
-        }
 
         private void OnFocus(object sender, EventArgs e)
         {
@@ -750,6 +591,8 @@ namespace vsic
             Invalidate();
         }
 
+        #endregion
+
         private const float SCROLL_MULTIPLIER = -0.02f;
         protected override void OnMouseWheel(MouseEventArgs e)
         {
@@ -757,7 +600,5 @@ namespace vsic
             if (newSA >= 0 && newSA < Data.Length)
                 StartAddress = newSA;
         }
-
-        #endregion
     }
 }
