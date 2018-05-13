@@ -50,7 +50,7 @@ namespace vsic
         public long? ExpiresAfter
         { get; set; }
 
-        int id;
+        readonly int id;
         public override int GetHashCode()
         {
             if (id != 0)

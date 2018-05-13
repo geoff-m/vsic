@@ -26,6 +26,8 @@ namespace vsic
 
             devman = new DeviceManager();
             devman.Owner = this;
+
+            hexDisplay.SelectionChanged += OnHexDisplay_SelectionChanged;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -34,13 +36,13 @@ namespace vsic
             switch (keyData)
             {
                 case Keys.F5:
-                    runButton_Click(this, null);
+                    OnRunButton_Click(this, null);
                     return true;
                 case Keys.F10:
-                    stepButton_Click(this, null);
+                    OnStepButton_Click(this, null);
                     return true;
                 case Keys.F9:
-                    setBkptButton_Click(this, null);
+                    OnSetBreakpointButton_Click(this, null);
                     return true;
             }
 
@@ -86,7 +88,7 @@ namespace vsic
 
         Thread machineThread;
         Session sess;
-        private void Form1_Load(object sender, EventArgs e)
+        private void OnLoad(object sender, EventArgs e)
         {
             CreateNewSession();
         }
@@ -178,7 +180,7 @@ namespace vsic
         #endregion
 
         // Load the binary file into memory at the cursor.
-        private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnLoadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var res = openMemoryDialog.ShowDialog();
             if (res == DialogResult.OK)
@@ -358,11 +360,9 @@ namespace vsic
             {
                 long? expiry = bm.ExpiresAfter;
                 bool ret = expiry.HasValue && instr > expiry.Value;
-                //Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
                 return ret;
             }
             );
-            //Debug.WriteLine($"Removed {removed} byte markers.");
 
             // Remove old program counter.
             hexDisplay.Boxes.RemoveWhere(bm => bm.GetHashCode() == PC_MARKER_ID);
@@ -384,7 +384,7 @@ namespace vsic
             memGB.Width = regGB.Location.X - memGB.Location.X - 10;
         }
 
-        private void changedEncodingSelection(object sender, EventArgs e)
+        private void OnEncodingSelectionChanged(object sender, EventArgs e)
         {
             do // Not a loop.
             {
@@ -413,7 +413,7 @@ namespace vsic
             UpdateBreakpointGB();
         }
 
-        private void loadOBJToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnLoadOBJToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var res = openOBJdialog.ShowDialog();
             if (res == DialogResult.OK)
@@ -429,7 +429,7 @@ namespace vsic
             }
         }
 
-        private void stepButton_Click(object sender, EventArgs e)
+        private void OnStepButton_Click(object sender, EventArgs e)
         {
             ResetTextboxColors();
             sess.Machine.Step();
@@ -438,9 +438,10 @@ namespace vsic
             UpdateMachineDisplay();
         }
 
-        private void runButton_Click(object sender, EventArgs e)
+        private void OnRunButton_Click(object sender, EventArgs e)
         {
             StartMachineRun();
+                // tood: change the button to Stop button.
         }
 
         long instructionsAtRunStart;
@@ -490,23 +491,23 @@ namespace vsic
         }
 
         WatchForm watchForm = new WatchForm();
-        private void watchesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnWatchesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             watchForm.Show();
         }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void newMachineToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnNewMachineToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UnloadSession();
             CreateNewSession();
         }
 
-        private void loadLstToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnLoadLstToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var res = openLSTdialog.ShowDialog();
             if (res == DialogResult.OK)
@@ -520,19 +521,24 @@ namespace vsic
             }
         }
 
+        private void OnHexDisplay_SelectionChanged(object sender, HexDisplay.Selection selection)
+        {
+            selectedBytesLabel.Text = $"{selection.EndAddress - selection.StartAddress} bytes selected";
+        }
+
         bool hexDisplayFocused;
-        private void onHexDisplayFocus(object sender, EventArgs e)
+        private void OnHexDisplay_Focus(object sender, EventArgs e)
         {
             hexDisplayFocused = true;
         }
 
-        private void onHexDisplayBlur(object sender, EventArgs e)
+        private void OnHexDisplay_Blur(object sender, EventArgs e)
         {
             hexDisplayFocused = false;
         }
 
         // This function to handles key press for all registers.
-        private void onRegisterTBKeyPress(object sender, KeyPressEventArgs e)
+        private void OnRegisterTB_KeyPress(object sender, KeyPressEventArgs e)
         {
             TextBox tb = sender as TextBox;
             if (tb == null)
@@ -695,7 +701,7 @@ namespace vsic
         private SortedSet<Breakpoint> breakpoints;
         private bool breakpointsEnabled = true;
 
-        private void setBkptButton_Click(object sender, EventArgs e)
+        private void OnSetBreakpointButton_Click(object sender, EventArgs e)
         {
             Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
@@ -758,7 +764,7 @@ namespace vsic
             }
         }
 
-        private void bpEnabledCB_CheckedChanged(object sender, EventArgs e)
+        private void OnBreakpointEnabledCB_CheckedChanged(object sender, EventArgs e)
         {
             var addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
@@ -773,7 +779,7 @@ namespace vsic
             }
         }
 
-        private void bpReadCB_CheckedChanged(object sender, EventArgs e)
+        private void OnBreakpointReadCB_CheckedChanged(object sender, EventArgs e)
         {
             var addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
@@ -787,7 +793,7 @@ namespace vsic
             }
         }
 
-        private void bpWriteCB_CheckedChanged(object sender, EventArgs e)
+        private void OnBreakpointWriteCB_CheckedChanged(object sender, EventArgs e)
         {
             var addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
@@ -808,7 +814,7 @@ namespace vsic
             UpdateMachineDisplay();
         }
 
-        private void bpDisableOverrideCB_CheckedChanged(object sender, EventArgs e)
+        private void OnBreakpointDisableOverrideCB_CheckedChanged(object sender, EventArgs e)
         {
             if (bpDisableOverrideCB.Checked)
             {
@@ -852,7 +858,7 @@ namespace vsic
         }
 
         DeviceManager devman;
-        private void manageDevicesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnManageDevicesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             devman.Show();
             devman.Deactivate += UpdateIODevices;
@@ -863,14 +869,14 @@ namespace vsic
             hexDisplay.Invalidate();
         }
 
-        private void loadSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnLadSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             sess.LoadFromFile("session.txt");
             InitializeMachineDisplay();
             UpdateMachineDisplay();
         }
 
-        private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnSaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             sess.SaveToFile("session.txt");
         }
