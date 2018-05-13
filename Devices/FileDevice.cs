@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Diagnostics;
 using IOPath = System.IO.Path;
 
-namespace vsic
+namespace Visual_SICXE.Devices
 {
-    public class FileDevice : IODevice, ISerialize
+    public class FileDevice : IODevice
     {
         private FileStream fs;
-        long recentlyWritten = 0;
+        private long recentlyWritten = 0;
 
         public string Path
         { get; private set; }
@@ -24,6 +21,12 @@ namespace vsic
         {
             Path = path;
             fs = new FileStream(path, FileMode.OpenOrCreate);
+        }
+
+        // This constructor is called by deserialization. The object requires further initialization before use.
+        public FileDevice(byte id) : base(id)
+        {
+            fs = null;
         }
 
         public override bool Test()
@@ -51,19 +54,19 @@ namespace vsic
         }
 
         // Todo: Low priority: Change this to a more robust solution. (Lower level API to force flush?)
-        long position;
+        private long position;
         public override void Flush()
         {
             if (recentlyWritten > 0)
             {
-                Debug.WriteLine($"Device {ID.ToString("X")}: Flushing {recentlyWritten} bytes.");
+                Debug.WriteLine($"Device {ID:X}: Flushing {recentlyWritten} bytes.");
 
                 // All this is necessary because fs.Flush() does not actually guarantee disk update.
                 position = fs.Position;
                 fs.Dispose();
                 // Race condition: hope nothing changes about the file between these two operations.
-                fs = new FileStream(Path, FileMode.OpenOrCreate);
-                fs.Position = position; // restore position to what it was before close and reopen.
+                fs = new FileStream(Path, FileMode.OpenOrCreate)
+                    { Position = position}; // restore position to what it was before close and reopen.
 
                 recentlyWritten = 0;
             }
@@ -75,33 +78,41 @@ namespace vsic
 
         public override void Dispose()
         {
-            fs.Dispose();
-            fs = null;
+            fs?.Dispose();
         }
 
-        public void Serialize(Stream stream)
+        public override void Serialize(Stream stream)
         {
-            var writer = new BinaryWriter(stream,System.Text.Encoding.UTF8, true);
-            writer.Write(ID);
-            writer.Write(name);
-            writer.Write(Path);
-            writer.Dispose();
+            base.Serialize(stream);
+            BinaryWriter writer = null;
+            try
+            {
+                writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
+                writer.Write(Path);
+            }
+            finally
+            {
+                writer?.Dispose();
+            }
         }
 
-        public void Deserialize(Stream stream)
+        // Called via reflection.
+        // ReSharper disable once UnusedMember.Local
+        private new void Deserialize(Stream stream)
         {
-            var reader  = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
-            ID = reader.ReadByte();
-            name = reader.ReadString();
-            Path = reader.ReadString();
+            var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
+            string path = reader.ReadString();
             reader.Dispose();
+
+            Path = path;
+            fs = new FileStream(path, FileMode.OpenOrCreate);
         }
 
         public override string Name
         {
             get
             {
-                if (!nameSet) // Provide a default name if none has ever been set.
+                if (!NameSet) // Provide a default name if none has ever been set.
                 {
                     name = $"...{IOPath.DirectorySeparatorChar}{IOPath.GetFileName(Path)}";
                 }
@@ -109,7 +120,7 @@ namespace vsic
             }
             set
             {
-                nameSet = true;
+                NameSet = true;
                 name = value;
             }
         }

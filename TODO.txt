@@ -1,11 +1,20 @@
 ﻿
+Ensure deserialization of file devices is working properly.
 
-- Rework MainForm's implementation of ILogSink so that it doesn't have to redraw anything every time Log is called.
-	Right now, updating the log text dramatically slows down free-running execution of the VM.
+Ensure console I/O is working properly.
 
-- Add ability to interrupt execution with button press. Right now, VM execution is done on the UI thread,
-	so the user has no way to stop it.
+Disable ByteMarker-creating listeners during VM run.
 
+Enable Session>>Revert.
 
- - Implement save/restore of sessions, with a default session that has certain IO devices set up.
-	This will speed up my testing and save end users time doing basic device setup.
+Enable editing of hex display contents.
+
+Enable drag-to-select in hex display.
+Add watches and watch window.
+
+Reduce flicker in console window output.
+
+Add disassembly and disassembly window.
+
+Add breakpoints window.
+

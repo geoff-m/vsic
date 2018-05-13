@@ -1,4 +1,4 @@
-﻿namespace vsic
+﻿namespace Visual_SICXE
 {
     partial class MainForm
     {
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new vsic.HexDisplay();
+            this.hexDisplay = new HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -50,7 +50,6 @@
             this.pcGB = new System.Windows.Forms.GroupBox();
             this.PCfromCursorLabel = new System.Windows.Forms.Label();
             this.bpDisableOverrideCB = new System.Windows.Forms.CheckBox();
-            this.button5 = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.Button();
             this.stepButton = new System.Windows.Forms.Button();
             this.pcTB = new System.Windows.Forms.TextBox();
@@ -97,6 +96,8 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.devLB = new System.Windows.Forms.ListBox();
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
+            this.openSessionDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveSessionDialog = new System.Windows.Forms.SaveFileDialog();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
@@ -140,7 +141,7 @@
             this.hexDisplay.StartAddress = 0;
             this.hexDisplay.TabIndex = 1;
             this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = vsic.HexDisplay.Encoding.Raw;
+            this.hexDisplay.WordEncoding = HexDisplay.Encoding.Raw;
             this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
             this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
             this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
@@ -191,7 +192,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 102);
+            this.label8.Location = new System.Drawing.Point(9, 102);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(14, 13);
             this.label8.TabIndex = 16;
@@ -220,7 +221,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 24);
+            this.label1.Location = new System.Drawing.Point(9, 24);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(14, 13);
             this.label1.TabIndex = 2;
@@ -229,7 +230,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(14, 154);
+            this.label7.Location = new System.Drawing.Point(10, 154);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(13, 13);
             this.label7.TabIndex = 14;
@@ -248,7 +249,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(13, 128);
+            this.label6.Location = new System.Drawing.Point(9, 128);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(14, 13);
             this.label6.TabIndex = 13;
@@ -267,7 +268,8 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(14, 180);
+            this.label5.Enabled = false;
+            this.label5.Location = new System.Drawing.Point(10, 180);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(13, 13);
             this.label5.TabIndex = 12;
@@ -286,7 +288,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 51);
+            this.label4.Location = new System.Drawing.Point(9, 51);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(14, 13);
             this.label4.TabIndex = 11;
@@ -304,7 +306,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 78);
+            this.label3.Location = new System.Drawing.Point(9, 78);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 10;
@@ -325,14 +327,13 @@
             this.pcGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pcGB.Controls.Add(this.PCfromCursorLabel);
             this.pcGB.Controls.Add(this.bpDisableOverrideCB);
-            this.pcGB.Controls.Add(this.button5);
             this.pcGB.Controls.Add(this.runButton);
             this.pcGB.Controls.Add(this.stepButton);
             this.pcGB.Controls.Add(this.pcTB);
             this.pcGB.Controls.Add(this.label2);
             this.pcGB.Location = new System.Drawing.Point(863, 256);
             this.pcGB.Name = "pcGB";
-            this.pcGB.Size = new System.Drawing.Size(151, 166);
+            this.pcGB.Size = new System.Drawing.Size(151, 144);
             this.pcGB.TabIndex = 3;
             this.pcGB.TabStop = false;
             this.pcGB.Text = "Program Counter";
@@ -350,7 +351,6 @@
             // 
             // bpDisableOverrideCB
             // 
-            this.bpDisableOverrideCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bpDisableOverrideCB.AutoSize = true;
             this.bpDisableOverrideCB.Location = new System.Drawing.Point(6, 56);
             this.bpDisableOverrideCB.Name = "bpDisableOverrideCB";
@@ -360,20 +360,8 @@
             this.bpDisableOverrideCB.UseVisualStyleBackColor = true;
             this.bpDisableOverrideCB.CheckedChanged += new System.EventHandler(this.bpDisableOverrideCB_CheckedChanged);
             // 
-            // button5
-            // 
-            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(6, 108);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(136, 23);
-            this.button5.TabIndex = 6;
-            this.button5.Text = "Break (F6)";
-            this.button5.UseVisualStyleBackColor = true;
-            // 
             // runButton
             // 
-            this.runButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.runButton.Location = new System.Drawing.Point(6, 79);
             this.runButton.Name = "runButton";
             this.runButton.Size = new System.Drawing.Size(136, 23);
@@ -384,8 +372,7 @@
             // 
             // stepButton
             // 
-            this.stepButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.stepButton.Location = new System.Drawing.Point(6, 137);
+            this.stepButton.Location = new System.Drawing.Point(6, 110);
             this.stepButton.Name = "stepButton";
             this.stepButton.Size = new System.Drawing.Size(136, 23);
             this.stepButton.TabIndex = 10;
@@ -546,14 +533,14 @@
             // newMachineToolStripMenuItem
             // 
             this.newMachineToolStripMenuItem.Name = "newMachineToolStripMenuItem";
-            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newMachineToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.newMachineToolStripMenuItem.Text = "New";
             this.newMachineToolStripMenuItem.Click += new System.EventHandler(this.newMachineToolStripMenuItem_Click);
             // 
-            // saveSessionToolStripMenuItem
+            // loadSessionToolStripMenuItem
             // 
             this.loadSessionToolStripMenuItem.Name = "loadSessionToolStripMenuItem";
-            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.loadSessionToolStripMenuItem.Text = "Load...";
             this.loadSessionToolStripMenuItem.Click += new System.EventHandler(this.loadSessionToolStripMenuItem_Click);
             // 
@@ -561,20 +548,20 @@
             // 
             this.revertToolStripMenuItem.Enabled = false;
             this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-            this.revertToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.revertToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.revertToolStripMenuItem.Text = "Revert";
             // 
-            // saveToolStripMenuItem
+            // saveSessionToolStripMenuItem
             // 
-            this.saveSessionToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.saveSessionToolStripMenuItem.Text = "Save";
             this.saveSessionToolStripMenuItem.Click += new System.EventHandler(this.saveSessionToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -796,7 +783,7 @@
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.devLB);
-            this.groupBox2.Location = new System.Drawing.Point(863, 428);
+            this.groupBox2.Location = new System.Drawing.Point(863, 406);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(151, 147);
             this.groupBox2.TabIndex = 9;
@@ -819,6 +806,16 @@
             // 
             this.openLSTdialog.Filter = "sicasm LST files (*.lst)|*.lst";
             // 
+            // openSessionDialog
+            // 
+            this.openSessionDialog.Filter = "Saved sessions|*.sav";
+            this.openSessionDialog.Title = "Load saved session";
+            // 
+            // saveSessionDialog
+            // 
+            this.saveSessionDialog.DefaultExt = "sav";
+            this.saveSessionDialog.Filter = "Saved sessions|*.sav|All files|*.*";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -833,7 +830,7 @@
             this.Text = "Visual SICXE";
             this.Deactivate += new System.EventHandler(this.OnDeactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.OnResize);
             this.memGB.ResumeLayout(false);
             this.regGB.ResumeLayout(false);
@@ -879,7 +876,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox regBTB;
         private System.Windows.Forms.GroupBox pcGB;
-        private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button runButton;
         private System.Windows.Forms.Button stepButton;
         private System.Windows.Forms.TextBox pcTB;
@@ -931,6 +927,8 @@
         private System.Windows.Forms.Label PCfromCursorLabel;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListBox devLB;
+        private System.Windows.Forms.OpenFileDialog openSessionDialog;
+        private System.Windows.Forms.SaveFileDialog saveSessionDialog;
     }
 }
 

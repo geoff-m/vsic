@@ -1,26 +1,29 @@
 ﻿//#define DEBUG_PRINT_ADDRESS_TYPE
+//#define ENABLE_FEATURE_SAVE_COMPRESSION // this doesn't work yet.
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.IO;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Visual_SICXE.Devices;
+using Visual_SICXE.Exceptions;
+using Visual_SICXE.Extensions;
 //using System.IO.Compression; // Don't use; GZipStream sucks
-using ICSharpCode.SharpZipLib.BZip2;
 
-namespace vsic
+namespace Visual_SICXE
 {
     public sealed class Machine : ISerialize
     {
         #region Serialization
-        const uint SERIALIZATION_MACHINE_MAGIC_NUMBER = 0x3AC817E;
-        const uint SERIALIZATION_VERSION = 0x00010001;
-        const uint SERIALIZATION_MEMORY_MAGIC_NUMBER = 0x11223344;
-        const uint SERIALIZATION_REGISTERS_MAGIC_NUMBER = 0x13E6157E;
-        const uint SERIALIZATION_DEVICES_MAGIC_NUMBER = 0xDEFF1CE5;
-        const uint BUFFER_SIZE = 4096;
+        private const uint SERIALIZATION_MACHINE_MAGIC_NUMBER = 0x3AC817E;
+        private const uint SERIALIZATION_VERSION = 0x00010001;
+        private const uint SERIALIZATION_MEMORY_MAGIC_NUMBER = 0x11223344;
+        private const uint SERIALIZATION_REGISTERS_MAGIC_NUMBER = 0x13E6157E;
+        private const uint SERIALIZATION_DEVICES_MAGIC_NUMBER = 0xDEFF1CE5;
+        private const uint BUFFER_SIZE = 4096;
         public void Serialize(Stream stream)
         {
             var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
@@ -35,7 +38,11 @@ namespace vsic
             Debug.WriteLine($"Stream position is now {stream.Position}");
             // Write memory with compression.
             Memory.Seek(0, SeekOrigin.Begin);
+#if ENABLE_FEATURE_SAVE_COMPRESSION
             BZip2.Compress(Memory, stream, false, 5);
+#else
+            Memory.CopyTo(stream);
+#endif
             // Write registers.
             Debug.WriteLine($"About to write registers. Stream position is now {stream.Position}");
             writer.Write(SERIALIZATION_REGISTERS_MAGIC_NUMBER);
@@ -58,22 +65,28 @@ namespace vsic
             Debug.WriteLine($"Wrote registers. Stream position is now {stream.Position}");
 
             writer.Write(SERIALIZATION_DEVICES_MAGIC_NUMBER);
-            // serialize devices by calling their own serialize implementations.
+            // serialize devices 
+            foreach (var dev in Devices)
+            {
+                dev.Serialize(stream);
+            }
 
             writer.Dispose();
             Debug.WriteLine($"Disposed binarywriter. Stream position is now {stream.Position}");
+            stream.Dispose();
         }
 
         public void Deserialize(Stream stream)
         {
-            var reader = new BinaryReader(stream,System.Text.Encoding.UTF8, true);
+            var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
             uint uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_MACHINE_MAGIC_NUMBER)
                 throw new InvalidDataException();
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_VERSION)
-                throw new InvalidDataException($"Expected version {SERIALIZATION_VERSION.ToString("X")}, got version {uintbuf.ToString("X")} instead.");
+                throw new InvalidDataException($"Expected version {SERIALIZATION_VERSION:X}, got version {uintbuf:X} instead.");
 
+            // Deserialize memory
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_MEMORY_MAGIC_NUMBER)
                 throw new InvalidDataException();
@@ -84,49 +97,80 @@ namespace vsic
             memory = new byte[memoryLength];
             Memory = new MemoryStream(memory, true);
 
-            //Debug.WriteLine($"Stream position is now {stream.Position}");
+            Debug.WriteLine($"Stream position is now {stream.Position}");
             Memory.Seek(0, SeekOrigin.Begin);
-            BZip2.Decompress(stream, Memory, false);
-            //Debug.WriteLine($"Stream position is now {stream.Position}");
+#if ENABLE_FEATURE_SAVE_COMPRESSION
+            BZip2.Decompress(stream, Memory, false); // todo: change how this is done.
+#else
+            int memoryBytesRead = stream.Read(memory, 0, memoryLength);
+            Debug.WriteLine($"{memoryBytesRead} bytes read into memory");
+#endif
+            Debug.WriteLine($"Stream position is now {stream.Position}");
+
+            // Deserialize registers
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_REGISTERS_MAGIC_NUMBER)
                 throw new InvalidDataException();
 
-            int intbuf;
-            intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.A)
+            int intbuf = reader.ReadInt32();
+            if (intbuf != (int)Register.A)
                 throw new InvalidDataException();
             regA = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.B)
+            if (intbuf != (int)Register.B)
                 throw new InvalidDataException();
             regB = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.CC)
+            if (intbuf != (int)Register.CC)
                 throw new InvalidDataException();
             CC = (ConditionCode)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.L)
+            if (intbuf != (int)Register.L)
                 throw new InvalidDataException();
             regL = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.PC)
+            if (intbuf != (int)Register.PC)
                 throw new InvalidDataException();
             PC = reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.S)
+            if (intbuf != (int)Register.S)
                 throw new InvalidDataException();
             regS = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.T)
+            if (intbuf != (int)Register.T)
                 throw new InvalidDataException();
             regT = (Word)reader.ReadInt32();
             intbuf = reader.ReadInt32();
-            if (uintbuf != (int)Register.X)
+            if (intbuf != (int)Register.X)
                 throw new InvalidDataException();
             regX = (Word)reader.ReadInt32();
 
+            // Deserialize devices
+            uintbuf = reader.ReadUInt32();
+            if (uintbuf != SERIALIZATION_DEVICES_MAGIC_NUMBER)
+                throw new InvalidDataException();
+
+            while (stream.Position < stream.Length)
+            {
+                var newDev = IODevice.Deserialize(stream);
+                AddDevice(newDev.ID, newDev);
+            }
+
             reader.Dispose();
+            stream.Dispose();
+        }
+
+        // for debug.
+        private static void dumpstream(Stream s)
+        {
+            int buflen = (int)(s.Length - s.Position);
+            var buf = new byte[buflen];
+            s.Read(buf, 0, buflen);
+            var str = string.Join("", buf.Select(b => b.ToString("x2")));
+            Debug.WriteLine(str);
+
+            var text = System.Text.Encoding.UTF8.GetString(buf);
+            // this isn't rendering in debug output because it contains \0 chars
         }
         #endregion
 
@@ -140,8 +184,8 @@ namespace vsic
         public const int SIC_MEMORY_SIZE = 0x8000; // 32K
         public const int SICXE_MEMORY_SIZE = 0x100000; // 1M
 
-        const byte MEMORY_INITIAL_VALUE = 0xff;
-        readonly Word REG_INITIAL_VALUE = (Word)0xffffff;
+        private const byte MEMORY_INITIAL_VALUE = 0xff;
+        private readonly Word REG_INITIAL_VALUE = (Word)0xffffff;
 
         /// <summary>
         /// A method called when the MemoryChanged event fires, indicating the Machine's memory has changed.
@@ -161,7 +205,7 @@ namespace vsic
         public delegate void RegisterEventHandler(Register reg, bool written);
         public event RegisterEventHandler RegisterChanged;
 
-        int PC; // Implementing this as an int saves a lot of casts in this class.
+        private int PC; // Implementing this as an int saves a lot of casts in this class.
         public Word ProgramCounter
         {
             get { return (Word)PC; }
@@ -176,7 +220,7 @@ namespace vsic
             }
         }
 
-        ConditionCode CC;
+        private ConditionCode CC;
         public ConditionCode ConditionCode
         {
             get { return CC; }
@@ -198,7 +242,7 @@ namespace vsic
         private byte[] memory;
 
         // Registers as private fields that don't have any side effects when accessed.
-        Word regA, regB, regL, regS, regT, regX;
+        private Word regA, regB, regL, regS, regT, regX;
 
         // Registers as public properties that raise event on WRITE ONLY.
         public Word RegisterA
@@ -369,7 +413,7 @@ namespace vsic
         }
 
         #region Devices
-        IODevice[] devices = new IODevice[256];
+        private readonly IODevice[] devices = new IODevice[256];
         /// <summary>
         /// The devices this machine has.
         /// </summary>
@@ -391,6 +435,21 @@ namespace vsic
         }
 
         /// <summary>
+        /// Removes the device with the specified ID from the machine.
+        /// </summary>
+        /// <param name="id">The ID of the device to remove.</param>
+        /// <returns>True if the device was removed, false if no device had the specified ID.</returns>
+        public bool RemoveDevice(byte id)
+        {
+            if (devices[id] == null)
+                return false; // No such device.
+
+            devices[id].Dispose();
+            devices[id] = null;
+            return true;
+        }
+
+        /// <summary>
         /// Gets the device that has the specified ID.
         /// </summary>
         /// <param name="id">The ID of the device.</param>
@@ -407,8 +466,7 @@ namespace vsic
         {
             devices.AsParallel().ForAll(d =>
             {
-                if (d != null)
-                    d.Flush();
+                d?.Flush();
             });
         }
 
@@ -419,8 +477,7 @@ namespace vsic
         {
             devices.AsParallel().ForAll(d =>
             {
-                if (d != null)
-                    d.Dispose();
+                d?.Dispose();
             });
         }
 
@@ -440,7 +497,7 @@ namespace vsic
             if (address < 0)
                 throw new ArgumentException("Address must be nonnegative.", nameof(address));
             if (address + data.Length > memory.Length)
-                throw new ArgumentException("Write would go past end of memory.");
+                throw new ArgumentException("Write would go past the end of memory.");
 
             Array.ConstrainedCopy(data, 0, memory, 0, data.Length);
             //Buffer.BlockCopy(data, 0, memory, 0, data.Length);
@@ -514,6 +571,17 @@ namespace vsic
             {
                 ret = Step();
             } while (ret == RunResult.None);
+            return ret;
+        }
+
+        public RunResult Run(CancelToken token)
+        {
+            RunResult ret;
+            do
+            {
+                ret = Step();
+            } while (ret == RunResult.None && !token.Cancelled);
+            token.Reset();
             return ret;
         }
 
@@ -816,13 +884,13 @@ namespace vsic
                                 else
                                 {
                                     CC = ConditionCode.EqualTo; // Equal means not ready.
-                                    Debug.WriteLine($"Device {deviceID} is not ready.");
+                                    Debug.WriteLine($"Device {deviceID:X2} is not ready.");
                                 }
                             }
                             else
                             {
                                 CC = ConditionCode.EqualTo;
-                                Debug.WriteLine($"Device {deviceID} does not exist!");
+                                Debug.WriteLine($"Device {deviceID:X2} does not exist!");
                             }
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
@@ -838,7 +906,7 @@ namespace vsic
                             deviceID = memory[DecodeAddress(addr, mode)];
                             dev = devices[deviceID];
                             byte rb = dev.ReadByte();
-                            Debug.WriteLine($"devices[{deviceID}].ReadByte() returned {rb.ToString("X")}.");
+                            Debug.WriteLine($"devices[{deviceID:X2}].ReadByte() returned {rb:X2}.");
                             regAwithevents = (Word)(regA & ~0xff | rb);
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
@@ -855,7 +923,6 @@ namespace vsic
                             Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                     }
-
                 }
                 else
                 {
@@ -1133,11 +1200,11 @@ namespace vsic
                     RegisterChanged?.Invoke(reg, false);
                     return regX;
             }
-            throw new SICXEException($"Illegal register code: {r.ToString("X")}.");
+            throw new SICXEException($"Illegal register code: {r:X2}.");
         }
 
         /// <summary>
-        /// Helper function to set the value of a register specified by its binart code.
+        /// Helper function to set the value of a register specified by its binary code.
         /// </summary>
         /// <param name="r"></param>
         /// <param name="value">The value to store in the register.</param>
@@ -1201,6 +1268,8 @@ namespace vsic
         /// <param name="count">Size in bytes of the region to check for breakpoints.</param>
         private void ThrowForRead(Word address, int count)
         {
+            if (MemoryChanged == null)
+                return;
             // Throw if ANY listener returned true.
             if (MemoryChanged.GetInvocationList().Aggregate(false,
                 (bool existing, Delegate handler) => existing |= (bool)handler.DynamicInvoke(address, count, false)))
@@ -1216,6 +1285,8 @@ namespace vsic
         /// <param name="count">Size in bytes of the region to check for breakpoints.</param>
         private void ThrowForWrite(Word address, int count)
         {
+            if (MemoryChanged == null)
+                return;
             // Throw if ANY listener returned true.
             if (MemoryChanged.GetInvocationList().Aggregate(false,
                 (bool existing, Delegate handler) => existing |= (bool)handler.DynamicInvoke(address, count, true)))
@@ -1271,7 +1342,6 @@ namespace vsic
             Word blockAddr = (Word)(-1); // Initialized only to silence compiler warning.
             StreamReader read = null;
             int lineCount = 1;
-            int entryPoint;
             try
             {
                 // First count the number of blocks in total.
@@ -1296,7 +1366,7 @@ namespace vsic
                     ++lineCount;
                     while (line != "!")
                     {
-                        Debug.WriteLine($"Code/data in block {block}: {line}");
+                        Debug.WriteLine($"Text in block {block}: {line}");
                         // Pair will always succeeded (i.e. find an even number of digits) for files assembled by sicasm.
                         foreach (var b in Pair(line).Select(p => Convert.ToByte(p, 16)))
                         {
@@ -1315,8 +1385,8 @@ namespace vsic
 
                 line = read.ReadLine().Trim().ToLower();
                 ++lineCount;
-                entryPoint = Convert.ToInt32(line, 16);
-                Debug.WriteLine($"Read entry point {entryPoint.ToString("X")}.");
+                int entryPoint = Convert.ToInt32(line, 16);
+                Debug.WriteLine($"Read entry point {entryPoint:X2}.");
                 while (true)
                 {
                     line = read.ReadLine().Trim().ToLower();
@@ -1349,8 +1419,7 @@ namespace vsic
             }
             finally
             {
-                if (read != null)
-                    read.Dispose();
+                read?.Dispose();
             }
             Logger.Log("Loaded \"{0}\" successfully.", path);
         }
@@ -1446,8 +1515,7 @@ namespace vsic
             }
             finally
             {
-                if (read != null)
-                    read.Dispose();
+                read?.Dispose();
             }
 
         }

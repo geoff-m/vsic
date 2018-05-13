@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
-using System.Diagnostics;
+using System.Windows.Forms;
 
-namespace vsic
+namespace Visual_SICXE
 {
     public partial class HexDisplay : UserControl
     {
@@ -23,7 +19,12 @@ namespace vsic
         public HexDisplay()
         {
             InitializeComponent();
-            DoubleBuffered = true;            
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            DoubleBuffered = true;
             Click += OnClick;
             Enter += OnFocus;
             Leave += OnBlur;
@@ -34,7 +35,7 @@ namespace vsic
         public Stream Data
         { get; set; }
 
-        Encoding enc = Encoding.Raw;
+        private Encoding enc = Encoding.Raw;
         public Encoding WordEncoding
         {
             get
@@ -51,8 +52,9 @@ namespace vsic
 
         #region Format properties
         private int WordBytes => WordDigits / 2;
-        string wordFormatString = "X6";
-        int wordDigits = 6;
+
+        private string wordFormatString = "X6";
+        private int wordDigits = 6;
         public int WordDigits
         {
             get
@@ -67,8 +69,8 @@ namespace vsic
             }
         }
 
-        string addressFormatString = "X6";
-        int addressDigits = 6;
+        private string addressFormatString = "X6";
+        private int addressDigits = 6;
         public int AddressDigits
         {
             get
@@ -83,7 +85,7 @@ namespace vsic
             }
         }
 
-        int startAddress = 0;
+        private int startAddress = 0;
         /// <summary>
         /// Represents the address of the lowest byte that will be displayed.
         /// </summary>
@@ -103,7 +105,7 @@ namespace vsic
             }
         }
 
-        int cursorAddress = 0;
+        private int cursorAddress = 0;
         public int CursorAddress
         {
             get
@@ -140,9 +142,7 @@ namespace vsic
                     }
                 }
 
-
-                if (CursorAddressChanged != null)
-                    CursorAddressChanged.Invoke(this, null);
+                CursorAddressChanged?.Invoke(this, null);
             }
         }
 
@@ -303,24 +303,24 @@ namespace vsic
 
         #endregion
 
-        float textYoffset = 0; // the Y offset for both the address and the data.
-        float addressX = 4; // distance between left column and left of address.
+        private float textYoffset = 0; // the Y offset for both the address and the data.
+        private float addressX = 4; // distance between left column and left of address.
 
-        float addressDataGap = 5; // distance between right of address and left of data.
+        private float addressDataGap = 5; // distance between right of address and left of data.
 
-        float dataXendPadding = 4; // distance between right of data and right column.
-        float wordXgap = 4; // distance between each successive word of data.
+        private float dataXendPadding = 4; // distance between right of data and right column.
+        private float wordXgap = 4; // distance between each successive word of data.
 
-        float wordWidth;
-        float byteWidth;
-        float dataXoffset; // computed distance between left column and left of leftmost address.
-        int wordsPerLine; // computed number of words to display per line.
-        int bytesPerLine; // computed number of bytes that are on each line.
-        int lineCount; // computed number of lines to display.
-        float textLineSpacing; // computed distance between lines.
-        float lineHeight; // computed height of a line of text.
+        private float wordWidth;
+        private float byteWidth;
+        private float dataXoffset; // computed distance between left column and left of leftmost address.
+        private int wordsPerLine; // computed number of words to display per line.
+        private int bytesPerLine; // computed number of bytes that are on each line.
+        private int lineCount; // computed number of lines to display.
+        private float textLineSpacing; // computed distance between lines.
+        private float lineHeight; // computed height of a line of text.
 
-        bool doRecalc = true;
+        private bool doRecalc = true;
         #region Painting
         /// <summary>
         /// Recalculates the parameters needed to draw this HexDisplay.
@@ -388,7 +388,7 @@ namespace vsic
             }
 
             // Draw addresses and data.
-            int bytesPerLine = wordsPerLine * 3;
+            //int bytesPerLine = wordsPerLine * 3;
             int lineAddress = startAddress;
             var lineBytes = new byte[bytesPerLine];
             Data.Position = StartAddress; // Reset the stream to the beginning of the window.

@@ -1,4 +1,4 @@
-﻿namespace vsic
+﻿namespace Visual_SICXE
 {
     partial class ConsoleWindow
     {

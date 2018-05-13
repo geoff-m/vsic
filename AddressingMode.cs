@@ -1,7 +1,7 @@
 ﻿
-namespace vsic
+namespace Visual_SICXE
 {
-    enum AddressingMode
+    internal enum AddressingMode
     {
         NotSet = 0,      // Should not be used. Indicates an error.
         Immediate = 1,   // Operand is *immediate.

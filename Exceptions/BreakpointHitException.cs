@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace vsic
+﻿namespace Visual_SICXE.Exceptions
 {
     /// <summary>
     /// The exception thrown by a machine when it hits a breakpoint.
@@ -11,13 +9,13 @@ namespace vsic
         /// The address that triggered the breakpoint.
         /// </summary>
         public Word Address
-        { get; private set; }
+        { get; }
 
         /// <summary>
         /// A Boolean value indicating whether the event causing the breakpoint was an attempted write. If false, it was an attempted read.
         /// </summary>
         public bool Write
-        { get; private set; }
+        { get; }
 
         /// <summary>
         /// The exception thrown by a machine when it hits a breakpoint.

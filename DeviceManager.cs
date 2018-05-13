@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Diagnostics;
+using System.Windows.Forms;
+using Visual_SICXE.Devices;
 
 /*
  * "Name" of a device is an optional thing that's just used by VSIC for ease of use purposes--
@@ -25,7 +20,7 @@ using System.Diagnostics;
  * In general, other devices (like graphics) will most likely want to have dialogs to customize their creation.
  */
 
-namespace vsic
+namespace Visual_SICXE
 {
     public partial class DeviceManager : Form
     {
@@ -47,15 +42,35 @@ namespace vsic
         {
             string idtext = idTB.Text;
             int len = idtext.Length;
-            byte ret;
             if (len == 1 || len == 2)
             {
+                byte ret;
                 if (byte.TryParse(idtext, System.Globalization.NumberStyles.AllowHexSpecifier, null, out ret))
                     return ret;
                 else
                     return null;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Updates the list of devices from the machine.
+        /// </summary>
+        public void UpdateList()
+        {
+            devLV.Items.Clear();
+            foreach (var dev in Machine.Devices)
+            {
+                AddDeviceToList(dev);
+            }
+        }
+
+        private void AddDeviceToList(IODevice device)
+        {
+            devLV.Items.Add(new ListViewItem(new string[] { device.ID.ToString("X2"), device.Type, device.Name })
+            {
+                Tag = device
+            });
         }
 
         private void createButton_Click(object sender, EventArgs e)
@@ -76,21 +91,22 @@ namespace vsic
                 case "file":
                     // Need to get file path for this guy. Show special dialog for creating file device.
                     // Let's just use a built-in file browser dialog for now.
-                    var fileBrowserDlg = new OpenFileDialog();
-                    fileBrowserDlg.Title = $"Choose path for file device 0x{id.Value.ToString("X")} (\"{devname}\")";
-                    fileBrowserDlg.CheckFileExists = false;
-                    if (fileBrowserDlg.ShowDialog() == DialogResult.OK)
+                    var fileBrowserDlg = new OpenFileDialog
                     {
-                        var path = fileBrowserDlg.FileName;
-                        try
-                        {
-                            newDevice = new FileDevice(id.Value, path);
-                        }
-                        catch (System.IO.IOException ex)
-                        {
-                            MessageBox.Show(ex.Message, "Error creating file device", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
+                        Title = $"Choose path for file device 0x{id.Value:X} (\"{devname}\")",
+                        CheckFileExists = false
+                    };
+                    if (fileBrowserDlg.ShowDialog() != DialogResult.OK)
+                        return;
+                    string path = fileBrowserDlg.FileName;
+                    try
+                    {
+                        newDevice = new FileDevice(id.Value, path);
+                    }
+                    catch (System.IO.IOException ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error creating file device", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
                     break;
                 case "console":
@@ -101,7 +117,7 @@ namespace vsic
                 case "graphics":
                     // Not implemented yet.
                     return;
-                    break;
+                //break;
 
                 default:
                     MessageBox.Show($"\"{typeCB.Text}\" is not a valid device type.", "Create device", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -113,7 +129,7 @@ namespace vsic
                 newDevice.Name = nameTB.Text;
             try
             {
-                Machine.AddDevice(id.Value, newDevice);   
+                Machine.AddDevice(id.Value, newDevice);
             }
             catch (ArgumentException ex)
             {
@@ -121,10 +137,11 @@ namespace vsic
                 return;
             }
 
-            devLV.Items.Add(new ListViewItem(new string[] { newDevice.ID.ToString("X2"), newDevice.Type, newDevice.Name}));
+            AddDeviceToList(newDevice);
+            ((MainForm)Owner).UpdateIODevices(this, null);
         }
 
-        private void onIdTBKeyPress(object sender, KeyPressEventArgs e)
+        private void OnIDTBKeyPress(object sender, KeyPressEventArgs e)
         {
             char c = e.KeyChar;
             int cursorIndex = idTB.SelectionStart;
@@ -174,8 +191,20 @@ namespace vsic
 
         private void destroyButton_Click(object sender, EventArgs e)
         {
+            if (devLV.SelectedItems.Count == 0)
+                return;
             var selected = devLV.SelectedItems[0];
-            // todo: finish implementing me
+            var dev = (IODevice)selected.Tag;
+            bool success = Machine.RemoveDevice(dev.ID);
+            devLV.Items.Remove(selected);
+            if (!success)
+            {
+                // This should never happen, and even if it did, we'd probably just want to ignore it anyway.
+                Debug.WriteLine($"Machine failed to remove device {dev}!");
+            } else
+            {
+                ((MainForm)Owner).UpdateIODevices(this, null);
+            }
         }
     }
 }

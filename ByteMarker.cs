@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Drawing;
-using System.Diagnostics;
+﻿using System.Drawing;
 
-namespace vsic
+namespace Visual_SICXE
 {
     /// <summary>
     /// Represents a visual marker to be drawn on a particular byte.
@@ -13,8 +9,9 @@ namespace vsic
     {
         public float PenWidth
         { get; set; }
-        public int Address
-        { get; protected set; }
+
+        public readonly int Address;
+
         public Color Color
         { get; protected set; }
         public Pen Pen
@@ -23,6 +20,8 @@ namespace vsic
         { get; protected set; }
         public bool Hollow
         { get; protected set; }
+
+        public readonly long? ExpiresAfter;
 
         /// <summary>
         /// Describes a colored marker to be drawn around a byte at a certain address.
@@ -47,15 +46,12 @@ namespace vsic
             Hollow = hollow;
         }
 
-        public long? ExpiresAfter
-        { get; set; }
-
-        int id;
+        private readonly int id;
         public override int GetHashCode()
         {
             if (id != 0)
                 return id;
-            return Address ^ ExpiresAfter.GetHashCode() << 24; ;
+            return Address ^ ExpiresAfter.GetHashCode() << 24;
         }
 
         public override bool Equals(object obj)

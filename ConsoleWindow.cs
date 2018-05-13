@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Diagnostics;
+using Visual_SICXE.Devices;
+using Visual_SICXE.Extensions;
 
-namespace vsic
+namespace Visual_SICXE
 {
     public partial class ConsoleWindow : Form
     {
@@ -33,7 +28,8 @@ namespace vsic
                 var tab = new TabPage(tabName)
                 {
                     Tag = con,
-                    Name = tabName
+                    Name = tabName,
+                    Text = $"{con.ID:X2}\\{con.Name}"
                 };
                 var tb = new TextBox
                 {
@@ -42,8 +38,9 @@ namespace vsic
                     Dock = DockStyle.Fill,
                     Font = new Font("Courier New", 10f),
                     ReadOnly = true,
-                    ScrollBars = ScrollBars.Both,
+                    ScrollBars = ScrollBars.Both
                 };
+                tb.DoubleBuffer(true);
                 con.OutputByteWritten += UpdateDisplay;
                 tab.Controls.Add(tb);
                 tabControl.TabPages.Add(tab);
@@ -72,18 +69,31 @@ namespace vsic
             }
         }
 
+        private void UpdateDisplayWithLine(ConsoleDevice sender, string s)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateDisplayWithLine(sender, s)));
+                return;
+            }
+            var selectedTab = tabControl.SelectedTab;
+            if (selectedTab.Tag == sender)
+            {
+                selectedTab.Controls["consoleTB"].Text += s;
+            }
+        }
+
         private void OnInputTBKeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                var tab = tabControl.SelectedTab;
+                TabPage tab = tabControl.SelectedTab;
                 var con = (ConsoleDevice)tab.Tag;
-                var text = inputTB.Text + "\n";
+                string text = inputTB.Text + "\r\n";
                 inputTB.Clear();
-                foreach (char c in text)
-                {
-                    con.WriteInputByte((byte)c);
-                }
+                con.WriteInputLine(text);
+                UpdateDisplayWithLine(con, text);
+                e.Handled = true;
             }
         }
 
