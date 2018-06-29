@@ -7,7 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Visual_SICXE.Devices;
+using SICXE;
+using SICXE.Devices;
 using Visual_SICXE.Extensions;
 
 // We don't do IO in this class. This import is only for Path and IOException.
@@ -506,20 +507,6 @@ namespace Visual_SICXE
         {
             UnloadSession();
             CreateNewSession();
-        }
-
-        private void loadLstToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DialogResult res = openLSTdialog.ShowDialog();
-            if (res == DialogResult.OK)
-            {
-                sess.Machine.LoadLst(openLSTdialog.FileName);
-
-                // Remove all temporary markers.
-                hexDisplay.Boxes.Clear();
-
-                UpdateMachineDisplay();
-            }
         }
 
         private void onHexDisplayFocus(object sender, EventArgs e)

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Visual_SICXE
+namespace SICXE
 {
     internal interface ISerialize
     {

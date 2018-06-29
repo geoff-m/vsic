@@ -1,4 +1,4 @@
-﻿namespace Visual_SICXE.Exceptions
+﻿namespace SICXE.Exceptions
 {
     /// <summary>
     /// The exception thrown by a machine when it attempts to execute an illegal instruction.

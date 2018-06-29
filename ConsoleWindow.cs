@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Visual_SICXE.Devices;
+using SICXE.Devices;
 using Visual_SICXE.Extensions;
 
 namespace Visual_SICXE

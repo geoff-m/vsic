@@ -590,7 +590,6 @@
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
             this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
-            this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.loadLstToolStripMenuItem_Click);
             // 
             // loadMemoryToolStripMenuItem
             // 

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Visual_SICXE
+namespace SICXE
 {
     public class CancelToken
     {

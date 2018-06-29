@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Visual_SICXE.Devices
+namespace SICXE.Devices
 {
     public class ConsoleDevice : IODevice
     {

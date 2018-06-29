@@ -1,4 +1,4 @@
-﻿namespace Visual_SICXE
+﻿namespace SICXE
 {
     /// <summary>
     /// An implementation of ILogSink that does nothing.

@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace Visual_SICXE.Devices
+namespace SICXE.Devices
 {
     /// <summary>
     /// Represents a device that can be read from and written to by a SIC machine.
