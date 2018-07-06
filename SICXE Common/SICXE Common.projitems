@@ -28,4 +28,7 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Devices\graphics device.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Extensions\" />
+  </ItemGroup>
 </Project>

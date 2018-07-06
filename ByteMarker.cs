@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Numerics;
 
 namespace Visual_SICXE
 {
@@ -21,7 +22,7 @@ namespace Visual_SICXE
         public bool Hollow
         { get; protected set; }
 
-        public readonly long? ExpiresAfter;
+        public readonly BigInteger? ExpiresAfter;
 
         /// <summary>
         /// Describes a colored marker to be drawn around a byte at a certain address.
@@ -29,7 +30,7 @@ namespace Visual_SICXE
         /// <param name="address">The address to be marked.</param>
         /// <param name="color">The color that will be used for drawing.</param>
         /// <param name="uniqueId">User markers (from breakpoints) keyed on their addresses. However, special markers must be considered unique beyond address. For example, program counter needs to be considered unique at all times.</param>
-        public ByteMarker(int address, Color color, long? expiration, bool hollow = false, int uniqueId = 0, float penWidth = 0.2f)
+        public ByteMarker(int address, Color color, BigInteger? expiration, bool hollow = false, int uniqueId = 0, float penWidth = 0.2f)
         {
             Address = address;
             ExpiresAfter = expiration;

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using SICXE;
 using SICXE.Devices;
 using Visual_SICXE.Extensions;
+using System.Numerics;
 
 // We don't do IO in this class. This import is only for Path and IOException.
 
@@ -47,7 +48,7 @@ namespace Visual_SICXE
 
         private bool hexDisplayFocused;
 
-        private long instructionsAtRunStart;
+        private BigInteger instructionsAtRunStart;
 
         private Thread machineThread;
 
@@ -333,7 +334,7 @@ namespace Visual_SICXE
             int instr = (int)m.InstructionsExecuted - 1;
             int removed = hexDisplay.Boxes.RemoveWhere(bm =>
                 {
-                    long? expiry = bm.ExpiresAfter;
+                    BigInteger? expiry = bm.ExpiresAfter;
                     bool ret = expiry.HasValue && instr > expiry.Value;
                     //Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
                     return ret;
@@ -462,8 +463,8 @@ namespace Visual_SICXE
             Machine m = sess.Machine;
             m.FlushDevices();
             ResumeMachineDisplayUpdates();
-            long endInstr = m.InstructionsExecuted;
-            long diff = endInstr - instructionsAtRunStart;
+            BigInteger endInstr = m.InstructionsExecuted;
+            BigInteger diff = endInstr - instructionsAtRunStart;
             Log($"Run: {diff.ToString()} instructions executed.");
             HandleExecutionResult();
             UpdateMachineDisplay();
@@ -471,7 +472,7 @@ namespace Visual_SICXE
 
         private void HandleExecutionResult()
         {
-            switch (sess.Machine.LastResult)
+            switch (sess.Machine.LastRunResult)
             {
                 case Machine.RunResult.None:
                     toolStripStatusLabel.Text = "";

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using SICXE.Devices;
 using SICXE.Exceptions;
+using System.Numerics;
 //using SICXE.Extensions;
 //using System.IO.Compression; // Don't use; GZipStream sucks
 
@@ -175,10 +176,19 @@ namespace SICXE
         #endregion
 
         /// <summary>
+        /// Gets or sets whether this Machine should write to the log each time it executes an instruction. Default is false.
+        /// </summary>
+        public bool LogEachInstruction
+        { get; set; }
+
+        /// <summary>
         /// The number of instructions this Machine has ever executed.
         /// </summary>
-        public long InstructionsExecuted
-        { get; private set; }
+        public BigInteger InstructionsExecuted
+        {
+            get;
+            private set;
+        }
 
         #region Memory and registers
         public const int SIC_MEMORY_SIZE = 0x8000; // 32K
@@ -410,6 +420,7 @@ namespace SICXE
             PC = 0;
 
             Logger = new NullLog();
+            LogEachInstruction = false;
         }
 
         #region Devices
@@ -533,6 +544,12 @@ namespace SICXE
         #endregion
 
         #region Execution
+        public bool IsRunning
+        {
+            get;
+            private set;
+        }
+        public event EventHandler RunStateChanged;
 
         public enum RunResult
         {
@@ -555,7 +572,11 @@ namespace SICXE
             /// <summary>
             /// No execution was done because the program counter is at the end of memory.
             /// </summary>
-            EndOfMemory = 4
+            EndOfMemory = 4,
+            /// <summary>
+            /// A user-supplied cancellation token was signalled, causing execution to break.
+            /// </summary>
+            CancellationSignalled = 5
         }
 
         public RunResult Run(Word address)
@@ -566,23 +587,47 @@ namespace SICXE
 
         public RunResult Run()
         {
+            IsRunning = true;
             RunResult ret;
-            do
+            try
             {
-                ret = Step();
-            } while (ret == RunResult.None);
-            return ret;
+                do
+                {
+                    ret = Step();
+                } while (ret == RunResult.None);
+                return ret;
+            }
+            finally
+            {
+                IsRunning = false;
+                RunStateChanged?.Invoke(this, null);
+            }
         }
 
         public RunResult Run(CancelToken token)
         {
             RunResult ret;
-            do
+            bool cancelledYet;
+            IsRunning = true;
+            try
             {
-                ret = Step();
-            } while (ret == RunResult.None && !token.Cancelled);
-            token.Reset();
-            return ret;
+                do
+                {
+                    ret = Step();
+                    cancelledYet = token.Cancelled;
+                } while (ret == RunResult.None && !cancelledYet);
+                if (cancelledYet)
+                {
+                    token.Reset();
+                    return LastRunResult = RunResult.CancellationSignalled;
+                }
+                return ret;
+            }
+            finally
+            {
+                IsRunning = false;
+                RunStateChanged?.Invoke(this, null);
+            }
         }
 
         /// <summary>
@@ -593,8 +638,8 @@ namespace SICXE
         {
             if (PC >= memory.Length)
             {
-                LastResult = RunResult.EndOfMemory;
-                return LastResult;
+                LastRunResult = RunResult.EndOfMemory;
+                return LastRunResult;
             }
             int originalPC = PC; // Will be used to restore PC later if execution fails.
             try
@@ -622,7 +667,8 @@ namespace SICXE
                         case Mnemonic.ADD:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = regA + ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.ADDR: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -632,12 +678,14 @@ namespace SICXE
                             reg1value = GetRegister(r1);
                             reg2value = GetRegister(r2);
                             SetRegister(r2, reg1value + reg2value);
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.SUB:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = regA - ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.SUBR: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -647,12 +695,14 @@ namespace SICXE
                             reg1value = GetRegister(r1);
                             reg2value = GetRegister(r2);
                             SetRegister(r2, reg1value + reg2value);
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.MUL:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = (Word)(regA * ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.MULR: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -662,12 +712,14 @@ namespace SICXE
                             reg1value = GetRegister(r1);
                             reg2value = GetRegister(r2);
                             SetRegister(r2, (Word)(reg1value * reg2value));
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.DIV:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = (Word)(regA / ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.DIVR: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -677,18 +729,21 @@ namespace SICXE
                             reg1value = GetRegister(r1);
                             reg2value = GetRegister(r2);
                             SetRegister(r2, (Word)(reg1value / reg2value));
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         // Bitwise ---------------------------------------------------------
                         case Mnemonic.AND:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = (Word)(regA & ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.OR:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = (Word)(regA | ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.SHIFTL:
                             ThrowForRead((Word)PC, 1);
@@ -697,7 +752,8 @@ namespace SICXE
                             r2 = b2 & 0xf;
                             reg1value = GetRegister(r1);
                             SetRegister(r1, (Word)(reg1value << (r2 + 1)));
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.SHIFTR:
                             ThrowForRead((Word)PC, 1);
@@ -706,68 +762,81 @@ namespace SICXE
                             r2 = b2 & 0xf;
                             reg1value = GetRegister(r1);
                             SetRegister(r1, (Word)(reg1value >> (r2 + 1)));
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         // Registers -------------------------------------------------------
                         case Mnemonic.LDA:
                             addr = DecodeLongInstruction(b1, out mode);
                             regAwithevents = ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDB:
                             addr = DecodeLongInstruction(b1, out mode);
                             regBwithevents = ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDL:
                             addr = DecodeLongInstruction(b1, out mode);
                             regLwithevents = ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDS:
                             addr = DecodeLongInstruction(b1, out mode);
                             regSwithevents = ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDT:
                             addr = DecodeLongInstruction(b1, out mode);
                             regTwithevents = ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.LDX:
                             addr = DecodeLongInstruction(b1, out mode);
                             regXwithevents = ReadWord(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STA:
                             addr = DecodeLongInstruction(b1, out mode);
                             WriteWord(regAwithevents, addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STB:
                             addr = DecodeLongInstruction(b1, out mode);
                             WriteWord(regBwithevents, addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STL:
                             addr = DecodeLongInstruction(b1, out mode);
                             WriteWord(regLwithevents, addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STS:
                             addr = DecodeLongInstruction(b1, out mode);
                             WriteWord(regSwithevents, addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STT:
                             addr = DecodeLongInstruction(b1, out mode);
                             WriteWord(regTwithevents, addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STX:
                             addr = DecodeLongInstruction(b1, out mode);
                             WriteWord(regXwithevents, addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.COMPR: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -777,7 +846,8 @@ namespace SICXE
                             reg1value = GetRegister(r1);
                             reg2value = GetRegister(r2);
                             ConditionCode = CompareWords(reg1value, reg2value);
-                            Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {r1},{r2}.");
                             break;
                         case Mnemonic.RMO: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -805,14 +875,16 @@ namespace SICXE
                                     regXwithevents = GetRegister(r1);
                                     break;
                             }
-                            Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                             break;
                         case Mnemonic.CLEAR: // format 2
                             ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             SetRegister(r1, Word.Zero);
-                            Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
                             break;
                         case Mnemonic.TIXR: // format 2
                             ThrowForRead((Word)PC, 1);
@@ -820,7 +892,8 @@ namespace SICXE
                             r1 = (b2 & 0xf0) >> 4;
                             ++regX;
                             ConditionCode = CompareWords(regXwithevents, GetRegister(r1));
-                            Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {Enum.GetName(typeof(Register), r1)}.");
                             break;
                         case Mnemonic.LDCH:
                             // This instruciton operates on a single byte, not a word.
@@ -828,37 +901,43 @@ namespace SICXE
                             regA = (Word)(regA & ~0xff); // Zero out lowest byte.
                             addr = DecodeAddress(addr, mode);
                             regAwithevents = (Word)(regA | memory[addr] & 0xff); // Or in lowest byte from memory.
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.STCH:
                             // This instruction operates on a single byte, not a word.
                             addr = DecodeLongInstruction(b1, out mode);
                             memory[addr] = (byte)(regAwithevents & 0xff);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         // Flow control ---------------------------------------------------
                         case Mnemonic.J:
                             addr = DecodeLongInstruction(b1, out mode);
                             PC = DecodeAddress(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.JEQ:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.EqualTo)
                                 PC = DecodeAddress(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.JGT:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.GreaterThan)
                                 PC = DecodeAddress(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.JLT:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.LessThan)
                                 PC = DecodeAddress(addr, mode);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.JSUB:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -868,7 +947,8 @@ namespace SICXE
                             break;
                         case Mnemonic.RSUB:
                             PC = regLwithevents;
-                            Logger.Log($"Executed {op.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()}.");
                             break;
                         // I/O ----------------------------------------------------------
                         case Mnemonic.TD:
@@ -892,14 +972,16 @@ namespace SICXE
                                 CC = ConditionCode.EqualTo;
                                 Debug.WriteLine($"Device {deviceID:X2} does not exist!");
                             }
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.WD:
                             addr = DecodeLongInstruction(b1, out mode);
                             deviceID = memory[DecodeAddress(addr, mode)];
                             dev = devices[deviceID];
                             dev.WriteByte((byte)(regAwithevents & 0xff));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.RD:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -908,34 +990,37 @@ namespace SICXE
                             byte rb = dev.ReadByte();
                             Debug.WriteLine($"devices[{deviceID:X2}].ReadByte() returned {rb:X2}.");
                             regAwithevents = (Word)(regA & ~0xff | rb);
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         // Other --------------------------------------------------------
                         case Mnemonic.COMP:
                             addr = DecodeLongInstruction(b1, out mode);
                             ConditionCode = CompareWords(regAwithevents, ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                         case Mnemonic.TIX:
                             addr = DecodeLongInstruction(b1, out mode);
                             ++regX;
                             ConditionCode = CompareWords(regXwithevents, ReadWord(addr, mode));
-                            Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
                     }
                 }
                 else
                 {
                     PC = originalPC;
-                    LastResult = RunResult.IllegalInstruction;
+                    LastRunResult = RunResult.IllegalInstruction;
                     return RunResult.IllegalInstruction;
                 }
             }
             catch (IllegalInstructionException) // May be thrown by DecodeLongAddress.
             {
                 PC = originalPC;
-                LastResult = RunResult.IllegalInstruction;
-                return LastResult;
+                LastRunResult = RunResult.IllegalInstruction;
+                return LastRunResult;
             }
             catch (IndexOutOfRangeException ior)
             {
@@ -944,32 +1029,32 @@ namespace SICXE
                     Debug.WriteLine($"Unexpected: {ior.ToString()} at:\n{ior.StackTrace}");
                 }
                 PC = originalPC;
-                LastResult = RunResult.EndOfMemory;
-                return LastResult;
+                LastRunResult = RunResult.EndOfMemory;
+                return LastRunResult;
             }
             catch (BreakpointHitException bhe)
             {
                 LastBreakpointHitException = bhe; // Store it so clients can inspect it (i.e. get the address that caused it, which is not necessarily the PC).
                 PC = originalPC;
-                LastResult = RunResult.HitBreakpoint;
-                return LastResult;
+                LastRunResult = RunResult.HitBreakpoint;
+                return LastRunResult;
             }
             catch (SICXEException)
             {
                 PC = originalPC;
-                LastResult = RunResult.HitBreakpoint;
-                return LastResult;
+                LastRunResult = RunResult.HitBreakpoint;
+                return LastRunResult;
             }
 
             ++InstructionsExecuted;
-            LastResult = RunResult.None;
-            return LastResult; // if no error occurs.
+            LastRunResult = RunResult.None;
+            return LastRunResult; // if no error occurs.
         }
 
         /// <summary>
         /// Gets the result of the last time Run or Step was called.
         /// </summary>
-        public RunResult LastResult
+        public RunResult LastRunResult
         {
             get; private set;
         }
@@ -1237,6 +1322,16 @@ namespace SICXE
             RegisterChanged?.Invoke(reg, true);
         }
 
+        /// <summary>
+        /// Sets the value of a register.
+        /// </summary>
+        /// <param name="r">The register to be changed.</param>
+        /// <param name="value">The new value for the register.</param>
+        public void SetRegister(Register r, Word value)
+        {
+            SetRegister((int)r, value);
+        }
+
         private Word ReadWord(Word address, AddressingMode mode)
         {
             if (mode == AddressingMode.Immediate)
@@ -1401,13 +1496,19 @@ namespace SICXE
                     }
                 }
                 PC = entryPoint;
-#if !DEBUG
+
             }
             catch (Exception ex)
             {
+                if (ex is FileNotFoundException)
+                {
+                    Logger.LogError("Error loading OBJ file \"{0}\".\n The file was not found.", path);
+                    return;
+                }
+#if !DEBUG
                 if (ex is FormatException || ex is IOException)
                 {
-                    Logger.LogError("Error loading \"{0}\" at line {1}: {2}", path, lineCount, ex.Message);
+                    Logger.LogError("Error loading OBJ file \"{0}\" at line {1}: {2}", path, lineCount, ex.Message);
                     Logger.LogError("The machine's state may be corrupt after an unsuccessful load.");
                     return;
                 }
