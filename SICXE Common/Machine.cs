@@ -566,7 +566,7 @@ namespace SICXE
             /// </summary>
             IllegalInstruction = 2,
             /// <summary>
-            /// A hardware fault has occurred. Right now, this is unused.
+            /// A hardware fault has occurred. Nothing should cause this.
             /// </summary>
             HardwareFault = 3,
             /// <summary>
@@ -1042,7 +1042,7 @@ namespace SICXE
             catch (SICXEException)
             {
                 PC = originalPC;
-                LastRunResult = RunResult.HitBreakpoint;
+                LastRunResult = RunResult.HardwareFault;
                 return LastRunResult;
             }
 

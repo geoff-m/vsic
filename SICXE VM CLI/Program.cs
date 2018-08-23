@@ -41,7 +41,6 @@ namespace SICXE_VM_CLI
                 waitingForReadLine = false;
                 if (line == null)
                 {
-                    //Console.WriteLine("got null readline.");
                     if (sess.IsRunning)
                     {
                         sess.WaitForStop();
@@ -96,12 +95,24 @@ namespace SICXE_VM_CLI
         {
             if (sess.IsRunning)
             {
-                Console.WriteLine("Machine is already running! Ctrl+C to stop.");
+                Console.WriteLine("Machine is already running! Use 'stop' or Ctrl+C to stop.");
                 return true;
             }
 
             var tokens = line.Split(' ').ToArray();
-            if (tokens.Length == 1)
+            if (tokens.Length == 2)
+            {
+                if (ulong.TryParse(tokens[1], out ulong steps))
+                {
+                    var ct = new CancelToken();
+                    sess.BeginRun(steps, ct);
+                }
+                else
+                {
+                    Console.WriteLine($"Expected an integer between 0 and {ulong.MaxValue}.");
+                }
+            }
+            else if (tokens.Length == 1)
             {
                 var ct = new CancelToken();
                 sess.BeginRun(ct);
@@ -212,6 +223,7 @@ namespace SICXE_VM_CLI
             Console.WriteLine("save");
             Console.WriteLine("bp\t\tSet or remove breakpoints.");
             Console.WriteLine("run\t\tAdvance the machine state.");
+            Console.WriteLine("stop\t\tStop running.");
             Console.WriteLine("help\t\tDisplay this information. Also, any command can be added after it to show additional information.");
             Console.WriteLine("version\t\tShow the version of this program.");
             Console.WriteLine($"exit\t\tExit {_PROGRAM_NAME}.\n");

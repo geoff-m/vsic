@@ -7,16 +7,23 @@ using System.Threading.Tasks;
 using SICXE;
 using System.Diagnostics;
 using System.Numerics;
+using System.Timers;
 
 namespace SICXE_VM_CLI
 {
     class Session
     {
+        public Session()
+        {
+            timer = new System.Timers.Timer(SPEED_CHECK_INTERVAL_MILLISECONDS);
+            timer.Elapsed += UpdateSpeedStats;
+        }
+
         ILogSink logger = new ConsoleLogger();
         Machine m;
         BigInteger instructionsExecuted;
         Machine.RunResult result;
-        private void RunFinished(object sender, EventArgs e)
+        private void EndRun(object sender, EventArgs e)
         {
             result = m.LastRunResult;
             switch (result)
@@ -46,12 +53,12 @@ namespace SICXE_VM_CLI
         {
             if (m != null)
             {
-                m.RunStateChanged -= RunFinished;
+                m.RunStateChanged -= EndRun;
                 m.Logger = null;
             }
             m = new Machine();
             m.Logger = logger;
-            m.RunStateChanged += RunFinished;
+            m.RunStateChanged += EndRun;
             instructionsExecuted = 0;
         }
 
@@ -68,34 +75,93 @@ namespace SICXE_VM_CLI
         Thread runThread;
         readonly object runLocker = new Object();
         CancelToken ct;
-        public void BeginRun(CancelToken ct)
+        public void BeginRun(ulong steps, CancelToken ct)
         {
             if (IsRunning)
                 return;
-            Debug.WriteLine("BeginRun waiting for lock...");
             lock (runLocker)
             {
-                Debug.WriteLine("BeginRun got lock.");
                 if (runThread != null)
                 {
                     if (runThread.IsAlive)
                         runThread.Join();
                 }
                 this.ct = ct;
-                runThread = new Thread(() => m.Run(ct));
+                runThread = new Thread(() => {
+                    timer.Start();
+                    Machine.RunResult res = Machine.RunResult.None;
+                    for (; steps > 0 && !ct.Cancelled; --steps)
+                    {
+                        res = m.Step();
+                        if (res != Machine.RunResult.None)
+                            break;
+                    }
+                    timer.Stop();
+                    EndRun(this, null);
+                });
                 runThread.Start();
             }
-            Debug.WriteLine("BeginRun release lock.");
         }
+
+        public void BeginRun(CancelToken ct)
+        {
+            if (IsRunning)
+                return;
+            lock (runLocker)
+            {
+                if (runThread != null)
+                {
+                    if (runThread.IsAlive)
+                        runThread.Join();
+                }
+                this.ct = ct;
+                runThread = new Thread(() => {
+                    timer.Start();
+                    m.Run(ct);
+                    timer.Stop();
+                });
+                runThread.Start();
+            }
+        }
+
+        System.Timers.Timer timer;
+        BigInteger timeStartInstructions = BigInteger.Zero;
+        int blankOut = 0;
+        const double SPEED_CHECK_INTERVAL_SECONDS = 1.5;
+        const int SPEED_CHECK_INTERVAL_MILLISECONDS = (int)(1000 * SPEED_CHECK_INTERVAL_SECONDS);
+        bool anyData = false;
+        private void UpdateSpeedStats(object sender, ElapsedEventArgs args)
+        {
+            BigInteger now = m.InstructionsExecuted;
+            if (anyData)
+            {
+                ConsoleHelper.PushCursorPosition();
+
+                BigInteger diff = now - timeStartInstructions;
+                ulong rate = (ulong)((double)diff / SPEED_CHECK_INTERVAL_SECONDS);
+
+                string toPrint = rate.ToString("N0");
+                int len = toPrint.Length;
+                if (len > blankOut)
+                    blankOut = len;
+                ConsoleHelper.WriteRightAligned($"{toPrint.PadLeft(blankOut, ' ')} OP/S");
+
+                ConsoleHelper.PopCursorPosition();
+            }
+            else
+                anyData = true;
+            timeStartInstructions = now;
+        }
+
 
         public bool IsRunning
         {
             get
             {
-                Debug.WriteLine("IsRunning waiting for lock...");
+                //Debug.WriteLine("IsRunning waiting for lock...");
                 lock (runLocker)
                 {
-                    Debug.WriteLine("IsRunning got lock.");
+                    //Debug.WriteLine("IsRunning got lock.");
                     return runThread != null && runThread.IsAlive;
                 }
             }
@@ -105,10 +171,10 @@ namespace SICXE_VM_CLI
         {
             if (!IsRunning)
                 return;
-            Debug.WriteLine("ControlC waiting for lock...");
+            //Debug.WriteLine("ControlC waiting for lock...");
             lock (runLocker)
             {
-                Debug.WriteLine("ControlC got lock.");
+                //Debug.WriteLine("ControlC got lock.");
                 if (ct != null)
                 {
                     args.Cancel = true;
