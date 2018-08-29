@@ -31,13 +31,23 @@ namespace Visual_SICXE
             devman = new DeviceManager {Owner = this};
 
             Load += FormLoaded;
+            hexDisplay.SelectionChanged += UpdateSelectedByteCount;
+        }
+
+        private void UpdateSelectedByteCount(object sender, HexDisplay.SelectionChangedEventArgs args)
+        {
+            int selectedByteCount = args.Data.ByteCount;
+            if (selectedByteCount == 1)
+                selectedBytesLabel.Text = $"1 byte selected";
+            else
+                selectedBytesLabel.Text = $"{selectedByteCount} bytes selected";
         }
 
         private const int PC_MARKER_ID = -1;
         private readonly Color MEMORY_READ_COLOR = Color.FromArgb(64, Color.Red);
 
         private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
-        private readonly Color PC_MARKER_COLOR = Color.Yellow;
+        private readonly Color PC_MARKER_COLOR = Color.FromArgb(200, Color.Yellow);
         private readonly Color REGISTER_READ_COLOR = Color.Pink;
 
         private readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
