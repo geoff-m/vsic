@@ -9,7 +9,7 @@ namespace Visual_SICXE
     internal class Session
     {
         public Machine Machine
-        { get; private set; }
+        { get; }
 
         /// <summary>
         /// Creates a new, empty session.
@@ -17,9 +17,7 @@ namespace Visual_SICXE
         public Session()
         {
             Machine = new Machine();
-            //Machine.MemoryRainbowTest();
             Logger = new NullLog();
-
         }
 
         private ILogSink logger;
@@ -43,8 +41,8 @@ namespace Visual_SICXE
             FileStream read = null;
             try
             {
-                // Sanity check.
                 read = new FileStream(path, FileMode.Open);
+                // Sanity check.
                 long fileSize = read.Length;
                 int destinationWindowSize = Machine.MemorySize - (int)address;
                 if (destinationWindowSize < fileSize)
@@ -74,6 +72,35 @@ namespace Visual_SICXE
                 read?.Dispose();
             }
             return 0; // Reachable only on error.
+        }
+
+        /// <summary>
+        /// Writes a segment of the machine's memory to a file.
+        /// </summary>
+        /// <param name="path">The path of the file to write. If the file exists, it will be overwritten.</param>
+        /// <param name="startAddress">The address of the first byte to be written.</param>
+        /// <param name="length">The number of bytes to write. This parameter, plus the start address, must not exceed the total number of bytes in the memory space.</param>
+        public void SaveMemory(string path, Word startAddress, int length)
+        {
+            FileStream writer = null;
+            try
+            {
+                writer = new FileStream(path, FileMode.OpenOrCreate);
+                lock (Machine)
+                {
+                    Machine.Memory.Seek(startAddress + 1, SeekOrigin.Begin);
+                    Machine.Memory.CopyTo(writer);
+                }
+                writer.SetLength(length);
+            }
+            catch (IOException ex)
+            {
+                Logger.LogError("Error writing file \"{0}\": {1}", path, ex.Message);
+            }
+            finally
+            {
+                writer?.Dispose();
+            }
         }
 
         public void SaveToFile(string path)

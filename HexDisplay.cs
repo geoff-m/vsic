@@ -698,13 +698,13 @@ namespace Visual_SICXE
         bool dragging = false;
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            MouseEventArgs me = e as MouseEventArgs;
-            if (me == null || me.Button != MouseButtons.Left)
+            if (e.Button != MouseButtons.Left)
                 return;
 
-            MoveCursorToPoint(me.Location);
+            MoveCursorToPoint(e.Location);
             dragging = true;
             selectionStartAddress = CursorAddress;
+            selectionStopAddress = CursorAddress;
         }
 
         protected override void OnMouseUp(MouseEventArgs e)

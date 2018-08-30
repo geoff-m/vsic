@@ -1531,6 +1531,8 @@ namespace SICXE
             {
                 WriteByte((byte)i, i);
             }
+
+            MemoryChanged?.Invoke(Word.Zero, MemorySize, true);
         }
 
         private IEnumerable<string> Pair(string str)

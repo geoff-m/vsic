@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new HexDisplay();
+            this.hexDisplay = new Visual_SICXE.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -98,6 +98,7 @@
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
             this.openSessionDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSessionDialog = new System.Windows.Forms.SaveFileDialog();
+            this.saveMemoryDialog = new System.Windows.Forms.SaveFileDialog();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
@@ -131,6 +132,7 @@
             this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.hexDisplay.CursorAddress = 0;
             this.hexDisplay.Data = null;
             this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -141,7 +143,7 @@
             this.hexDisplay.StartAddress = 0;
             this.hexDisplay.TabIndex = 1;
             this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = HexDisplay.Encoding.Raw;
+            this.hexDisplay.WordEncoding = Visual_SICXE.HexDisplay.Encoding.Raw;
             this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
             this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
             this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
@@ -580,7 +582,7 @@
             // loadOBJToolStripMenuItem
             // 
             this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadOBJToolStripMenuItem.Text = "Load Obj...";
             this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
@@ -588,27 +590,27 @@
             // 
             this.loadLstToolStripMenuItem.Enabled = false;
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
-            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
-            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
             this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.loadMemoryToolStripMenuItem_Click);
             // 
             // saveMemoryToolStripMenuItem
             // 
-            this.saveMemoryToolStripMenuItem.Enabled = false;
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveMemoryToolStripMenuItem.Text = "Save All Memory...";
+            this.saveMemoryToolStripMenuItem.Click += new System.EventHandler(this.saveMemoryToolStripMenuItem_Click);
             // 
             // manageDevicesToolStripMenuItem
             // 
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
             this.manageDevicesToolStripMenuItem.Click += new System.EventHandler(this.manageDevicesToolStripMenuItem_Click);
             // 
@@ -815,6 +817,10 @@
             this.saveSessionDialog.DefaultExt = "sav";
             this.saveSessionDialog.Filter = "Saved sessions|*.sav|All files|*.*";
             // 
+            // saveMemoryDialog
+            // 
+            this.saveMemoryDialog.SupportMultiDottedExtensions = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -928,6 +934,7 @@
         private System.Windows.Forms.ListBox devLB;
         private System.Windows.Forms.OpenFileDialog openSessionDialog;
         private System.Windows.Forms.SaveFileDialog saveSessionDialog;
+        private System.Windows.Forms.SaveFileDialog saveMemoryDialog;
     }
 }
 

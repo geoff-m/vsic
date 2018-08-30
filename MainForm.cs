@@ -12,7 +12,7 @@ using SICXE.Devices;
 using Visual_SICXE.Extensions;
 using System.Numerics;
 
-// We don't do IO in this class. This import is only for Path and IOException.
+// We don't do IO in this class. This import is only for Path and exceptions.
 
 namespace Visual_SICXE
 {
@@ -28,7 +28,7 @@ namespace Visual_SICXE
             conWindow = new ConsoleWindow();
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
 
-            devman = new DeviceManager {Owner = this};
+            devman = new DeviceManager { Owner = this };
 
             Load += FormLoaded;
             hexDisplay.SelectionChanged += UpdateSelectedByteCount;
@@ -38,9 +38,19 @@ namespace Visual_SICXE
         {
             int selectedByteCount = args.Data.ByteCount;
             if (selectedByteCount == 1)
-                selectedBytesLabel.Text = $"1 byte selected";
+                selectedBytesLabel.Text = "1 byte selected";
             else
                 selectedBytesLabel.Text = $"{selectedByteCount} bytes selected";
+
+            if (selectedByteCount == 0)
+            {
+                saveMemoryToolStripMenuItem.Text = "Save All Memory...";
+            }
+            else
+            {
+                saveMemoryToolStripMenuItem.Text = "Save Selected Memory...";
+            }
+
         }
 
         private const int PC_MARKER_ID = -1;
@@ -72,7 +82,7 @@ namespace Visual_SICXE
 
         private void FormLoaded(object sender, EventArgs e)
         {
-            foreach (TextBox tb in new[] {regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB}) tb.Tag = tb.Text;
+            foreach (TextBox tb in new[] { regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB }) tb.Tag = tb.Text;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -89,6 +99,11 @@ namespace Visual_SICXE
                 case Keys.F9:
                     setBkptButton_Click(this, null);
                     return true;
+#if DEBUG
+                case Keys.F12:
+                    sess.Machine.MemoryRainbowTest();
+                    return true;
+#endif
             }
 
             // Hexdisplay navigation.
@@ -996,5 +1011,23 @@ namespace Visual_SICXE
         }
 
         #endregion
+
+        private void saveMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult res = saveMemoryDialog.ShowDialog();
+            if (res != DialogResult.OK)
+                return;
+            string path = saveMemoryDialog.FileName;
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            int selectedBytes = hexDisplay.SelectedByteCount;
+            if (selectedBytes > 0)
+                sess.SaveMemory(path, (Word)hexDisplay.CursorAddress, selectedBytes);
+            else
+                sess.SaveMemory(path, Word.Zero, sess.Machine.MemorySize);
+
+            Log("Saved session to {0}.", path);
+        }
     }
 }
