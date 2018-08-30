@@ -576,7 +576,11 @@ namespace SICXE
             /// <summary>
             /// A user-supplied cancellation token was signalled, causing execution to break.
             /// </summary>
-            CancellationSignalled = 5
+            CancellationSignalled = 5,
+            /// <summary>
+            /// An address referenced in an instruction is out of bounds.
+            /// </summary>
+            AddressOutOfBounds = 6
         }
 
         public RunResult Run(Word address)
@@ -1024,12 +1028,16 @@ namespace SICXE
             }
             catch (IndexOutOfRangeException ior)
             {
-                if (PC < memory.Length - 4 || true)
+                if (PC < memory.Length - 4)
                 {
                     Debug.WriteLine($"Unexpected: {ior.ToString()} at:\n{ior.StackTrace}");
                 }
+                else
+                {
+                    LastRunResult = RunResult.EndOfMemory;
+                }
                 PC = originalPC;
-                LastRunResult = RunResult.EndOfMemory;
+                LastRunResult = RunResult.AddressOutOfBounds;
                 return LastRunResult;
             }
             catch (BreakpointHitException bhe)

@@ -516,6 +516,9 @@ namespace Visual_SICXE
                 case Machine.RunResult.EndOfMemory:
                     LogError("The program counter has hit the end of memory.");
                     break;
+                case Machine.RunResult.AddressOutOfBounds:
+                    LogError("An attempt was made to access an out-of-bounds address.");
+                    break;
             }
         }
 
@@ -596,10 +599,10 @@ namespace Visual_SICXE
 
                     // Commit changes to machine.
                     Word newValue = (Word)int.Parse(newText, NumberStyles.HexNumber);
-                    int maxmem = sess.Machine.MemorySize;
+                    int maxAddr = sess.Machine.MemorySize - 1;
                     if (ReferenceEquals(tb, gotoTB))
                     {
-                        if (newValue < maxmem)
+                        if (newValue <= maxAddr)
                         {
                             tb.BackColor = SystemColors.Window;
                             hexDisplay.CursorAddress = newValue;
@@ -609,8 +612,7 @@ namespace Visual_SICXE
                         else
                         {
                             tb.BackColor = Color.LightPink;
-                            LogError(
-                                $"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem:X2}).");
+                            LogError($"Address {newValue:X6} is out of bounds (maximum {maxAddr:X6}).");
                         }
 
                         break;
@@ -618,7 +620,7 @@ namespace Visual_SICXE
 
                     if (ReferenceEquals(tb, pcTB))
                     {
-                        if (newValue < maxmem)
+                        if (newValue <= maxAddr)
                         {
                             tb.BackColor = SystemColors.Window;
                             sess.Machine.ProgramCounter = newValue;
@@ -628,8 +630,7 @@ namespace Visual_SICXE
                         else
                         {
                             tb.BackColor = Color.LightPink;
-                            LogError(
-                                $"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem:X2}).");
+                            LogError($"Address {newValue:X6} is out of bounds (maximum {maxAddr:X6}).");
                         }
 
                         break;
