@@ -72,9 +72,9 @@ namespace SICXE_VM_CLI
             m.LoadObj(path);
         }
 
-        Thread runThread;
-        readonly object runLocker = new Object();
-        CancelToken ct;
+        private Thread runThread;
+        readonly object runLocker = new object();
+        private CancelToken ct;
         public void BeginRun(ulong steps, CancelToken ct)
         {
             if (IsRunning)
@@ -152,7 +152,6 @@ namespace SICXE_VM_CLI
                 anyData = true;
             timeStartInstructions = now;
         }
-
 
         public bool IsRunning
         {

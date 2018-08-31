@@ -6,11 +6,10 @@ namespace SICXE_VM_CLI
 {
     public static class ConsoleHelper
     {
-        static Stack<CursorPosition> _cursorPositions = new Stack<CursorPosition>();
+        static readonly Stack<CursorPosition> _cursorPositions = new Stack<CursorPosition>();
         public static void PushCursorPosition()
         {
-            _cursorPositions.Push(new CursorPosition(Console.CursorTop,
-                Console.CursorLeft));
+            _cursorPositions.Push(new CursorPosition(Console.CursorTop, Console.CursorLeft));
         }
 
         public static void PopCursorPosition()

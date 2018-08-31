@@ -38,7 +38,6 @@
             this.Name = "HexDisplay";
             this.Size = new System.Drawing.Size(250, 250);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.OnPaint);
-            this.Resize += new System.EventHandler(this.OnResize);
             this.ResumeLayout(false);
 
         }

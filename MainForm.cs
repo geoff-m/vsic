@@ -75,7 +75,6 @@ namespace Visual_SICXE
         private ByteMarker pcMarker;
         private readonly CancelToken runCancelToken = new CancelToken();
 
-        private bool running;
         private Session sess;
 
         private readonly WatchForm watchForm = new WatchForm();
@@ -154,10 +153,14 @@ namespace Visual_SICXE
 
         private void CreateNewSession()
         {
+            Machine oldMachine = sess?.Machine;
+            if (oldMachine != null)
+                oldMachine.RunStateChanged -= OnMachineRunStateChanged;
             sess = new Session
             {
                 Logger = this
             };
+            sess.Machine.RunStateChanged += OnMachineRunStateChanged;
             devman.Machine = sess.Machine;
 
             Log("Created new SIC/XE machine.");
@@ -282,6 +285,7 @@ namespace Visual_SICXE
             regXTB.SuspendDrawing();
             regLTB.SuspendDrawing();
             regBTB.SuspendDrawing();
+            regSTB.SuspendDrawing();
             regTTB.SuspendDrawing();
             regFTB.SuspendDrawing();
             pcTB.SuspendDrawing();
@@ -302,6 +306,7 @@ namespace Visual_SICXE
             regXTB.ResumeDrawing();
             regLTB.ResumeDrawing();
             regBTB.ResumeDrawing();
+            regSTB.ResumeDrawing();
             regTTB.ResumeDrawing();
             regFTB.ResumeDrawing();
             pcTB.ResumeDrawing();
@@ -387,7 +392,7 @@ namespace Visual_SICXE
             memGB.Width = regGB.Location.X - memGB.Location.X - 10;
         }
 
-        private void changedEncodingSelection(object sender, EventArgs e)
+        private void OnChangedEncodingSelection(object sender, EventArgs e)
         {
             do // Not a loop.
             {
@@ -445,27 +450,42 @@ namespace Visual_SICXE
 
         private void runButton_Click(object sender, EventArgs e)
         {
-            if (running)
+            if (sess.Machine.IsRunning)
             {
                 // stop machine thread without using Thread.Abort.
                 // we should never Abort machine execution thread because it may corrupt the VM.
                 runCancelToken.Cancel();
-                running = false;
-                runButton.Text = "Start (F5)";
-                EndMachineRun();
             }
             else
             {
-                running = true;
-                runButton.Text = "Stop (F5)";
                 runCancelToken.Reset();
                 StartMachineRun();
             }
         }
 
+        private void OnMachineRunStateChanged(object sender, EventArgs e)
+        {
+            if (sender is Machine m)
+            {
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => OnMachineRunStateChanged(sender, e)));
+                    return;
+                }
+                if (m.IsRunning)
+                {
+                    runButton.Text = "Stop (F5)";
+                }
+                else
+                {
+                    HandleEndMachineRun();
+                    runButton.Text = "Run (F5)";
+                }
+            }
+        }
+
         private void StartMachineRun()
         {
-            Debug.Assert(running);
             if (machineThread != null && machineThread.IsAlive)
             {
                 // this should never be reached.
@@ -475,15 +495,11 @@ namespace Visual_SICXE
 
             instructionsAtRunStart = sess.Machine.InstructionsExecuted;
             SuspendMachineDisplayUpdates();
-            machineThread = new Thread(() =>
-            {
-                sess.Machine.Run(runCancelToken);
-                EndMachineRun();
-            });
+            machineThread = new Thread(() => sess.Machine.Run(runCancelToken));
             machineThread.Start();
         }
 
-        private void EndMachineRun()
+        private void HandleEndMachineRun()
         {
             Machine m = sess.Machine;
             m.FlushDevices();
@@ -689,25 +705,26 @@ namespace Visual_SICXE
         private bool OnMemoryChanged(Word addr, int count, bool written)
         {
             int stop = addr + count;
-            if (written)
-                for (int i = addr; i < stop; ++i)
-                {
-                    ByteMarker newBox = new ByteMarker(i,
-                        MEMORY_WRITTEN_COLOR,
-                        sess.Machine.InstructionsExecuted);
+            if (!sess.Machine.IsRunning) // Don't add boxes if machine is running. (They will be added only when stepping).
+            {
+                if (written)
+                    for (int i = addr; i < stop; ++i)
+                    {
+                        ByteMarker newBox = new ByteMarker(i,
+                            MEMORY_WRITTEN_COLOR,
+                            sess.Machine.InstructionsExecuted);
 
-                    hexDisplay.Boxes.Add(newBox);
-                }
-            else
-                for (int i = addr; i < stop; ++i)
-                {
-                    ByteMarker newBox = new ByteMarker(i,
-                        MEMORY_READ_COLOR,
-                        sess.Machine.InstructionsExecuted);
-                    bool added;
-                    added = hexDisplay.Boxes.Add(newBox);
-                    //Debug.WriteLine($"Box was added? {added}");
-                }
+                        hexDisplay.Boxes.Add(newBox);
+                    }
+                else
+                    for (int i = addr; i < stop; ++i)
+                    {
+                        ByteMarker newBox = new ByteMarker(i,
+                            MEMORY_READ_COLOR,
+                            sess.Machine.InstructionsExecuted);
+                        hexDisplay.Boxes.Add(newBox);
+                    }
+            }
 
             if (breakpointsEnabled)
                 foreach (Breakpoint b in breakpoints)

@@ -36,20 +36,7 @@ namespace Visual_SICXE
         public Stream Data
         { get; set; }
 
-        private Encoding enc = Encoding.Raw;
-        public Encoding WordEncoding
-        {
-            get
-            {
-                return enc;
-            }
-            set
-            {
-                enc = value;
-                // I used to have Invalidate() here, but we'll leave that to the caller.
-                // So for now (2-9-2018), 'enc' is pointless and there's no reason this isn't an auto property.
-            }
-        }
+        public Encoding WordEncoding { get; set; } = Encoding.Raw;
 
         #region Format properties
         private int WordBytes => WordDigits / 2;
@@ -425,7 +412,7 @@ namespace Visual_SICXE
                 // Draw data, depending on selected encoding.
                 int bytesRead = Data.Read(lineBytes, 0, bytesPerLine);
 
-                switch (enc)
+                switch (WordEncoding)
                 {
                     case Encoding.Raw:
                         var lineWords = Word.FromArray(lineBytes, 0, bytesRead);
@@ -715,7 +702,7 @@ namespace Visual_SICXE
             dragging = false;
         }
 
-        private void OnResize(object sender, EventArgs e)
+        protected override void OnResize(EventArgs e)
         {
             doRecalc = true;
             Invalidate();

@@ -544,10 +544,19 @@ namespace SICXE
         #endregion
 
         #region Execution
+
+        private bool running;
         public bool IsRunning
         {
-            get;
-            private set;
+            get { return running;}
+            private set
+            {
+                if (running != value)
+                {
+                    running = value;
+                    RunStateChanged?.Invoke(this, null);
+                }
+            }
         }
         public event EventHandler RunStateChanged;
 
@@ -604,7 +613,6 @@ namespace SICXE
             finally
             {
                 IsRunning = false;
-                RunStateChanged?.Invoke(this, null);
             }
         }
 
@@ -630,7 +638,6 @@ namespace SICXE
             finally
             {
                 IsRunning = false;
-                RunStateChanged?.Invoke(this, null);
             }
         }
 
@@ -1026,18 +1033,17 @@ namespace SICXE
                 LastRunResult = RunResult.IllegalInstruction;
                 return LastRunResult;
             }
-            catch (IndexOutOfRangeException ior)
+            catch (IndexOutOfRangeException)
             {
-                if (PC < memory.Length - 4)
-                {
-                    Debug.WriteLine($"Unexpected: {ior.ToString()} at:\n{ior.StackTrace}");
-                }
-                else
+                if (PC >= memory.Length - 4)
                 {
                     LastRunResult = RunResult.EndOfMemory;
                 }
+                else
+                {
+                    LastRunResult = RunResult.AddressOutOfBounds;
+                }
                 PC = originalPC;
-                LastRunResult = RunResult.AddressOutOfBounds;
                 return LastRunResult;
             }
             catch (BreakpointHitException bhe)
@@ -1543,7 +1549,7 @@ namespace SICXE
             MemoryChanged?.Invoke(Word.Zero, MemorySize, true);
         }
 
-        private IEnumerable<string> Pair(string str)
+        private static IEnumerable<string> Pair(string str)
         {
             for (int i = 0; i < str.Length; i += 2)
                 yield return str.Substring(i, 2);
