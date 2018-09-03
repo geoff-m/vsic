@@ -367,7 +367,7 @@
             this.runButton.TabIndex = 0;
             this.runButton.Text = "Run (F5)";
             this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.runButton_Click);
+            this.runButton.Click += new System.EventHandler(this.OnClickRunButton);
             // 
             // stepButton
             // 
@@ -377,7 +377,7 @@
             this.stepButton.TabIndex = 10;
             this.stepButton.Text = "Step (F10)";
             this.stepButton.UseVisualStyleBackColor = true;
-            this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
+            this.stepButton.Click += new System.EventHandler(this.OnClickStepButton);
             // 
             // pcTB
             // 
@@ -486,7 +486,7 @@
             this.bpButton.TabIndex = 9;
             this.bpButton.Text = "Set (F9)";
             this.bpButton.UseVisualStyleBackColor = true;
-            this.bpButton.Click += new System.EventHandler(this.setBkptButton_Click);
+            this.bpButton.Click += new System.EventHandler(this.OnClickSetBreakpointButton);
             // 
             // bpGB
             // 
@@ -595,7 +595,7 @@
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
             this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
-            this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.loadMemoryToolStripMenuItem_Click);
+            this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.OnClickLoadMemoryToolStripMenuItem);
             // 
             // saveMemoryToolStripMenuItem
             // 

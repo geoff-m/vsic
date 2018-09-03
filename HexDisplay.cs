@@ -29,6 +29,7 @@ namespace Visual_SICXE
             DoubleBuffered = true;
             Enter += OnFocus;
             Leave += OnBlur;
+            EnabledChanged += (sender, args) => Invalidate();
         }
 
         public HashSet<ByteMarker> Boxes = new HashSet<ByteMarker>();
@@ -356,10 +357,8 @@ namespace Visual_SICXE
             else if (!Data.CanRead)
             {
                 PaintCenteredText(g, "Cannot read data");
-                Enabled = false;
                 return;
             }
-            Enabled = true;
 
             if (doRecalc)
                 UpdateMeasurements(g);
@@ -454,6 +453,12 @@ namespace Visual_SICXE
             }
             // Draw cursor.
             DrawCursor(g);
+
+            if (!Enabled)
+            {
+                g.FillRectangle(new SolidBrush(Color.FromArgb(128, SystemColors.Control)), g.VisibleClipBounds);
+                PaintCenteredText(g, "Running...", 18);
+            }
         }
 
         private bool DrawHighlight(Graphics g, int startAddress, int stopAddress, Brush b)
@@ -590,18 +595,18 @@ namespace Visual_SICXE
             if (Focused)
             {
                 g.FillRectangle(Brushes.Black,
-                boxX,
-                textYoffset + line * (textLineSpacing + lineHeight),
-                3,
-                lineHeight);
+                                boxX,
+                                textYoffset + line * (textLineSpacing + lineHeight),
+                                3,
+                                lineHeight);
             }
             else
             {
                 g.DrawRectangle(Pens.Black,
-                boxX,
-                textYoffset + line * (textLineSpacing + lineHeight),
-                3,
-                lineHeight);
+                                boxX,
+                                textYoffset + line * (textLineSpacing + lineHeight),
+                                3,
+                                lineHeight);
             }
 
             return true;
@@ -612,6 +617,14 @@ namespace Visual_SICXE
             var bounds = g.VisibleClipBounds;
             var textsz = g.MeasureString(text, Font);
             g.DrawString(text, Font, Brushes.Black, (bounds.Width - textsz.Width) / 2, (bounds.Height - textsz.Height) / 2);
+        }
+
+        private void PaintCenteredText(Graphics g, string text, float emSize)
+        {
+            var font = new Font(Font.FontFamily, emSize);
+            var bounds = g.VisibleClipBounds;
+            var textsz = g.MeasureString(text, font);
+            g.DrawString(text, font, Brushes.Black, (bounds.Width - textsz.Width) / 2, (bounds.Height - textsz.Height) / 2);
         }
 
         #endregion

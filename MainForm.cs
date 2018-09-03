@@ -90,13 +90,13 @@ namespace Visual_SICXE
             switch (keyData)
             {
                 case Keys.F5:
-                    runButton_Click(this, null);
+                    OnClickRunButton(this, null);
                     return true;
                 case Keys.F10:
-                    stepButton_Click(this, null);
+                    OnClickStepButton(this, null);
                     return true;
                 case Keys.F9:
-                    setBkptButton_Click(this, null);
+                    OnClickSetBreakpointButton(this, null);
                     return true;
 #if DEBUG
                 case Keys.F12:
@@ -185,7 +185,7 @@ namespace Visual_SICXE
         }
 
         // Load the binary file into memory at the cursor.
-        private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnClickLoadMemoryToolStripMenuItem(object sender, EventArgs e)
         {
             DialogResult res = openMemoryDialog.ShowDialog();
             if (res == DialogResult.OK)
@@ -290,7 +290,7 @@ namespace Visual_SICXE
             regFTB.SuspendDrawing();
             pcTB.SuspendDrawing();
             ccCB.SuspendDrawing();
-            hexDisplay.SuspendDrawing();
+            //hexDisplay.SuspendDrawing();
         }
 
         private void ResumeMachineDisplayUpdates()
@@ -311,7 +311,7 @@ namespace Visual_SICXE
             regFTB.ResumeDrawing();
             pcTB.ResumeDrawing();
             ccCB.ResumeDrawing();
-            hexDisplay.ResumeDrawing();
+            //hexDisplay.ResumeDrawing();
 
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
@@ -439,7 +439,7 @@ namespace Visual_SICXE
             }
         }
 
-        private void stepButton_Click(object sender, EventArgs e)
+        private void OnClickStepButton(object sender, EventArgs e)
         {
             ResetTextboxColors();
             sess.Machine.Step();
@@ -448,7 +448,7 @@ namespace Visual_SICXE
             UpdateMachineDisplay();
         }
 
-        private void runButton_Click(object sender, EventArgs e)
+        private void OnClickRunButton(object sender, EventArgs e)
         {
             if (sess.Machine.IsRunning)
             {
@@ -474,12 +474,25 @@ namespace Visual_SICXE
                 }
                 if (m.IsRunning)
                 {
+                    hexDisplay.Enabled = false;
+                    stepButton.Enabled = false;
                     runButton.Text = "Stop (F5)";
+                    Text = "Visual SICXE - Running";
+                    toolStripStatusLabel.Text = "Running";
                 }
                 else
                 {
-                    HandleEndMachineRun();
+                    hexDisplay.Enabled = true;
+                    stepButton.Enabled = true;
+                    m.FlushDevices();
+                    ResumeMachineDisplayUpdates();
+                    BigInteger endInstr = m.InstructionsExecuted;
+                    BigInteger diff = endInstr - instructionsAtRunStart;
+                    Log($"Run: {diff.ToString()} instructions executed.");
+                    HandleExecutionResult();
+                    UpdateMachineDisplay();
                     runButton.Text = "Run (F5)";
+                    Text = "Visual SICXE";
                 }
             }
         }
@@ -489,6 +502,8 @@ namespace Visual_SICXE
             if (machineThread != null && machineThread.IsAlive)
             {
                 // this should never be reached.
+                // Update: this can be reached if machine is Started/Stopped rapidly
+                // It should be ok to continue just aborting this method in such a case.
                 Debug.Assert(false, "Machine is already running?!");
                 return;
             }
@@ -497,18 +512,6 @@ namespace Visual_SICXE
             SuspendMachineDisplayUpdates();
             machineThread = new Thread(() => sess.Machine.Run(runCancelToken));
             machineThread.Start();
-        }
-
-        private void HandleEndMachineRun()
-        {
-            Machine m = sess.Machine;
-            m.FlushDevices();
-            ResumeMachineDisplayUpdates();
-            BigInteger endInstr = m.InstructionsExecuted;
-            BigInteger diff = endInstr - instructionsAtRunStart;
-            Log($"Run: {diff.ToString()} instructions executed.");
-            HandleExecutionResult();
-            UpdateMachineDisplay();
         }
 
         private void HandleExecutionResult()
@@ -534,6 +537,9 @@ namespace Visual_SICXE
                     break;
                 case Machine.RunResult.AddressOutOfBounds:
                     LogError("An attempt was made to access an out-of-bounds address.");
+                    break;
+                case Machine.RunResult.CancellationSignalled:
+                    toolStripStatusLabel.Text = "";
                     break;
             }
         }
@@ -932,7 +938,7 @@ namespace Visual_SICXE
         private readonly SortedSet<Breakpoint> breakpoints;
         private bool breakpointsEnabled = true;
 
-        private void setBkptButton_Click(object sender, EventArgs e)
+        private void OnClickSetBreakpointButton(object sender, EventArgs e)
         {
             Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
