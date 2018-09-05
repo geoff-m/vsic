@@ -133,7 +133,16 @@ namespace SICXE.Devices
                 ret.Name = name;
                 var subdes = subclass.GetMethod(SUBCLASS_DESERIALIZE_METHOD_NAME, BindingFlags.NonPublic | BindingFlags.Instance);
                 if (subdes != null)
-                    subdes.Invoke(ret, new object[] { stream });
+                {
+                    try
+                    {
+                        subdes.Invoke(ret, new object[] { stream });
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        throw new InvalidDataException($"An error occurred while deserializing IODevice of type \"{subclass.Name}\".", tie);
+                    }
+                }
                 else
                     Debug.WriteLine($"IODevice type \"{subclass.Name}\" did not contain a \"{SUBCLASS_DESERIALIZE_METHOD_NAME}\" method. Subclass-specific deserialization will not be performed.");
                 return ret;

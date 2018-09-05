@@ -147,18 +147,41 @@ namespace SICXE
             regX = (Word)reader.ReadInt32();
 
             // Deserialize devices
+            // Destroy all existing devices.
+            for (byte id = 0; id < byte.MaxValue; ++id)
+                RemoveDevice(id);
+
             uintbuf = reader.ReadUInt32();
             if (uintbuf != SERIALIZATION_DEVICES_MAGIC_NUMBER)
                 throw new InvalidDataException();
 
             while (stream.Position < stream.Length)
             {
-                var newDev = IODevice.Deserialize(stream);
-                AddDevice(newDev.ID, newDev);
+                IODevice newDev = null;
+                try
+                {
+                    newDev = IODevice.Deserialize(stream);
+                } catch (InvalidDataException ide)
+                {
+                    Logger.LogError($"Failed to create an I/O device: {GetInnermost(ide).Message}");
+                }
+                if (newDev != null)
+                    AddDevice(newDev.ID, newDev);
             }
 
             reader.Dispose();
             stream.Dispose();
+        }
+
+        private static Exception GetInnermost(Exception e)
+        {
+            Exception inner = e.InnerException;
+            while (inner != null)
+            {
+                e = inner;
+                inner = e.InnerException;
+            }
+            return e;
         }
 
         // for debug.
