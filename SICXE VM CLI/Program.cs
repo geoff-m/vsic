@@ -67,7 +67,7 @@ namespace SICXE_VM_CLI
                 if (handlers.TryGetValue(firstToken, out CommandLineHandler handler))
                 {
                     if (!handler(line))
-                        PrintTopLevelHelp();
+                        HandleHelp($"help {firstToken}");
                 }
                 else
                 {
@@ -126,9 +126,30 @@ namespace SICXE_VM_CLI
             var tokens = line.Split(' ').ToArray();
             if (tokens.Length == 1)
             {
-                // todo: print dump help
-                Console.WriteLine("Bad dump syntax");
-                return true;
+                return false;
+            }
+
+            if (tokens.Length == 3)
+            {
+                if (int.TryParse(tokens[1], out int startAddress))
+                {
+                    if (int.TryParse(tokens[2], out int length))
+                    {
+                        int stop = Math.Min(startAddress + length, sess.MemorySize);
+                        sess.PrintMemory(startAddress, stop);
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error: Could not parse as length \"{tokens[2]}\"");
+                        return false;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Error: Could not parse as address \"{tokens[1]}\"");
+                    return false;
+                }
             }
 
             string[] REGISTER_STRINGS = new string[] { "r", "reg", "register", "registers" };
@@ -138,9 +159,7 @@ namespace SICXE_VM_CLI
                 return true;
             }
 
-            // todo: print dump help
-            Console.WriteLine("Bad dump syntax");
-            return true;
+            return false;
         }
 
         static bool HandleLoad(string line)
@@ -177,9 +196,20 @@ namespace SICXE_VM_CLI
                     return true;
                 case "load":
                     // todo: print detailed help for this command
+                    Console.WriteLine("Loads an OBJ into the machine. Expects 1 argument: path to OBJ file");
                     return true;
                 case "dump":
                     // todo: print detailed help for this command
+                    Console.WriteLine("Displays memory contents. Expects one or two arguments.");
+                    Console.WriteLine("\tdump [start address] [length]");
+                    Console.WriteLine("This will display the first [length] bytes that occur beginning at [start address].");
+                    Console.WriteLine("Start address must be a valid address.");
+                    Console.WriteLine("If the range goes past the end of memory, output will be silently truncated.");
+                    Console.WriteLine("\n\tdump registers|reg|r");
+                    Console.WriteLine("This will display the contents of all the SIC/XE registers.");
+                    Console.WriteLine("\n\tdump [register name]");
+                    Console.WriteLine("This will display the content of the specified register.");
+                    Console.WriteLine("[Register name] may be any of A, B, S, T, X, L, PC.");
                     return true;
                 case "device":
                     // todo: print detailed help for this command
@@ -194,7 +224,7 @@ namespace SICXE_VM_CLI
                     // todo: print detailed help for this command
                     return true;
                 case "help":
-                    // todo: print detailed help for this command
+                    PrintTopLevelHelp();
                     return true;
                 case "version":
                     // todo: print detailed help for this command

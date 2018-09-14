@@ -59,6 +59,7 @@ namespace SICXE_VM_CLI
             m = new Machine();
             m.Logger = logger;
             m.RunStateChanged += EndRun;
+            m.MemoryRainbowTest();
             instructionsExecuted = 0;
         }
 
@@ -182,34 +183,36 @@ namespace SICXE_VM_CLI
             }
         }
 
+        public int MemorySize
+        { get { return m.MemorySize; } }
+
         public void PrintMemory(int start, int stop)
         {
-
-
-            int wordsPerLine = (Console.WindowWidth - 2 - Word.Size * 2) / (Word.Size * 2 + 1);
-
-            // round start address to nearest start of line.
-            start = wordsPerLine * (int)Math.Floor(start / (double)wordsPerLine);
-
-            // round stop address to nearest end of line.
-            stop = wordsPerLine * (int)Math.Ceiling(stop / (double)wordsPerLine);
-
             int byteCount = stop - start;
             var data = new byte[byteCount];
             m.DMARead(data, data.Length, start);
-            //m.Memory.Seek(start, System.IO.SeekOrigin.Begin);
-            //m.Memory.Read(data, 0, data.Length);
-
-            // line format:
-            // start = word01
-            // stop = word08
-            // 0x123456 word01 word02 word03 word04 word05
-            // 0x123465 word06 word07 word08 word09 word10
-
-            int lineCount = (int)Math.Ceiling(byteCount / (double)Word.Size / wordsPerLine);
 
             var line = new StringBuilder();
-            string format = "X" + Word.Size * 2;
+
+            const int addressChars = 9; // "0x123456 "
+
+            // bytesPerLine * 2 + bytesPerLine - 1 + addressChars = WindowWidth
+            // bytesPerLine * (2 + 1) = WindowWidth + 1 - addressChars
+            int bytesPerLine = (Console.WindowWidth - addressChars + 1) / 3;
+            
+            for (int b = 0; b < byteCount; ++b)
+            {
+                line.Append($"0x{b + start:X6} ");
+                for (int lineByte = 0; lineByte < bytesPerLine && b + lineByte < byteCount; ++lineByte)
+                {
+                    int effectiveByte = b + lineByte;
+                    line.Append($"{data[effectiveByte]:X2} ");
+                }
+                line.Remove(line.Length - 1, 1);
+                Console.WriteLine(line.ToString());
+                line.Clear();
+                b += bytesPerLine - 1;
+            }
 
         }
 

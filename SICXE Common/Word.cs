@@ -90,7 +90,7 @@ namespace SICXE
 
         public override string ToString()
         {
-            return "0x" + ((int)this).ToString("X");
+            return $"0x{((int)this):X6}";
         }
 
         public string ToString(string format)
