@@ -17,26 +17,20 @@ namespace SICXE_VM_CLI
         {
             timer = new System.Timers.Timer(SPEED_CHECK_INTERVAL_MILLISECONDS);
             timer.Elapsed += UpdateSpeedStats;
+            logger = new ConsoleLogger();
         }
 
-        ILogSink logger = new ConsoleLogger();
+        ILogSink logger;
         Machine m;
         BigInteger instructionsExecuted;
         Machine.RunResult result;
-        private void EndRun(object sender, EventArgs e)
+        private void EndRun(object sender, EventArgs e) // todo: fix: this method is being invoked twice.
         {
+            if (m.IsRunning)
+                return;
+
             result = m.LastRunResult;
-            switch (result)
-            {
-                case Machine.RunResult.None:
-                    break;
-                case Machine.RunResult.CancellationSignalled:
-                    Console.Write("Run aborted. ");
-                    break;
-                case Machine.RunResult.IllegalInstruction:
-                    Console.Write($"Illegal instruction at {m.ProgramCounter}! ");
-                    break;
-            }
+            Console.WriteLine(GetMessageFor(result));
             BigInteger newInstructionsExecuted = m.InstructionsExecuted;
             BigInteger diff = newInstructionsExecuted - instructionsExecuted;
             Console.WriteLine($"{diff.ToString("N0")} instructions executed.");
@@ -46,7 +40,7 @@ namespace SICXE_VM_CLI
 
         public void WaitForStop()
         {
-            runThread.Join();
+            runThread?.Join();
         }
 
         public void New()
@@ -57,9 +51,9 @@ namespace SICXE_VM_CLI
                 m.Logger = null;
             }
             m = new Machine();
+            m.RegisterL = (Word)0x2b;
             m.Logger = logger;
             m.RunStateChanged += EndRun;
-            m.MemoryRainbowTest();
             instructionsExecuted = 0;
         }
 
@@ -125,6 +119,39 @@ namespace SICXE_VM_CLI
             }
         }
 
+        public void Step()
+        {
+            if (IsRunning)
+                return;
+            var result = m.Step();
+            string message = GetMessageFor(result);
+            if (message.Length > 0)
+                Console.WriteLine(message);
+        }
+
+        private string GetMessageFor(Machine.RunResult r)
+        {
+            switch (r)
+            {
+                case Machine.RunResult.None:
+                    return "";
+                case Machine.RunResult.CancellationSignalled:
+                    return "Run aborted. ";
+                case Machine.RunResult.IllegalInstruction:
+                    return $"Illegal instruction at {m.ProgramCounter}!";
+                case Machine.RunResult.HitBreakpoint:
+                    return "Hit breakpoint!";
+                case Machine.RunResult.HardwareFault:
+                    return "A hardware fault occurred!";
+                case Machine.RunResult.AddressOutOfBounds:
+                    return "An instruction referenced an out-of-bounds address!";
+                case Machine.RunResult.EndOfMemory:
+                    return "The program counter has reached the end of memory.";
+            }
+            Debug.Fail("Unknown run result!");
+            return "";
+        }
+
         System.Timers.Timer timer;
         BigInteger timeStartInstructions = BigInteger.Zero;
         int blankOut = 0;
@@ -177,7 +204,8 @@ namespace SICXE_VM_CLI
                 //Debug.WriteLine("ControlC got lock.");
                 if (ct != null)
                 {
-                    args.Cancel = true;
+                    if (args!= null)
+                        args.Cancel = true;
                     ct.Cancel();
                 }
             }

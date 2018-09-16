@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace SICXE_VM_CLI
 {
@@ -42,6 +44,45 @@ namespace SICXE_VM_CLI
             int len = str.Length;
             Console.CursorLeft = (Console.WindowWidth - len) / 2;
             Console.Write(str);
+        }
+
+        public static void ExecuteDirectoryListing(string args)
+        {
+            var proc = new Process();
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                case PlatformID.Xbox:
+                    proc.StartInfo = new ProcessStartInfo("cmd.exe", "/C dir " + args);
+                    break;
+                case PlatformID.Unix:
+                case PlatformID.MacOSX:
+                    proc.StartInfo = new ProcessStartInfo("ls", args);
+                    break;
+            }
+
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.RedirectStandardError = true;
+            try
+            {
+                proc.Start();
+                Console.WriteLine(proc.StandardOutput.ReadToEnd());
+                proc.WaitForExit();
+            }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is Win32Exception || ex is ObjectDisposedException || ex is PlatformNotSupportedException)
+            {
+                Console.WriteLine($"Error listing directory: {ex.Message}");
+            }
+        }
+
+        public static void ChangeDirectory(string path)
+        {
+            if (path.Length > 0)
+                Environment.CurrentDirectory = path;
         }
     }
 }

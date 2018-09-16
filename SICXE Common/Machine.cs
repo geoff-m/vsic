@@ -161,7 +161,8 @@ namespace SICXE
                 try
                 {
                     newDev = IODevice.Deserialize(stream);
-                } catch (InvalidDataException ide)
+                }
+                catch (InvalidDataException ide)
                 {
                     Logger.LogError($"Failed to create an I/O device: {GetInnermost(ide).Message}");
                 }
@@ -202,7 +203,7 @@ namespace SICXE
         /// Gets or sets whether this Machine should write to the log each time it executes an instruction. Default is false.
         /// </summary>
         public bool LogEachInstruction
-        { get; set; }
+        { get; set; } = false;
 
         public ILogSink Logger
         { get; set; }
@@ -446,7 +447,6 @@ namespace SICXE
             PC = 0;
 
             Logger = new NullLog();
-            LogEachInstruction = false;
         }
 
         #region Devices
@@ -574,7 +574,7 @@ namespace SICXE
         private bool running;
         public bool IsRunning
         {
-            get { return running;}
+            get { return running; }
             private set
             {
                 if (running != value)
@@ -1545,18 +1545,17 @@ namespace SICXE
                     Logger.LogError("Error loading OBJ file \"{0}\".\n The file was not found.", path);
                     return;
                 }
-#if !DEBUG
-                if (ex is FormatException || ex is IOException)
+
+                if (ex is IOException)
                 {
                     Logger.LogError("Error loading OBJ file \"{0}\" at line {1}: {2}", path, lineCount, ex.Message);
                     Logger.LogError("The machine's state may be corrupt after an unsuccessful load.");
                     return;
                 }
-                else
-                {
-                    throw;
-                }
-#endif
+
+                Logger.LogError("Error loading OBJ file \"{0}\" at line {1}: {2}", path, lineCount, ex.Message);
+                Logger.LogError("The machine's state may be corrupt after an unsuccessful load.");
+                return;
             }
             finally
             {

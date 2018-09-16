@@ -23,13 +23,19 @@ namespace SICXE_VM_CLI
             Console.WriteLine($"Type \"help\" for list of commands");
             var handlers = new Dictionary<string, CommandLineHandler>()
             {
-                {"dump", HandleDump },
+                {"d", HandleDump },
+                { "dump", HandleDump },
                 {"run", HandleRun },
+                {"step", HandleStep },
+                {"stop", HandleStop },
                 {"load", HandleLoad },
                 {"version", HandleVersion },
                 {"help", HandleHelp },
                 {"exit", HandleExit },
-                {"new", HandleNew }
+                {"new", HandleNew },
+                {"ls", HandleLS },
+                {"dir", HandleLS },
+                {"cd", HandleCD }
             };
 
             string line;
@@ -74,20 +80,58 @@ namespace SICXE_VM_CLI
                     PrintTopLevelHelp();
                 }
             }
-
+            sess.ControlC(null, null);
+            sess.WaitForStop();
         }
 
         static bool waitingForReadLine = false;
         public static void RestorePrompt()
         {
             if (waitingForReadLine)
-                Console.Write("> ");
+                Console.Write("vsic> ");
+        }
+
+        static bool HandleLS(string line)
+        {
+            int firstSpaceIdx = line.IndexOf(' ');
+            if (firstSpaceIdx >= 0)
+                line = line.Substring(firstSpaceIdx + 1);
+            else
+                line = "";
+            ConsoleHelper.ExecuteDirectoryListing(line);
+            return true;
+        }
+
+        static bool HandleCD(string line)
+        {
+            int firstSpaceIdx = line.IndexOf(' ');
+            if (firstSpaceIdx >= 0)
+                line = line.Substring(firstSpaceIdx + 1);
+            else
+                line = "";
+            ConsoleHelper.ChangeDirectory(line);
+            return true;
         }
 
         static bool HandleNew(string line)
         {
             sess.New();
 
+            return true;
+        }
+
+        static bool HandleStop(string line)
+        {
+            if (sess.IsRunning)
+            {
+                sess.ControlC(null, null);
+                sess.WaitForStop();
+                Console.WriteLine("Stopped.");
+            }
+            else
+            {
+                Console.WriteLine("Machine is not running.");
+            }
             return true;
         }
 
@@ -121,6 +165,19 @@ namespace SICXE_VM_CLI
             return true;
         }
 
+        static bool HandleStep(string line)
+        {
+            if (sess.IsRunning)
+            {
+                Console.WriteLine("Machine is already running! Use 'stop' or Ctrl+C to stop.");
+                return true;
+            }
+
+            sess.Step();
+        
+            return true;
+        }
+
         static bool HandleDump(string line)
         {
             var tokens = line.Split(' ').ToArray();
@@ -131,9 +188,9 @@ namespace SICXE_VM_CLI
 
             if (tokens.Length == 3)
             {
-                if (int.TryParse(tokens[1], out int startAddress))
+                if (int.TryParse(tokens[1], System.Globalization.NumberStyles.HexNumber, null, out int startAddress))
                 {
-                    if (int.TryParse(tokens[2], out int length))
+                    if (int.TryParse(tokens[2], System.Globalization.NumberStyles.Integer, null, out int length))
                     {
                         int stop = Math.Min(startAddress + length, sess.MemorySize);
                         sess.PrintMemory(startAddress, stop);
@@ -164,14 +221,14 @@ namespace SICXE_VM_CLI
 
         static bool HandleLoad(string line)
         {
-            var tokens = line.Split(' ').ToList();
-            if (tokens.Count > 1)
-            {
-                sess.LoadOBJ(tokens[1]);
-                return true;
-            }
-
-            return false;
+            int firstSpaceIdx = line.IndexOf(' ');
+            if (firstSpaceIdx >= 0)
+                line = line.Substring(firstSpaceIdx + 1);
+            else
+                return false;
+            line = line.Trim('"');
+            sess.LoadOBJ(line);
+            return true;
         }
 
         static bool HandleVersion(string line)
@@ -199,8 +256,7 @@ namespace SICXE_VM_CLI
                     Console.WriteLine("Loads an OBJ into the machine. Expects 1 argument: path to OBJ file");
                     return true;
                 case "dump":
-                    // todo: print detailed help for this command
-                    Console.WriteLine("Displays memory contents. Expects one or two arguments.");
+                    Console.WriteLine("Displays memory contents. Expects one or two arguments. Alias 'd'.");
                     Console.WriteLine("\tdump [start address] [length]");
                     Console.WriteLine("This will display the first [length] bytes that occur beginning at [start address].");
                     Console.WriteLine("Start address must be a valid address.");
@@ -254,12 +310,14 @@ namespace SICXE_VM_CLI
             Console.WriteLine("bp\t\tSet or remove breakpoints.");
             Console.WriteLine("run\t\tAdvance the machine state.");
             Console.WriteLine("stop\t\tStop running.");
+            Console.WriteLine("ls\t\tList the contents of the current directory.");
+            Console.WriteLine("cd\t\tChange the current directory.");
             Console.WriteLine("help\t\tDisplay this information. Also, any command can be added after it to show additional information.");
             Console.WriteLine("version\t\tShow the version of this program.");
             Console.WriteLine($"exit\t\tExit {_PROGRAM_NAME}.\n");
         }
 
-        static readonly string _PROGRAM_NAME = "vsic cli";
+        static readonly string _PROGRAM_NAME = "VSIC CLI";
         static readonly Version _VERSION;
         static readonly DateTime _BUILD_DATE;
         static Program()
