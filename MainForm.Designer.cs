@@ -140,7 +140,6 @@
             this.hexDisplay.StartAddress = 0;
             this.hexDisplay.TabIndex = 1;
             this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = Visual_SICXE.HexDisplay.Encoding.DecimalSigned;
             this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
             this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
             this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
