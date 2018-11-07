@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using SICXE;
 
 namespace SICXE_VM_CLI
@@ -24,7 +23,7 @@ namespace SICXE_VM_CLI
             var handlers = new Dictionary<string, CommandLineHandler>()
             {
                 {"d", HandleDump },
-                { "dump", HandleDump },
+                {"dump", HandleDump },
                 {"run", HandleRun },
                 {"step", HandleStep },
                 {"stop", HandleStop },
@@ -89,6 +88,16 @@ namespace SICXE_VM_CLI
         {
             if (waitingForReadLine)
                 Console.Write("vsic> ");
+        }
+
+
+        static bool HandleDevice(string line)
+        {
+            var tokens = line.Split(' ');
+            
+
+
+            return true;
         }
 
         static bool HandleLS(string line)
@@ -174,7 +183,7 @@ namespace SICXE_VM_CLI
             }
 
             sess.Step();
-        
+
             return true;
         }
 
@@ -269,6 +278,8 @@ namespace SICXE_VM_CLI
                     return true;
                 case "device":
                     // todo: print detailed help for this command
+                    Console.WriteLine("Add, change, or remove an I/O device.");
+                    Console.WriteLine("\tdevice add [id] [name] [type]");
                     return true;
                 case "save":
                     // todo: print detailed help for this command
@@ -304,13 +315,14 @@ namespace SICXE_VM_CLI
             Console.WriteLine("------------------------------");
             Console.WriteLine("new\t\tReset the session, clearing the machine's state.");
             Console.WriteLine("load\t\tLoad an OBJ file containing assembled code.");
-            Console.WriteLine("dump\t\tDisplay machine memory.");
+            Console.WriteLine("dump [d]\tDisplay machine memory.");
             Console.WriteLine("device\t\tAdd, remove, or modify a virtual I/O device.");
             Console.WriteLine("save");
             Console.WriteLine("bp\t\tSet or remove breakpoints.");
             Console.WriteLine("run\t\tAdvance the machine state.");
+            Console.WriteLine("step\t\tAdvance the machine state by 1 instruction.");
             Console.WriteLine("stop\t\tStop running.");
-            Console.WriteLine("ls\t\tList the contents of the current directory.");
+            Console.WriteLine("ls [dir]\tList the contents of the current directory.");
             Console.WriteLine("cd\t\tChange the current directory.");
             Console.WriteLine("help\t\tDisplay this information. Also, any command can be added after it to show additional information.");
             Console.WriteLine("version\t\tShow the version of this program.");
