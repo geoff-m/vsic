@@ -3,6 +3,7 @@
 ################################################################################
 
 /obj
-/bin/Debug
-/.vs/Visual SICXE/v15/Server/sqlite3
+/bin
 /.vs
+/SICXE VM CLI
+/Visual SICXE.sln.DotSettings.user
