@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using SICXE;
+using System.Diagnostics;
 
 namespace Visual_SICXE
 {
@@ -25,9 +27,9 @@ namespace Visual_SICXE
         private void Initialize()
         {
             DoubleBuffered = true;
-            Click += OnClick;
             Enter += OnFocus;
             Leave += OnBlur;
+            EnabledChanged += (sender, args) => Invalidate();
         }
 
         public HashSet<ByteMarker> Boxes = new HashSet<ByteMarker>();
@@ -35,20 +37,7 @@ namespace Visual_SICXE
         public Stream Data
         { get; set; }
 
-        private Encoding enc = Encoding.Raw;
-        public Encoding WordEncoding
-        {
-            get
-            {
-                return enc;
-            }
-            set
-            {
-                enc = value;
-                // I used to have Invalidate() here, but we'll leave that to the caller.
-                // So for now (2-9-2018), 'enc' is pointless and there's no reason this isn't an auto property.
-            }
-        }
+        public Encoding WordEncoding { get; set; } = Encoding.Raw;
 
         #region Format properties
         private int WordBytes => WordDigits / 2;
@@ -303,13 +292,13 @@ namespace Visual_SICXE
 
         #endregion
 
-        private float textYoffset = 0; // the Y offset for both the address and the data.
-        private float addressX = 4; // distance between left column and left of address.
+        private const float textYoffset = 0; // the Y offset for both the address and the data.
+        private const float addressX = 4; // distance between left column and left of address.
 
-        private float addressDataGap = 5; // distance between right of address and left of data.
+        private const float addressDataGap = 5; // distance between right of address and left of data.
 
-        private float dataXendPadding = 4; // distance between right of data and right column.
-        private float wordXgap = 4; // distance between each successive word of data.
+        private const float dataXendPadding = 4; // distance between right of data and right column.
+        private const float wordXgap = 4; // distance between each successive word of data.
 
         private float wordWidth;
         private float byteWidth;
@@ -340,7 +329,7 @@ namespace Visual_SICXE
             dataXoffset = addressX + addrW + addressDataGap;
 
             wordWidth = g.MeasureString(new string('F', WordDigits), Font).Width;
-            byteWidth = wordWidth / (WordDigits / 2); // todo: get correct value for byteWidth. i think it is being overestimated.
+            byteWidth = wordWidth / (WordDigits / 2f); // todo: get correct value for byteWidth. i think it is being overestimated.
 
             // BOUNDS.Width - (addressX + addrW + addressDataGap) = dataLine.Width + dataXendPadding
             // BOUNDS.Width - (addressX + addrW + addressDataGap) = wordsPerLine * wordW+ (wordsPerLine - 1) * wordXgap + dataXendPadding
@@ -368,16 +357,31 @@ namespace Visual_SICXE
             else if (!Data.CanRead)
             {
                 PaintCenteredText(g, "Cannot read data");
-                Enabled = false;
                 return;
             }
-            Enabled = true;
 
             if (doRecalc)
                 UpdateMeasurements(g);
 
             if (wordsPerLine == 0)
                 return;
+
+            if (selectionStartAddress != selectionStopAddress)
+            {
+                int highlightStart, highlightStop;
+                if (selectionStartAddress < selectionStopAddress)
+                {
+                    highlightStart = selectionStartAddress;
+                    highlightStop = selectionStopAddress;
+                }
+                else
+                {
+                    highlightStart = selectionStopAddress;
+                    highlightStop = selectionStartAddress;
+                }
+                DrawHighlight(g, highlightStart, highlightStop, new SolidBrush(Color.FromArgb(80, 0, 100, 120)));
+            }
+
 
             // Draw boxes.
             int boxesDrawn = 0; // for debug.
@@ -407,7 +411,7 @@ namespace Visual_SICXE
                 // Draw data, depending on selected encoding.
                 int bytesRead = Data.Read(lineBytes, 0, bytesPerLine);
 
-                switch (enc)
+                switch (WordEncoding)
                 {
                     case Encoding.Raw:
                         var lineWords = Word.FromArray(lineBytes, 0, bytesRead);
@@ -449,6 +453,89 @@ namespace Visual_SICXE
             }
             // Draw cursor.
             DrawCursor(g);
+
+            if (!Enabled)
+            {
+                g.FillRectangle(new SolidBrush(Color.FromArgb(128, SystemColors.Control)), g.VisibleClipBounds);
+                PaintCenteredText(g, "Running...", 18);
+            }
+        }
+
+        private bool DrawHighlight(Graphics g, int startAddress, int stopAddress, Brush b)
+        {
+            if (stopAddress < startAddress)
+                throw new ArgumentException("Start address must not exceed stop address.");
+
+            int startScreenByte = startAddress - StartAddress;
+            int startScreenLine, firstLineStartByte;
+            if (startScreenByte < 0)
+            {
+                startScreenLine = 0;
+                firstLineStartByte = 0;
+            }
+            else
+            {
+                startScreenLine = startScreenByte / bytesPerLine;
+                firstLineStartByte = startScreenByte % bytesPerLine;
+            }
+
+            int stopScreenByte = stopAddress - StartAddress;
+            int stopScreenLine = stopScreenByte / bytesPerLine;
+            if (stopScreenLine > lineCount)
+            {
+                stopScreenByte = bytesPerLine;
+                stopScreenLine = lineCount;
+            }
+            else if (stopScreenLine < 0)
+            {
+                return false;
+            }
+            int highlightLineCount = stopScreenLine - startScreenLine;
+            //Parent.Text = $"start line: {startScreenLine}   stop line: {stopScreenLine}";
+            // Draw first line.
+            int firstLineEndByte;
+            if (highlightLineCount > 0)
+            {
+                firstLineEndByte = bytesPerLine;
+            }
+            else
+            {
+                firstLineEndByte = stopScreenByte % bytesPerLine;
+            }
+
+            int bytesHighlightedOnFirstLine = firstLineEndByte - firstLineStartByte;
+            float firstLineXStart = firstLineStartByte * byteWidth + firstLineStartByte / WordBytes * wordXgap;
+            Debug.Assert(firstLineXStart >= 0);
+            g.FillRectangle(b,
+                            dataXoffset + firstLineXStart,
+                            textYoffset + startScreenLine * (textLineSpacing + lineHeight),
+                            bytesHighlightedOnFirstLine * byteWidth + bytesHighlightedOnFirstLine / WordBytes * wordXgap,
+                            lineHeight
+                            );
+
+            // Draw middle lines as one block.
+            if (highlightLineCount >= 2)
+            {
+                g.FillRectangle(b,
+                                dataXoffset,
+                                textYoffset + lineHeight * (startScreenLine + 1) + textLineSpacing * startScreenLine,
+                                dataXoffset + wordWidth * wordsPerLine + wordXgap * (wordsPerLine - 1),
+                                lineHeight * (stopScreenLine - startScreenLine - 1) + (stopScreenLine - startScreenLine - 2) * textLineSpacing
+                                );
+            }
+
+            // Draw last line.
+            if (highlightLineCount >= 1)
+            {
+                int lastLineStopByte = stopScreenByte % bytesPerLine;
+                g.FillRectangle(b,
+                                dataXoffset,
+                                textYoffset + stopScreenLine * lineHeight + (stopScreenLine - 1) * textLineSpacing,
+                                lastLineStopByte * byteWidth + lastLineStopByte / WordBytes * wordXgap,
+                                lineHeight
+                                );
+            }
+            return true;
         }
 
         private bool DrawBox(Graphics g, ByteMarker box)
@@ -508,18 +595,18 @@ namespace Visual_SICXE
             if (Focused)
             {
                 g.FillRectangle(Brushes.Black,
-                boxX,
-                textYoffset + line * (textLineSpacing + lineHeight),
-                3,
-                lineHeight);
+                                boxX,
+                                textYoffset + line * (textLineSpacing + lineHeight),
+                                3,
+                                lineHeight);
             }
             else
             {
                 g.DrawRectangle(Pens.Black,
-                boxX,
-                textYoffset + line * (textLineSpacing + lineHeight),
-                3,
-                lineHeight);
+                                boxX,
+                                textYoffset + line * (textLineSpacing + lineHeight),
+                                3,
+                                lineHeight);
             }
 
             return true;
@@ -530,6 +617,14 @@ namespace Visual_SICXE
             var bounds = g.VisibleClipBounds;
             var textsz = g.MeasureString(text, Font);
             g.DrawString(text, Font, Brushes.Black, (bounds.Width - textsz.Width) / 2, (bounds.Height - textsz.Height) / 2);
+        }
+
+        private void PaintCenteredText(Graphics g, string text, float emSize)
+        {
+            var font = new Font(Font.FontFamily, emSize);
+            var bounds = g.VisibleClipBounds;
+            var textsz = g.MeasureString(text, font);
+            g.DrawString(text, font, Brushes.Black, (bounds.Width - textsz.Width) / 2, (bounds.Height - textsz.Height) / 2);
         }
 
         #endregion
@@ -555,31 +650,86 @@ namespace Visual_SICXE
 
         #region Event Handlers
 
-        private void OnResize(object sender, EventArgs e)
+        public struct Selection
+        {
+            public readonly int StartAddress, EndAddress, ByteCount;
+            internal Selection(int startAddress, int endAddress)
+            {
+                if (startAddress < endAddress)
+                {
+                    StartAddress = startAddress;
+                    EndAddress = endAddress;
+                }
+                else
+                {
+                    StartAddress = endAddress;
+                    EndAddress = startAddress;
+                }
+                ByteCount = EndAddress - StartAddress;
+            }
+
+            //public static readonly Selection Empty = new Selection(0, 0);
+        }
+
+        public class SelectionChangedEventArgs : EventArgs
+        {
+            public SelectionChangedEventArgs(Selection data)
+            {
+                Data = data;
+            }
+
+            public readonly Selection Data;
+        }
+
+        public delegate void SelectionChangedEventHandler(object sender, SelectionChangedEventArgs args);
+        public event SelectionChangedEventHandler SelectionChanged;
+
+        public Selection GetSelection()
+        {
+            return new Selection(selectionStartAddress, selectionStopAddress);
+        }
+
+        public int SelectedByteCount
+        {
+            get { return Math.Abs(selectionStopAddress - selectionStartAddress); }
+        }
+
+        int selectionStartAddress = 0, selectionStopAddress = 0;
+        bool dragging = false;
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+                return;
+
+            MoveCursorToPoint(e.Location);
+            dragging = true;
+            selectionStartAddress = CursorAddress;
+            selectionStopAddress = CursorAddress;
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+                return;
+            base.OnMouseUp(e);
+            dragging = false;
+        }
+
+        protected override void OnResize(EventArgs e)
         {
             doRecalc = true;
             Invalidate();
         }
 
-        private void OnClick(object sender, EventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
-            MouseEventArgs me = e as MouseEventArgs;
-            if (me == null || me.Button != MouseButtons.Left)
-                return;
-
-            int line = (int)((me.Y - textYoffset) / (lineHeight + textLineSpacing));
-            int wordIdx = (int)((me.X - dataXoffset) / (wordWidth + wordXgap));
-            float charGap = wordWidth / 3;
-            int wordByte = (int)((me.X - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
-
-            int addr = StartAddress + line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
-            if (addr < Data.Length)
+            if (dragging)
             {
-                CursorAddress = addr;
-                Invalidate();
+                MoveCursorToPoint(e.Location);
+                selectionStopAddress = CursorAddress;
+                SelectionChanged?.Invoke(this, new SelectionChangedEventArgs(GetSelection()));
             }
         }
-
 
         private void OnFocus(object sender, EventArgs e)
         {
@@ -592,6 +742,21 @@ namespace Visual_SICXE
         }
 
         #endregion
+
+        private void MoveCursorToPoint(Point p)
+        {
+            int line = (int)((p.Y - textYoffset) / (lineHeight + textLineSpacing));
+            int wordIdx = (int)((p.X - dataXoffset) / (wordWidth + wordXgap));
+            float charGap = wordWidth / 3;
+            int wordByte = (int)((p.X - dataXoffset - wordIdx * (wordWidth + wordXgap)) / charGap);
+
+            int addr = StartAddress + line * bytesPerLine + wordIdx * WordDigits / 2 + wordByte;
+            if (addr >= 0 && addr < Data.Length)
+            {
+                CursorAddress = addr;
+                Invalidate();
+            }
+        }
 
         private const float SCROLL_MULTIPLIER = -0.02f;
         protected override void OnMouseWheel(MouseEventArgs e)

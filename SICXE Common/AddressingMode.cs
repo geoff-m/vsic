@@ -1,5 +1,5 @@
 ﻿
-namespace Visual_SICXE
+namespace SICXE
 {
     internal enum AddressingMode
     {

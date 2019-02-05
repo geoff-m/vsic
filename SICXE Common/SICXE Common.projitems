@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>00fb54cb-62ca-4fc1-a9fc-980452f14492</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SICXE_Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AddressingMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CancelToken.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConditionCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Devices\ConsoleDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Devices\FileDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Devices\IODevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\BreakpointHitException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\IllegalInstructionException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\SICXEException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\StreamExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ILogSink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Instructions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ISerialize.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Machine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NullLog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Word.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Devices\graphics device.txt" />
+  </ItemGroup>
+</Project>

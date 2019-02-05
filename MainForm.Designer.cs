@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new HexDisplay();
+            this.hexDisplay = new Visual_SICXE.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -82,10 +82,8 @@
             this.watchesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.breakpointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disassemblyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.gotoTB = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.button7 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.utf8RB = new System.Windows.Forms.RadioButton();
@@ -98,13 +96,13 @@
             this.openLSTdialog = new System.Windows.Forms.OpenFileDialog();
             this.openSessionDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSessionDialog = new System.Windows.Forms.SaveFileDialog();
+            this.saveMemoryDialog = new System.Windows.Forms.SaveFileDialog();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.bpGB.SuspendLayout();
             this.menuStrip.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -131,6 +129,7 @@
             this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.hexDisplay.CursorAddress = 0;
             this.hexDisplay.Data = null;
             this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -141,7 +140,7 @@
             this.hexDisplay.StartAddress = 0;
             this.hexDisplay.TabIndex = 1;
             this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = HexDisplay.Encoding.Raw;
+            this.hexDisplay.WordEncoding = Visual_SICXE.HexDisplay.Encoding.Raw;
             this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
             this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
             this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
@@ -368,7 +367,7 @@
             this.runButton.TabIndex = 0;
             this.runButton.Text = "Run (F5)";
             this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.runButton_Click);
+            this.runButton.Click += new System.EventHandler(this.OnClickRunButton);
             // 
             // stepButton
             // 
@@ -378,7 +377,7 @@
             this.stepButton.TabIndex = 10;
             this.stepButton.Text = "Step (F10)";
             this.stepButton.UseVisualStyleBackColor = true;
-            this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
+            this.stepButton.Click += new System.EventHandler(this.OnClickStepButton);
             // 
             // pcTB
             // 
@@ -487,7 +486,7 @@
             this.bpButton.TabIndex = 9;
             this.bpButton.Text = "Set (F9)";
             this.bpButton.UseVisualStyleBackColor = true;
-            this.bpButton.Click += new System.EventHandler(this.setBkptButton_Click);
+            this.bpButton.Click += new System.EventHandler(this.OnClickSetBreakpointButton);
             // 
             // bpGB
             // 
@@ -495,7 +494,7 @@
             this.bpGB.Controls.Add(this.bpWriteCB);
             this.bpGB.Controls.Add(this.bpReadCB);
             this.bpGB.Controls.Add(this.bpButton);
-            this.bpGB.Location = new System.Drawing.Point(8, 347);
+            this.bpGB.Location = new System.Drawing.Point(10, 128);
             this.bpGB.Name = "bpGB";
             this.bpGB.Size = new System.Drawing.Size(145, 139);
             this.bpGB.TabIndex = 0;
@@ -590,21 +589,20 @@
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
             this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
-            this.loadLstToolStripMenuItem.Click += new System.EventHandler(this.loadLstToolStripMenuItem_Click);
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
             this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
-            this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.loadMemoryToolStripMenuItem_Click);
+            this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.OnClickLoadMemoryToolStripMenuItem);
             // 
             // saveMemoryToolStripMenuItem
             // 
-            this.saveMemoryToolStripMenuItem.Enabled = false;
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
             this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveMemoryToolStripMenuItem.Text = "Save Memory...";
+            this.saveMemoryToolStripMenuItem.Text = "Save All Memory...";
+            this.saveMemoryToolStripMenuItem.Click += new System.EventHandler(this.saveMemoryToolStripMenuItem_Click);
             // 
             // manageDevicesToolStripMenuItem
             // 
@@ -645,22 +643,11 @@
             this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.gotoTB);
-            this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.button7);
-            this.groupBox1.Location = new System.Drawing.Point(14, 5);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(139, 214);
-            this.groupBox1.TabIndex = 7;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Memory Map";
-            // 
             // gotoTB
             // 
+            this.gotoTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.gotoTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gotoTB.Location = new System.Drawing.Point(46, 152);
+            this.gotoTB.Location = new System.Drawing.Point(946, 546);
             this.gotoTB.MaxLength = 6;
             this.gotoTB.Name = "gotoTB";
             this.gotoTB.Size = new System.Drawing.Size(68, 24);
@@ -670,23 +657,13 @@
             // 
             // label9
             // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(7, 157);
+            this.label9.Location = new System.Drawing.Point(867, 551);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(33, 13);
+            this.label9.Size = new System.Drawing.Size(73, 13);
             this.label9.TabIndex = 0;
-            this.label9.Text = "Go to";
-            // 
-            // button7
-            // 
-            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button7.Enabled = false;
-            this.button7.Location = new System.Drawing.Point(6, 180);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(127, 23);
-            this.button7.TabIndex = 3;
-            this.button7.Text = "Go to Disassembly";
-            this.button7.UseVisualStyleBackColor = true;
+            this.label9.Text = "Go to address";
             // 
             // groupBox4
             // 
@@ -694,7 +671,7 @@
             this.groupBox4.Controls.Add(this.utf8RB);
             this.groupBox4.Controls.Add(this.radioButton4);
             this.groupBox4.Controls.Add(this.rawRB);
-            this.groupBox4.Location = new System.Drawing.Point(8, 225);
+            this.groupBox4.Location = new System.Drawing.Point(10, 6);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(145, 116);
             this.groupBox4.TabIndex = 8;
@@ -711,7 +688,7 @@
             this.radioButton3.TabIndex = 2;
             this.radioButton3.Text = "Decimal Unsigned";
             this.radioButton3.UseVisualStyleBackColor = true;
-            this.radioButton3.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            this.radioButton3.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
             // 
             // utf8RB
             // 
@@ -722,7 +699,7 @@
             this.utf8RB.TabIndex = 1;
             this.utf8RB.Text = "Text (UTF-8)";
             this.utf8RB.UseVisualStyleBackColor = true;
-            this.utf8RB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            this.utf8RB.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
             // 
             // radioButton4
             // 
@@ -734,7 +711,7 @@
             this.radioButton4.TabIndex = 3;
             this.radioButton4.Text = "Decimal Signed";
             this.radioButton4.UseVisualStyleBackColor = true;
-            this.radioButton4.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            this.radioButton4.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
             // 
             // rawRB
             // 
@@ -747,7 +724,7 @@
             this.rawRB.TabStop = true;
             this.rawRB.Text = "Raw Hex";
             this.rawRB.UseVisualStyleBackColor = true;
-            this.rawRB.CheckedChanged += new System.EventHandler(this.changedEncodingSelection);
+            this.rawRB.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
             // 
             // openOBJdialog
             // 
@@ -763,11 +740,12 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.gotoTB);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox2);
+            this.splitContainer1.Panel1.Controls.Add(this.label9);
             this.splitContainer1.Panel1.Controls.Add(this.regGB);
             this.splitContainer1.Panel1.Controls.Add(this.groupBox4);
             this.splitContainer1.Panel1.Controls.Add(this.memGB);
-            this.splitContainer1.Panel1.Controls.Add(this.groupBox1);
             this.splitContainer1.Panel1.Controls.Add(this.pcGB);
             this.splitContainer1.Panel1.Controls.Add(this.bpGB);
             // 
@@ -781,11 +759,10 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.devLB);
-            this.groupBox2.Location = new System.Drawing.Point(863, 406);
+            this.groupBox2.Location = new System.Drawing.Point(10, 277);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(151, 147);
+            this.groupBox2.Size = new System.Drawing.Size(145, 147);
             this.groupBox2.TabIndex = 9;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "I/O Devices";
@@ -798,7 +775,7 @@
             this.devLB.ItemHeight = 15;
             this.devLB.Location = new System.Drawing.Point(3, 16);
             this.devLB.Name = "devLB";
-            this.devLB.Size = new System.Drawing.Size(145, 128);
+            this.devLB.Size = new System.Drawing.Size(139, 128);
             this.devLB.TabIndex = 0;
             this.devLB.DoubleClick += new System.EventHandler(this.OnDevLBPick);
             // 
@@ -815,6 +792,10 @@
             // 
             this.saveSessionDialog.DefaultExt = "sav";
             this.saveSessionDialog.Filter = "Saved sessions|*.sav|All files|*.*";
+            // 
+            // saveMemoryDialog
+            // 
+            this.saveMemoryDialog.SupportMultiDottedExtensions = true;
             // 
             // MainForm
             // 
@@ -843,11 +824,10 @@
             this.bpGB.PerformLayout();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -902,7 +882,6 @@
         private System.Windows.Forms.ToolStripMenuItem saveMemoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem manageDevicesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadOBJToolStripMenuItem;
-        private System.Windows.Forms.GroupBox groupBox1;
         private HexDisplay hexDisplay;
         private System.Windows.Forms.ToolStripStatusLabel cursorPositionLabel;
         private System.Windows.Forms.ToolStripStatusLabel selectedBytesLabel;
@@ -920,7 +899,6 @@
         private System.Windows.Forms.ToolStripMenuItem watchesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem breakpointsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disassemblyToolStripMenuItem;
-        private System.Windows.Forms.Button button7;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripMenuItem loadLstToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openLSTdialog;
@@ -929,6 +907,7 @@
         private System.Windows.Forms.ListBox devLB;
         private System.Windows.Forms.OpenFileDialog openSessionDialog;
         private System.Windows.Forms.SaveFileDialog saveSessionDialog;
+        private System.Windows.Forms.SaveFileDialog saveMemoryDialog;
     }
 }
 

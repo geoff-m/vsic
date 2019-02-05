@@ -1,16 +1,16 @@
-﻿using System.Resources;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("vsic")]
-[assembly: AssemblyDescription("A graphical, interactive simulator for SIC/XE")]
+[assembly: AssemblyTitle("SICXE VM CLI")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Visual SIC Simulator")]
-[assembly: AssemblyCopyright("Copyright © 2018 Geoff McQueen")]
+[assembly: AssemblyProduct("SICXE VM CLI")]
+[assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("49ea4e24-a1dd-4f0f-8ec5-7f5636bf4fbd")]
+[assembly: Guid("6621ab24-fdcc-4c8a-8249-332c4203dfe1")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -33,5 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.*")]
-[assembly: NeutralResourcesLanguage("en")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]

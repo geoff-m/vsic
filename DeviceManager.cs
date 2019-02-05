@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Visual_SICXE.Devices;
+using SICXE;
+using SICXE.Devices;
 
 /*
  * "Name" of a device is an optional thing that's just used by VSIC for ease of use purposes--

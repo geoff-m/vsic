@@ -1,4 +1,6 @@
-﻿namespace Visual_SICXE
+﻿using System.Diagnostics;
+
+namespace SICXE
 {
     public struct Word
     {
@@ -17,9 +19,14 @@
         /// </summary>
         /// <param name="array">The array whose bytes will be converted to Words. If the length is not a multiple of three, the result will be padded with high bits.</param>
         /// <param name="offset">The index in the array to start from.</param>
-        /// <param name="length">The number of elements in the array to consider.</param>
+        /// <param name="length">The number of bytes in the array to consider.</param>
         public static Word[] FromArray(byte[] array, int offset, int length)
         {
+            if (length > array.Length)
+            {
+                Debug.WriteLine($"Requested {length} bytes but the array only has {array.Length}!");
+                length = array.Length;
+            }
             int fullWords = length / 3;
             int bytesInFullWords = 3 * fullWords;
             int extraBytes = length % 3;
@@ -27,7 +34,7 @@
             var ret = new Word[rlen];
             int wi = 0;
             int i;
-            for (i = 0; i < bytesInFullWords; i += 3)
+            for (i = offset; i < offset + bytesInFullWords; i += 3)
             {
                 //ret[wi++] = new Word(array[i], array[i + 1], array[i + 2]); // big-endian
                 ret[wi++] = new Word(array[i + 2], array[i + 1], array[i]); // little-endian
@@ -40,7 +47,7 @@
                     break;
                 case 2:
                     //ret[length - 1] = new Word(array[i], array[i + 1], 0xff);
-                    ret[length - 1] = new Word(0xff, array[i + 1], array[i]);
+                    ret[rlen - 1] = new Word(0xff, array[i + 1], array[i]);
                     break;
             }
             return ret;
@@ -92,5 +99,7 @@
         }
 
         public static readonly Word Zero = (Word)0;
+
+        public const int Size = 3; 
     }
 }

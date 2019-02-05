@@ -1,4 +1,4 @@
-﻿namespace Visual_SICXE
+﻿namespace SICXE
 {
     public interface ILogSink
     {

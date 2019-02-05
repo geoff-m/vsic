@@ -1,23 +1,23 @@
-﻿namespace Visual_SICXE
+﻿using System;
+using SICXE;
+
+namespace SICXE_VM_CLI
 {
-    /// <summary>
-    /// An implementation of ILogSink that does nothing.
-    /// </summary>
-    internal class NullLog : ILogSink
+    class ConsoleLogger : ILogSink
     {
         public void Log(string str, params object[] args)
         {
-            // Do nothing.
+            Console.WriteLine(str, args);
         }
 
         public void LogError(string str, params object[] args)
         {
-            // Do nothing.
+            Console.Error.WriteLine(str, args);
         }
 
         public void SetStatusMessage(string str, params object[] args)
         {
-            // Do nothing.
+            Console.Error.WriteLine(str, args);
         }
     }
 }

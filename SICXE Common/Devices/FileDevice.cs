@@ -2,7 +2,7 @@
 using System.IO;
 using IOPath = System.IO.Path;
 
-namespace Visual_SICXE.Devices
+namespace SICXE.Devices
 {
     public class FileDevice : IODevice
     {

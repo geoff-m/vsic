@@ -7,10 +7,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Visual_SICXE.Devices;
+using SICXE;
+using SICXE.Devices;
 using Visual_SICXE.Extensions;
+using System.Numerics;
 
-// We don't do IO in this class. This import is only for Path and IOException.
+// We don't do IO in this class. This import is only for Path and exceptions.
 
 namespace Visual_SICXE
 {
@@ -26,16 +28,36 @@ namespace Visual_SICXE
             conWindow = new ConsoleWindow();
             breakpoints = new SortedSet<Breakpoint>(new Breakpoint.Comparer());
 
-            devman = new DeviceManager {Owner = this};
+            devman = new DeviceManager { Owner = this };
 
             Load += FormLoaded;
+            hexDisplay.SelectionChanged += UpdateSelectedByteCount;
+        }
+
+        private void UpdateSelectedByteCount(object sender, HexDisplay.SelectionChangedEventArgs args)
+        {
+            int selectedByteCount = args.Data.ByteCount;
+            if (selectedByteCount == 1)
+                selectedBytesLabel.Text = "1 byte selected";
+            else
+                selectedBytesLabel.Text = $"{selectedByteCount} bytes selected";
+
+            if (selectedByteCount == 0)
+            {
+                saveMemoryToolStripMenuItem.Text = "Save All Memory...";
+            }
+            else
+            {
+                saveMemoryToolStripMenuItem.Text = "Save Selected Memory...";
+            }
+
         }
 
         private const int PC_MARKER_ID = -1;
         private readonly Color MEMORY_READ_COLOR = Color.FromArgb(64, Color.Red);
 
         private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
-        private readonly Color PC_MARKER_COLOR = Color.Yellow;
+        private readonly Color PC_MARKER_COLOR = Color.FromArgb(200, Color.Yellow);
         private readonly Color REGISTER_READ_COLOR = Color.Pink;
 
         private readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
@@ -46,21 +68,20 @@ namespace Visual_SICXE
 
         private bool hexDisplayFocused;
 
-        private long instructionsAtRunStart;
+        private BigInteger instructionsAtRunStart;
 
         private Thread machineThread;
 
         private ByteMarker pcMarker;
         private readonly CancelToken runCancelToken = new CancelToken();
 
-        private bool running;
         private Session sess;
 
         private readonly WatchForm watchForm = new WatchForm();
 
         private void FormLoaded(object sender, EventArgs e)
         {
-            foreach (TextBox tb in new[] {regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB}) tb.Tag = tb.Text;
+            foreach (TextBox tb in new[] { regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB }) tb.Tag = tb.Text;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -69,14 +90,19 @@ namespace Visual_SICXE
             switch (keyData)
             {
                 case Keys.F5:
-                    runButton_Click(this, null);
+                    OnClickRunButton(this, null);
                     return true;
                 case Keys.F10:
-                    stepButton_Click(this, null);
+                    OnClickStepButton(this, null);
                     return true;
                 case Keys.F9:
-                    setBkptButton_Click(this, null);
+                    OnClickSetBreakpointButton(this, null);
                     return true;
+#if DEBUG
+                case Keys.F12:
+                    sess.Machine.MemoryRainbowTest();
+                    return true;
+#endif
             }
 
             // Hexdisplay navigation.
@@ -127,10 +153,14 @@ namespace Visual_SICXE
 
         private void CreateNewSession()
         {
+            Machine oldMachine = sess?.Machine;
+            if (oldMachine != null)
+                oldMachine.RunStateChanged -= OnMachineRunStateChanged;
             sess = new Session
             {
                 Logger = this
             };
+            sess.Machine.RunStateChanged += OnMachineRunStateChanged;
             devman.Machine = sess.Machine;
 
             Log("Created new SIC/XE machine.");
@@ -155,7 +185,7 @@ namespace Visual_SICXE
         }
 
         // Load the binary file into memory at the cursor.
-        private void loadMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OnClickLoadMemoryToolStripMenuItem(object sender, EventArgs e)
         {
             DialogResult res = openMemoryDialog.ShowDialog();
             if (res == DialogResult.OK)
@@ -255,11 +285,12 @@ namespace Visual_SICXE
             regXTB.SuspendDrawing();
             regLTB.SuspendDrawing();
             regBTB.SuspendDrawing();
+            regSTB.SuspendDrawing();
             regTTB.SuspendDrawing();
             regFTB.SuspendDrawing();
             pcTB.SuspendDrawing();
             ccCB.SuspendDrawing();
-            hexDisplay.SuspendDrawing();
+            //hexDisplay.SuspendDrawing();
         }
 
         private void ResumeMachineDisplayUpdates()
@@ -275,11 +306,12 @@ namespace Visual_SICXE
             regXTB.ResumeDrawing();
             regLTB.ResumeDrawing();
             regBTB.ResumeDrawing();
+            regSTB.ResumeDrawing();
             regTTB.ResumeDrawing();
             regFTB.ResumeDrawing();
             pcTB.ResumeDrawing();
             ccCB.ResumeDrawing();
-            hexDisplay.ResumeDrawing();
+            //hexDisplay.ResumeDrawing();
 
             logBox.SelectionStart = logBox.Text.Length;
             logBox.ScrollToCaret();
@@ -332,7 +364,7 @@ namespace Visual_SICXE
             int instr = (int)m.InstructionsExecuted - 1;
             int removed = hexDisplay.Boxes.RemoveWhere(bm =>
                 {
-                    long? expiry = bm.ExpiresAfter;
+                    BigInteger? expiry = bm.ExpiresAfter;
                     bool ret = expiry.HasValue && instr > expiry.Value;
                     //Debug.WriteLineIf(ret, $"Culling byte marker {bm.ToString()}. Instr = {instr}.");
                     return ret;
@@ -360,7 +392,7 @@ namespace Visual_SICXE
             memGB.Width = regGB.Location.X - memGB.Location.X - 10;
         }
 
-        private void changedEncodingSelection(object sender, EventArgs e)
+        private void OnChangedEncodingSelection(object sender, EventArgs e)
         {
             do // Not a loop.
             {
@@ -407,7 +439,7 @@ namespace Visual_SICXE
             }
         }
 
-        private void stepButton_Click(object sender, EventArgs e)
+        private void OnClickStepButton(object sender, EventArgs e)
         {
             ResetTextboxColors();
             sess.Machine.Step();
@@ -416,61 +448,75 @@ namespace Visual_SICXE
             UpdateMachineDisplay();
         }
 
-        private void runButton_Click(object sender, EventArgs e)
+        private void OnClickRunButton(object sender, EventArgs e)
         {
-            if (running)
+            if (sess.Machine.IsRunning)
             {
                 // stop machine thread without using Thread.Abort.
                 // we should never Abort machine execution thread because it may corrupt the VM.
                 runCancelToken.Cancel();
-                running = false;
-                runButton.Text = "Start (F5)";
-                EndMachineRun();
             }
             else
             {
-                running = true;
-                runButton.Text = "Stop (F5)";
                 runCancelToken.Reset();
                 StartMachineRun();
             }
         }
 
+        private void OnMachineRunStateChanged(object sender, EventArgs e)
+        {
+            if (sender is Machine m)
+            {
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => OnMachineRunStateChanged(sender, e)));
+                    return;
+                }
+                if (m.IsRunning)
+                {
+                    hexDisplay.Enabled = false;
+                    stepButton.Enabled = false;
+                    runButton.Text = "Stop (F5)";
+                    Text = "Visual SICXE - Running";
+                    toolStripStatusLabel.Text = "Running";
+                }
+                else
+                {
+                    hexDisplay.Enabled = true;
+                    stepButton.Enabled = true;
+                    m.FlushDevices();
+                    ResumeMachineDisplayUpdates();
+                    BigInteger endInstr = m.InstructionsExecuted;
+                    BigInteger diff = endInstr - instructionsAtRunStart;
+                    Log($"Run: {diff.ToString()} instructions executed.");
+                    HandleExecutionResult();
+                    UpdateMachineDisplay();
+                    runButton.Text = "Run (F5)";
+                    Text = "Visual SICXE";
+                }
+            }
+        }
+
         private void StartMachineRun()
         {
-            Debug.Assert(running);
             if (machineThread != null && machineThread.IsAlive)
             {
                 // this should never be reached.
+                // Update: this can be reached if machine is Started/Stopped rapidly
+                // It should be ok to continue just aborting this method in such a case.
                 Debug.Assert(false, "Machine is already running?!");
                 return;
             }
 
             instructionsAtRunStart = sess.Machine.InstructionsExecuted;
             SuspendMachineDisplayUpdates();
-            machineThread = new Thread(() =>
-            {
-                sess.Machine.Run(runCancelToken);
-                EndMachineRun();
-            });
+            machineThread = new Thread(() => sess.Machine.Run(runCancelToken));
             machineThread.Start();
-        }
-
-        private void EndMachineRun()
-        {
-            Machine m = sess.Machine;
-            m.FlushDevices();
-            ResumeMachineDisplayUpdates();
-            long endInstr = m.InstructionsExecuted;
-            long diff = endInstr - instructionsAtRunStart;
-            Log($"Run: {diff.ToString()} instructions executed.");
-            HandleExecutionResult();
-            UpdateMachineDisplay();
         }
 
         private void HandleExecutionResult()
         {
-            switch (sess.Machine.LastResult)
+            switch (sess.Machine.LastRunResult)
             {
                 case Machine.RunResult.None:
                     toolStripStatusLabel.Text = "";
@@ -489,6 +535,12 @@ namespace Visual_SICXE
                 case Machine.RunResult.EndOfMemory:
                     LogError("The program counter has hit the end of memory.");
                     break;
+                case Machine.RunResult.AddressOutOfBounds:
+                    LogError("An attempt was made to access an out-of-bounds address.");
+                    break;
+                case Machine.RunResult.CancellationSignalled:
+                    toolStripStatusLabel.Text = "";
+                    break;
             }
         }
 
@@ -506,20 +558,6 @@ namespace Visual_SICXE
         {
             UnloadSession();
             CreateNewSession();
-        }
-
-        private void loadLstToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DialogResult res = openLSTdialog.ShowDialog();
-            if (res == DialogResult.OK)
-            {
-                sess.Machine.LoadLst(openLSTdialog.FileName);
-
-                // Remove all temporary markers.
-                hexDisplay.Boxes.Clear();
-
-                UpdateMachineDisplay();
-            }
         }
 
         private void onHexDisplayFocus(object sender, EventArgs e)
@@ -583,10 +621,10 @@ namespace Visual_SICXE
 
                     // Commit changes to machine.
                     Word newValue = (Word)int.Parse(newText, NumberStyles.HexNumber);
-                    int maxmem = sess.Machine.MemorySize;
+                    int maxAddr = sess.Machine.MemorySize - 1;
                     if (ReferenceEquals(tb, gotoTB))
                     {
-                        if (newValue < maxmem)
+                        if (newValue <= maxAddr)
                         {
                             tb.BackColor = SystemColors.Window;
                             hexDisplay.CursorAddress = newValue;
@@ -596,8 +634,7 @@ namespace Visual_SICXE
                         else
                         {
                             tb.BackColor = Color.LightPink;
-                            LogError(
-                                $"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem:X2}).");
+                            LogError($"Address {newValue:X6} is out of bounds (maximum {maxAddr:X6}).");
                         }
 
                         break;
@@ -605,7 +642,7 @@ namespace Visual_SICXE
 
                     if (ReferenceEquals(tb, pcTB))
                     {
-                        if (newValue < maxmem)
+                        if (newValue <= maxAddr)
                         {
                             tb.BackColor = SystemColors.Window;
                             sess.Machine.ProgramCounter = newValue;
@@ -615,8 +652,7 @@ namespace Visual_SICXE
                         else
                         {
                             tb.BackColor = Color.LightPink;
-                            LogError(
-                                $"Address {newValue.ToString("X")} is out of bounds (maximum {maxmem:X2}).");
+                            LogError($"Address {newValue:X6} is out of bounds (maximum {maxAddr:X6}).");
                         }
 
                         break;
@@ -675,25 +711,26 @@ namespace Visual_SICXE
         private bool OnMemoryChanged(Word addr, int count, bool written)
         {
             int stop = addr + count;
-            if (written)
-                for (int i = addr; i < stop; ++i)
-                {
-                    ByteMarker newBox = new ByteMarker(i,
-                        MEMORY_WRITTEN_COLOR,
-                        sess.Machine.InstructionsExecuted);
+            if (!sess.Machine.IsRunning) // Don't add boxes if machine is running. (They will be added only when stepping).
+            {
+                if (written)
+                    for (int i = addr; i < stop; ++i)
+                    {
+                        ByteMarker newBox = new ByteMarker(i,
+                            MEMORY_WRITTEN_COLOR,
+                            sess.Machine.InstructionsExecuted);
 
-                    hexDisplay.Boxes.Add(newBox);
-                }
-            else
-                for (int i = addr; i < stop; ++i)
-                {
-                    ByteMarker newBox = new ByteMarker(i,
-                        MEMORY_READ_COLOR,
-                        sess.Machine.InstructionsExecuted);
-                    bool added;
-                    added = hexDisplay.Boxes.Add(newBox);
-                    //Debug.WriteLine($"Box was added? {added}");
-                }
+                        hexDisplay.Boxes.Add(newBox);
+                    }
+                else
+                    for (int i = addr; i < stop; ++i)
+                    {
+                        ByteMarker newBox = new ByteMarker(i,
+                            MEMORY_READ_COLOR,
+                            sess.Machine.InstructionsExecuted);
+                        hexDisplay.Boxes.Add(newBox);
+                    }
+            }
 
             if (breakpointsEnabled)
                 foreach (Breakpoint b in breakpoints)
@@ -901,7 +938,7 @@ namespace Visual_SICXE
         private readonly SortedSet<Breakpoint> breakpoints;
         private bool breakpointsEnabled = true;
 
-        private void setBkptButton_Click(object sender, EventArgs e)
+        private void OnClickSetBreakpointButton(object sender, EventArgs e)
         {
             Word addr = (Word)hexDisplay.CursorAddress;
             Breakpoint bp = breakpoints.FirstInRange(b => b.Address, addr, 1);
@@ -998,5 +1035,23 @@ namespace Visual_SICXE
         }
 
         #endregion
+
+        private void saveMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult res = saveMemoryDialog.ShowDialog();
+            if (res != DialogResult.OK)
+                return;
+            string path = saveMemoryDialog.FileName;
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            int selectedBytes = hexDisplay.SelectedByteCount;
+            if (selectedBytes > 0)
+                sess.SaveMemory(path, (Word)hexDisplay.CursorAddress, selectedBytes);
+            else
+                sess.SaveMemory(path, Word.Zero, sess.Machine.MemorySize);
+
+            Log("Saved session to {0}.", path);
+        }
     }
 }
