@@ -59,15 +59,17 @@
         STCH = 0x54,
 
         // I/O
-        RD = 0xD8, // not implemented
-        TD = 0xE0, // not implemented
-        WD = 0xDC, // not implemented
+        RD = 0xD8,
+        TD = 0xE0,
+        WD = 0xDC,
         
         // Other
         COMPR = 0xA0,
         COMP = 0x28,
         TIX = 0x2C,
-        TIXR = 0xB8
+        TIXR = 0xB8,
+
+        NOP = 0xFF
     }
 
     public enum Flag : byte

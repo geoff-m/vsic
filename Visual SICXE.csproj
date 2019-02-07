@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -6,7 +6,7 @@
     <OutputType>WinExe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>vsic</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -41,8 +41,15 @@
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="sicasm">
+      <HintPath>..\SICXE\sicdisasm\bin\Debug\sicasm.exe</HintPath>
+    </Reference>
+    <Reference Include="sicdisasm">
+      <HintPath>..\SICXE\sicdisasm\bin\Debug\sicdisasm.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
@@ -63,11 +70,11 @@
     <Compile Include="DeviceManager.Designer.cs">
       <DependentUpon>DeviceManager.cs</DependentUpon>
     </Compile>
-    <Compile Include="Disassembly.cs">
+    <Compile Include="DisassemblyWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Disassembly.Designer.cs">
-      <DependentUpon>Disassembly.cs</DependentUpon>
+    <Compile Include="DisassemblyWindow.Designer.cs">
+      <DependentUpon>DisassemblyWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Entry Point.cs" />
     <Compile Include="Extensions\ControlExtensions.cs" />
@@ -114,8 +121,8 @@
     <EmbeddedResource Include="DeviceManager.resx">
       <DependentUpon>DeviceManager.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Disassembly.resx">
-      <DependentUpon>Disassembly.cs</DependentUpon>
+    <EmbeddedResource Include="DisassemblyWindow.resx">
+      <DependentUpon>DisassemblyWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FileDeviceCreationDialog.resx">
       <DependentUpon>FileDeviceCreationDialog.cs</DependentUpon>

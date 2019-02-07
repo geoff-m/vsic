@@ -77,6 +77,8 @@ namespace Visual_SICXE
 
         private Session sess;
 
+        public Machine Machine => sess.Machine;
+
         private readonly WatchForm watchForm = new WatchForm();
 
         private void FormLoaded(object sender, EventArgs e)
@@ -1052,6 +1054,14 @@ namespace Visual_SICXE
                 sess.SaveMemory(path, Word.Zero, sess.Machine.MemorySize);
 
             Log("Saved session to {0}.", path);
+        }
+
+        private DisassemblyWindow disasmForm = new DisassemblyWindow();
+        private void disassemblyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            disasmForm.Owner = this;
+            disasmForm.UpdateDisassembly(0, Machine.MemorySize);
+            disasmForm.Show();
         }
     }
 }

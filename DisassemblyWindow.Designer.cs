@@ -1,6 +1,6 @@
 ﻿namespace Visual_SICXE
 {
-    partial class Disassembly
+    partial class DisassemblyWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -28,24 +28,28 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel = new System.Windows.Forms.Panel();
+            this.rtb = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
-            // panel
+            // rtb
             // 
-            this.panel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel.Location = new System.Drawing.Point(0, 0);
-            this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(659, 621);
-            this.panel.TabIndex = 0;
+            this.rtb.BackColor = System.Drawing.SystemColors.Control;
+            this.rtb.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtb.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rtb.Location = new System.Drawing.Point(0, 0);
+            this.rtb.Name = "rtb";
+            this.rtb.ShortcutsEnabled = false;
+            this.rtb.Size = new System.Drawing.Size(314, 582);
+            this.rtb.TabIndex = 0;
+            this.rtb.Text = "";
             // 
-            // Disassembly
+            // DisassemblyWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(659, 621);
-            this.Controls.Add(this.panel);
-            this.Name = "Disassembly";
+            this.ClientSize = new System.Drawing.Size(314, 582);
+            this.Controls.Add(this.rtb);
+            this.Name = "DisassemblyWindow";
             this.Text = "Disassembly";
             this.ResumeLayout(false);
 
@@ -53,6 +57,6 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel;
+        private System.Windows.Forms.RichTextBox rtb;
     }
 }

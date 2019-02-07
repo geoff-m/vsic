@@ -579,7 +579,7 @@
             // loadOBJToolStripMenuItem
             // 
             this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadOBJToolStripMenuItem.Text = "Load Obj...";
             this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
@@ -587,27 +587,27 @@
             // 
             this.loadLstToolStripMenuItem.Enabled = false;
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
-            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
-            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
             this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.OnClickLoadMemoryToolStripMenuItem);
             // 
             // saveMemoryToolStripMenuItem
             // 
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save All Memory...";
             this.saveMemoryToolStripMenuItem.Click += new System.EventHandler(this.saveMemoryToolStripMenuItem_Click);
             // 
             // manageDevicesToolStripMenuItem
             // 
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
             this.manageDevicesToolStripMenuItem.Click += new System.EventHandler(this.manageDevicesToolStripMenuItem_Click);
             // 
@@ -625,7 +625,7 @@
             // 
             this.watchesToolStripMenuItem.Enabled = false;
             this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.watchesToolStripMenuItem.Text = "Watches";
             this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
             // 
@@ -633,15 +633,15 @@
             // 
             this.breakpointsToolStripMenuItem.Enabled = false;
             this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.breakpointsToolStripMenuItem.Text = "Breakpoints";
             // 
             // disassemblyToolStripMenuItem
             // 
-            this.disassemblyToolStripMenuItem.Enabled = false;
             this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
+            this.disassemblyToolStripMenuItem.Click += new System.EventHandler(this.disassemblyToolStripMenuItem_Click);
             // 
             // gotoTB
             // 

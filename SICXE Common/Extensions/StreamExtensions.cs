@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace SICXE_Common.Extensions
 {
     public static class StreamExtensions
     {
-        const int BUFFER_SIZE = 4096;
+        static readonly int BUFFER_SIZE = Environment.SystemPageSize;
 
         /// <summary>
         /// Blocks until the specified number of bytes have been read.
