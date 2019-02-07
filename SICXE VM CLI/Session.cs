@@ -211,8 +211,7 @@ namespace SICXE_VM_CLI
             }
         }
 
-        public int MemorySize
-        { get { return m.MemorySize; } }
+        public int MemorySize => m.MemorySize;
 
         public void PrintMemory(int start, int stop)
         {
@@ -247,6 +246,7 @@ namespace SICXE_VM_CLI
         public void PrintRegisters()
         {
             Console.WriteLine($"PC: {m.ProgramCounter}");
+            Console.WriteLine($"CC: {m.ConditionCode}");
             Console.WriteLine($"A:  {m.RegisterA}  B:  {m.RegisterB}");
             Console.WriteLine($"X:  {m.RegisterX}  L:  {m.RegisterL}");
             Console.WriteLine($"S:  {m.RegisterS}  T:  {m.RegisterT}");
