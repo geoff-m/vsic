@@ -1,9 +1,23 @@
-﻿using System.Diagnostics;
+﻿using System.IO;
+using System.Diagnostics;
 
 namespace SICXE
 {
     public struct Word
     {
+        /// <summary>
+        /// Reads a Word from the stream, beginning at the stream's current position.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public static Word FromStream(Stream stream) // Untested. Endianness may be wrong.
+        {
+            return new Word((byte)stream.ReadByte(),
+                (byte)stream.ReadByte(),
+                (byte)stream.ReadByte());
+        }
+
         /// <summary>
         /// Extracts a three-byte Word from the given location in the given array.
         /// </summary>

@@ -32,6 +32,9 @@ namespace Visual_SICXE
 
             Load += FormLoaded;
             hexDisplay.SelectionChanged += UpdateSelectedByteCount;
+
+            disasmForm = new DisassemblyWindow();
+            disasmForm.Owner = this;
         }
 
         private void UpdateSelectedByteCount(object sender, HexDisplay.SelectionChangedEventArgs args)
@@ -1056,11 +1059,12 @@ namespace Visual_SICXE
             Log("Saved session to {0}.", path);
         }
 
-        private DisassemblyWindow disasmForm = new DisassemblyWindow();
+        private DisassemblyWindow disasmForm;
         private void disassemblyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            disasmForm.Owner = this;
-            disasmForm.UpdateDisassembly(0, Machine.MemorySize);
+            int disasmStart = Math.Max(0, hexDisplay.CursorAddress - 200);
+            int disasmEnd = Math.Min(Machine.MemorySize, hexDisplay.CursorAddress + 200);
+            disasmForm.UpdateDisassembly(disasmStart, disasmEnd);
             disasmForm.Show();
         }
     }
