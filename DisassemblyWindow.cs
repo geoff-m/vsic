@@ -57,6 +57,18 @@ namespace Visual_SICXE
                 Code = null;
                 IsCode = false;
             }
+
+            public override string ToString()
+            {
+                if (IsCode)
+                {
+                    return Code.ToString();
+                }
+                else
+                {
+                    return $"{string.Join(" ", Data.Select(b => b.ToString("X2")))}";
+                }
+            }
         }
 
         const int MAX_DATA_CHUNK_SIZE = Word.Size;
@@ -77,7 +89,7 @@ namespace Visual_SICXE
             var res = disasm.DisassembleWithContinue(m.Memory, startAddress, stopAddress - startAddress);
 
             int instrIdx = 0;
-            for (int addr = startAddress; addr < stopAddress; ++addr)
+            for (int addr = startAddress; addr < stopAddress;)
             {
                 var instr = res.Instructions[instrIdx];
                 if (instr.Address != addr)
@@ -88,6 +100,7 @@ namespace Visual_SICXE
                     // How much data do we have until the next instruction?
                     int bytesOfData = res.Instructions[instrIdx + 1].Address.Value - addr;
 
+                    Debug.WriteLine($"Found {bytesOfData} bytes of data at address {addr}.");
                     // Iterate through all these bytes now, adding them as chunks of data.
                     var dataRegion = new byte[bytesOfData];
                     int readRet = m.Memory.Read(dataRegion, 0, bytesOfData);
@@ -97,19 +110,21 @@ namespace Visual_SICXE
                         if (dataAddr + MAX_DATA_CHUNK_SIZE < addr + bytesOfData)
                         {
                             // take next MAX_DATA_CHUNK_SIZE bytes as new DisassembledUnit
-                            disassembly[dataAddr] = new DisassembledUnit(dataRegion, dataAddr, MAX_DATA_CHUNK_SIZE);
+                            disassembly[dataAddr] = new DisassembledUnit(dataRegion, dataAddr - addr, MAX_DATA_CHUNK_SIZE);
                         }
                         else
                         {
-                            // todo: take only as many bytes as remain as new DisassembledResult.
-
+                            // take only as many bytes as remain as new DisassembledResult.
+                            disassembly[dataAddr] = new DisassembledUnit(dataRegion, dataAddr - addr, addr + bytesOfData - dataAddr);
                         }
                     }
                 }
                 else
                 {
                     // An instruction was disassembled at this address.
+                    //addr = 
                     disassembly[addr] = new DisassembledUnit(instr);
+                    Debug.WriteLine($"Found instruction {instr} at address {addr}.");
                     switch (instr.Operation)
                     {
                         case Instruction.Mnemonic.J:

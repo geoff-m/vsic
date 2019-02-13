@@ -615,7 +615,11 @@ namespace SICXE
             /// <summary>
             /// An address referenced in an instruction is out of bounds.
             /// </summary>
-            AddressOutOfBounds = 6
+            AddressOutOfBounds = 6,
+            /// <summary>
+            /// An instruction attempted to divide by zero.
+            /// </summary>
+            DivideByZero = 7
         }
 
         /// <summary>
@@ -768,7 +772,10 @@ namespace SICXE
                             break;
                         case Mnemonic.DIV:
                             addr = DecodeLongInstruction(b1, out mode);
-                            RegisterAWithEvents = (Word)(regA / ReadWord(addr, mode));
+                            Word divisor = ReadWord(addr, mode);
+                            if (divisor == Word.Zero)
+                                throw new Exceptions.DivideByZeroException();
+                            RegisterAWithEvents = (Word)(regA / divisor);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
@@ -1097,7 +1104,12 @@ namespace SICXE
                 LastRunResult = RunResult.HitBreakpoint;
                 return LastRunResult;
             }
-            catch (SICXEException)
+            catch (Exceptions.DivideByZeroException)
+            {
+                LastRunResult = RunResult.DivideByZero;
+                return LastRunResult;
+            }
+            catch (SICXEException) // Catch generic/unknown SICXE exception last.
             {
                 PC = originalPC;
                 LastRunResult = RunResult.HardwareFault;
