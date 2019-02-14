@@ -148,6 +148,7 @@ namespace Visual_SICXE
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            hexDisplay.Font = new Font(FontFamily.GenericMonospace, 12f);
             CreateNewSession();
         }
 

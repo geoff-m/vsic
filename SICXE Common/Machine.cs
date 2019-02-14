@@ -935,9 +935,10 @@ namespace SICXE
                         case Mnemonic.LDCH:
                             // This instruciton operates on a single byte, not a word.
                             addr = DecodeLongInstruction(b1, out mode);
-                            regA = (Word)(regA & ~0xff); // Zero out lowest byte.
+                            //regA = (Word)(regA | ~0xff); // Zero out lowest byte.
                             addr = DecodeAddress(addr, mode);
-                            RegisterAWithEvents = (Word)(regA | memory[addr] & 0xff); // Or in lowest byte from memory.
+                            RegisterAWithEvents = (Word)(regA | (memory[addr] & 0xff)); // Or in lowest byte from memory.
+                            ThrowForRead(addr, 1);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
@@ -945,6 +946,7 @@ namespace SICXE
                             // This instruction operates on a single byte, not a word.
                             addr = DecodeLongInstruction(b1, out mode);
                             memory[addr] = (byte)(RegisterAWithEvents & 0xff);
+                            ThrowForWrite(addr, 1);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
                             break;
