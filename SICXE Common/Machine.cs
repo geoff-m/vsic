@@ -947,7 +947,7 @@ namespace SICXE
                             addr = DecodeLongInstruction(b1, out mode);
                             //regA = (Word)(regA | ~0xff); // Zero out lowest byte.
                             addr = DecodeAddress(addr, mode);
-                            RegisterAWithEvents = (Word)(regA | (memory[addr] & 0xff)); // Or in lowest byte from memory.
+                            RegisterAWithEvents = (Word)((regA & ~0xff) | memory[addr]); // Or in lowest byte from memory.
                             ThrowForRead(addr, 1);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op.ToString()} {addr.ToString()}.");
