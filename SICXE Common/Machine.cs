@@ -161,7 +161,8 @@ namespace SICXE
                 try
                 {
                     newDev = IODevice.Deserialize(stream);
-                } catch (InvalidDataException ide)
+                }
+                catch (InvalidDataException ide)
                 {
                     Logger.LogError($"Failed to create an I/O device: {GetInnermost(ide).Message}");
                 }
@@ -574,7 +575,7 @@ namespace SICXE
         private bool running;
         public bool IsRunning
         {
-            get { return running;}
+            get { return running; }
             private set
             {
                 if (running != value)
@@ -891,25 +892,34 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
+                            Word r1value;
+                            try
+                            {
+                                r1value = GetRegister(r1);
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             switch ((Register)r2)
                             {
                                 case Register.A:
-                                    RegisterAWithEvents = GetRegister(r1);
+                                    RegisterAWithEvents = r1value;
                                     break;
                                 case Register.B:
-                                    RegisterBWithEvents = GetRegister(r1);
+                                    RegisterBWithEvents = r1value;
                                     break;
                                 case Register.L:
-                                    RegisterLWithEvents = GetRegister(r1);
+                                    RegisterLWithEvents = r1value;
                                     break;
                                 case Register.S:
-                                    RegisterSWithEvents = GetRegister(r1);
+                                    RegisterSWithEvents = r1value;
                                     break;
                                 case Register.T:
-                                    RegisterTWithEvents = GetRegister(r1);
+                                    RegisterTWithEvents = r1value;
                                     break;
                                 case Register.X:
-                                    RegisterXWithEvents = GetRegister(r1);
+                                    RegisterXWithEvents = r1value;
                                     break;
                             }
                             if (LogEachInstruction)
@@ -1139,7 +1149,7 @@ namespace SICXE
                     return (Word)((b2 & ~0x8) << 7 | memory[PC++]);
                 }
                 indirection = AddressingMode.Simple;
-                return (Word)(regX + (b2 & ~0x8) << 7 | memory[PC++]);
+                return (Word)(RegisterXWithEvents + (b2 & ~0x8) << 7 | memory[PC++]);
             }
             flags |= (byte)((b2 & 0xf0) >> 4);
             int disp;
@@ -1176,21 +1186,22 @@ namespace SICXE
 #endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
-                    return (Word)(regB + ((b2 & 0xf) << 8 | memory[PC++]));
+                    return (Word)(RegisterBWithEvents + ((b2 & 0xf) << 8 | memory[PC++]));
                 case 0b111000: // disp + (X)
 #if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp + x");
 #endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
-                    return (Word)(regX + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(RegisterXWithEvents + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b111001: // addr + (X) (format 4)
 #if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("addr + x");
 #endif
                     ThrowForRead((Word)PC, 2);
                     indirection = AddressingMode.Simple;
-                    return (Word)(regX + (b2 & 0xf | memory[PC++] << 8 | memory[PC++]));
+                    int addr = b2 & 0xf | memory[PC++] << 8 | memory[PC++];
+                    return (Word)(RegisterXWithEvents + addr);
                 case 0b111010: // (PC) + disp + (X)
 #if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("pc + disp + x");
@@ -1198,14 +1209,14 @@ namespace SICXE
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
                     disp = DecodeTwosComplement((b2 & 0xf) << 8 | memory[PC++], 12);
-                    return (Word)(PC + regX + disp);
+                    return (Word)(PC + RegisterXWithEvents + disp);
                 case 0b111100: // (B) + disp + (X)
 #if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("b + disp + x");
 #endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Simple;
-                    return (Word)(regB + regX + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(RegisterBWithEvents + RegisterXWithEvents + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b100000: // disp
 #if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp (indirect)");
@@ -1234,7 +1245,7 @@ namespace SICXE
 #endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Indirect;
-                    return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(RegisterBWithEvents + (b2 & 0xf) << 8 | memory[PC++]);
                 case 0b010000: // disp
 #if DEBUG_PRINT_ADDRESS_TYPE
                     Debug.WriteLine("disp (immediate)");
@@ -1263,7 +1274,7 @@ namespace SICXE
 #endif
                     ThrowForRead((Word)PC, 1);
                     indirection = AddressingMode.Immediate;
-                    return (Word)(regB + (b2 & 0xf) << 8 | memory[PC++]);
+                    return (Word)(RegisterBWithEvents + (b2 & 0xf) << 8 | memory[PC++]);
             }
             throw new IllegalInstructionException((Word)oldPC);
         }
@@ -1327,7 +1338,7 @@ namespace SICXE
                     RegisterChanged?.Invoke(reg, false);
                     return regX;
             }
-            throw new SICXEException($"Illegal register code: {r:X2}.");
+            throw new SICXEException($"Illegal register code: '{r:X2}'.");
         }
 
         /// <summary>
