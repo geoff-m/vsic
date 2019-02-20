@@ -21,6 +21,14 @@ namespace Visual_SICXE
         public MainForm()
         {
             InitializeComponent();
+            try
+            {
+                System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+                Icon = (Icon)resources.GetObject("eggen.ico");
+            }
+            catch (Exception) { Debug.WriteLine("MainForm init: Error setting icon."); }
+
+
             ccCB.Items.Add("Less than");
             ccCB.Items.Add("Equal to");
             ccCB.Items.Add("Greater than");

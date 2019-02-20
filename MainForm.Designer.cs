@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.memGB = new System.Windows.Forms.GroupBox();
             this.hexDisplay = new Visual_SICXE.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
@@ -805,6 +806,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.menuStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.MinimumSize = new System.Drawing.Size(485, 728);
             this.Name = "MainForm";
