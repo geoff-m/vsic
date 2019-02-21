@@ -1072,6 +1072,7 @@ namespace Visual_SICXE
             int disasmStart = Math.Max(0, hexDisplay.CursorAddress - 200);
             int disasmEnd = Math.Min(Machine.MemorySize, hexDisplay.CursorAddress + 200);
             disasmForm.UpdateDisassembly(disasmStart, disasmEnd);
+            disasmForm.ScrollToAddress(hexDisplay.CursorAddress);
             disasmForm.Show();
         }
     }

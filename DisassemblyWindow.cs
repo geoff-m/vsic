@@ -11,6 +11,7 @@ using sicdisasm;
 using SICXEAssembler;
 using Word = SICXE.Word;
 using System.Diagnostics;
+using System.IO;
 
 namespace Visual_SICXE
 {
@@ -21,6 +22,17 @@ namespace Visual_SICXE
             InitializeComponent();
             disasm = new Disassembler();
             flowLines = new List<FlowLine>();
+            FormClosing += OnClosing;
+            rtb.ReadOnly = true;
+        }
+
+        private void OnClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
 
         Disassembler disasm;
@@ -31,31 +43,60 @@ namespace Visual_SICXE
         /// </summary>
         struct DisassembledUnit
         {
+            public int LineNumber;
             public readonly Instruction Code;
             public readonly byte[] Data;
             public readonly bool IsCode;
-            public DisassembledUnit(Instruction instr)
+            public DisassembledUnit(int lineNumber, Instruction instr)
             {
+                LineNumber = lineNumber;
                 Code = instr;
                 Data = null;
                 IsCode = true;
             }
 
-            public DisassembledUnit(byte[] data)
+            public DisassembledUnit(int lineNumber, byte[] data)
             {
+                LineNumber = lineNumber;
                 Debug.Assert(data.Length <= MAX_DATA_CHUNK_SIZE);
                 Data = data;
                 Code = null;
                 IsCode = false;
             }
 
-            public DisassembledUnit(byte[] data, int offset, int length)
+            public DisassembledUnit(int lineNumber, byte[] data, int offset, int length)
             {
+                LineNumber = lineNumber;
                 Debug.Assert(length <= MAX_DATA_CHUNK_SIZE);
                 Data = new byte[length];
                 Array.Copy(data, offset, Data, 0, length);
                 Code = null;
                 IsCode = false;
+            }
+
+            public static readonly DisassembledUnit Empty = new DisassembledUnit();
+
+            public override bool Equals(object obj)
+            {
+                if (obj is DisassembledUnit other)
+                {
+                    if (IsCode)
+                        return Equals(Code, other.Code);
+                    if (Data == null)
+                        return other.Data == null;
+                    return Data.SequenceEqual(other.Data);
+                }
+                return false;
+            }
+
+            public static bool operator==(DisassembledUnit x, DisassembledUnit y)
+            {
+                return x.Equals(y);
+            }
+
+            public static bool operator !=(DisassembledUnit x, DisassembledUnit y)
+            {
+                return !x.Equals(y);
             }
 
             public override string ToString()
@@ -66,6 +107,8 @@ namespace Visual_SICXE
                 }
                 else
                 {
+                    if (Data == null)
+                        return "<empty>";
                     return $"{string.Join(" ", Data.Select(b => b.ToString("X2")))}";
                 }
             }
@@ -82,65 +125,111 @@ namespace Visual_SICXE
             if (m == null)
                 return;
 
+            rtb.Clear();
+
             if (disassembly == null || disassembly.Length != m.MemorySize)
                 disassembly = new DisassembledUnit[m.MemorySize];
 
-            m.Memory.Seek(startAddress, System.IO.SeekOrigin.Begin);
+            m.Memory.Seek(startAddress, SeekOrigin.Begin);
             var res = disasm.DisassembleWithContinue(m.Memory, startAddress, stopAddress - startAddress);
 
-            int instrIdx = 0;
-            for (int addr = startAddress; addr < stopAddress;)
+            int lineNumber = 0;
+            int memAddr = startAddress;
+            for (int disasmInstrIdx = 0; disasmInstrIdx < res.Instructions.Count; ++disasmInstrIdx)
             {
-                var instr = res.Instructions[instrIdx];
-                if (instr.Address != addr)
+                var instr = res.Instructions[disasmInstrIdx];                
+                var instrAddr = instr.Address.Value;
+                if (instrAddr > memAddr)
                 {
-                    // The data at this address was not disassembled into a valid instruction.
-                    // We want to display it anyway as data.
-
-                    // How much data do we have until the next instruction?
-                    int bytesOfData = res.Instructions[instrIdx + 1].Address.Value - addr;
-
-                    Debug.WriteLine($"Found {bytesOfData} bytes of data at address {addr}.");
-                    // Iterate through all these bytes now, adding them as chunks of data.
-                    var dataRegion = new byte[bytesOfData];
-                    int readRet = m.Memory.Read(dataRegion, 0, bytesOfData);
-                    Debug.Assert(readRet == bytesOfData);
-                    for (int dataAddr = addr; dataAddr < addr + bytesOfData; dataAddr += MAX_DATA_CHUNK_SIZE)
+                    // There was some data that failed to disassemble between this instruction and the previous one.
+                    // Add it to the display as data.
+                    m.Memory.Seek(memAddr, SeekOrigin.Begin);
+                    var dataChunks = ChunkStream(m.Memory, instrAddr - memAddr, Word.Size);
+                    foreach (var dc in dataChunks)
                     {
-                        if (dataAddr + MAX_DATA_CHUNK_SIZE < addr + bytesOfData)
-                        {
-                            // take next MAX_DATA_CHUNK_SIZE bytes as new DisassembledUnit
-                            disassembly[dataAddr] = new DisassembledUnit(dataRegion, dataAddr - addr, MAX_DATA_CHUNK_SIZE);
-                        }
-                        else
-                        {
-                            // take only as many bytes as remain as new DisassembledResult.
-                            disassembly[dataAddr] = new DisassembledUnit(dataRegion, dataAddr - addr, addr + bytesOfData - dataAddr);
-                        }
+                        disassembly[memAddr] = new DisassembledUnit(lineNumber++, dc);
+                        var hexBytes = dc.Select(b => b.ToString("X2"));
+                        rtb.AppendText($"0x{memAddr:X} {string.Join(" ", hexBytes)}\n");
+                        memAddr += dc.Length;
                     }
                 }
-                else
-                {
-                    // An instruction was disassembled at this address.
-                    //addr = 
-                    disassembly[addr] = new DisassembledUnit(instr);
-                    Debug.WriteLine($"Found instruction {instr} at address {addr}.");
-                    switch (instr.Operation)
-                    {
-                        case Instruction.Mnemonic.J:
-                            flowLines.Add(new FlowLine(addr, instr.Operands[0].Value.Value, Color.Red));
-                            break;
-                        case Instruction.Mnemonic.JEQ:
-                        case Instruction.Mnemonic.JLT:
-                        case Instruction.Mnemonic.JGT:
-                            flowLines.Add(new FlowLine(addr, instr.Operands[0].Value.Value, Color.Purple));
-                            break;
-                    }
-                }
-                rtb.AppendText($"{instr.Address} {instr}\n");
 
-                ++instrIdx;
+                disassembly[instrAddr] = new DisassembledUnit(lineNumber++, instr);
+                Debug.WriteLine($"Found instruction {instr} at address {instrAddr}.");
+                switch (instr.Operation)
+                {
+                    case Instruction.Mnemonic.J:
+                        flowLines.Add(new FlowLine(instrAddr, instr.Operands[0].Value.Value, Color.Red));
+                        break;
+                    case Instruction.Mnemonic.JEQ:
+                    case Instruction.Mnemonic.JLT:
+                    case Instruction.Mnemonic.JGT:
+                        flowLines.Add(new FlowLine(instrAddr, instr.Operands[0].Value.Value, Color.Purple));
+                        break;
+                }
+                memAddr = instrAddr + (int)instr.Format;
+                
+                rtb.AppendText($"0x{instrAddr:X} {disassembly[instrAddr]}\n");
             }
+
+        }
+
+        public void ScrollToAddress(int address)
+        {
+            // Search for address in disassembly.
+            // Walk back until you find the DU that isn't empty.
+            DisassembledUnit du = DisassembledUnit.Empty;
+            for (; address >= 0; --address)
+            {
+                du = disassembly[address];
+                if (du != DisassembledUnit.Empty)
+                    break;
+            }
+
+            // 'address' is now the index of the beginning of a disassembled unit.
+            
+            // Now we must map this to character index in rtb.
+
+            // Back up existing selection.
+            int selStart = rtb.SelectionStart;
+            int selLength = rtb.SelectionLength;
+
+            int duStartChar = rtb.GetFirstCharIndexFromLine(du.LineNumber);
+
+            // ...we want to get (roughly) the position where we are currently scolled to.
+            // This could be very different from the position of the cursor/selection.
+            // Try getting a point in the middle of the control/form and calling GetCharIndexFromPosition on it?
+            
+
+            
+        }
+
+        /// <summary>
+        /// Groups a Stream's bytes into arrays of a given size.
+        /// </summary>
+        /// <param name="s">The stream to be read.</param>
+        /// <param name="length">The maximum number of bytes to read.</param>
+        /// <param name="chunkSize">The size of each array that will be returned.</param>
+        /// <returns>A list of byte arrays of length given by 'chunkSize'. The total number of bytes over all arrays will not exceed 'length'.</returns>
+        private static IList<byte[]> ChunkStream(Stream s, int length, int chunkSize)
+        {
+            var ret = new List<byte[]>();
+            Func<Stream, bool> streamNotDone = (stream) => stream.Position < stream.Length;
+            for (int totalRead = 0; totalRead < length && streamNotDone(s); totalRead += chunkSize)
+            {
+                // Read a chunk.
+                var chunk = new byte[chunkSize];
+                int chunkRead = 0;
+                do
+                {
+                    int justRead = s.Read(chunk, 0, chunkSize - chunkRead);
+                    if (justRead <= 0)
+                        break; // Reached end of stream.
+                    chunkRead += justRead;
+                } while (chunkRead < chunkSize && streamNotDone(s));
+                ret.Add(chunk);
+            }
+            return ret;
         }
 
         List<FlowLine> flowLines;
