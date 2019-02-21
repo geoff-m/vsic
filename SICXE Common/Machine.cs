@@ -717,9 +717,16 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            reg2value = GetRegister(r2);
-                            SetRegister(r2, reg1value + reg2value);
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                reg2value = GetRegister(r2);
+                                SetRegister(r2, reg1value + reg2value);
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
                             break;
@@ -734,9 +741,16 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            reg2value = GetRegister(r2);
-                            SetRegister(r2, reg1value + reg2value);
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                reg2value = GetRegister(r2);
+                                SetRegister(r2, reg1value + reg2value);
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
                             break;
@@ -751,9 +765,16 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            reg2value = GetRegister(r2);
-                            SetRegister(r2, (Word)(reg1value * reg2value));
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                reg2value = GetRegister(r2);
+                                SetRegister(r2, (Word)(reg1value * reg2value));
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
                             break;
@@ -771,9 +792,16 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            reg2value = GetRegister(r2);
-                            SetRegister(r2, (Word)(reg1value / reg2value));
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                reg2value = GetRegister(r2);
+                                SetRegister(r2, (Word)(reg1value / reg2value));
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
                             break;
@@ -795,8 +823,15 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            SetRegister(r1, (Word)(reg1value << r2));
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                SetRegister(r1, (Word)(reg1value << r2));
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
                             break;
@@ -805,8 +840,15 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            SetRegister(r1, (Word)(reg1value >> r2));
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                SetRegister(r1, (Word)(reg1value >> r2));
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
                             break;
@@ -888,8 +930,15 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            reg1value = GetRegister(r1);
-                            reg2value = GetRegister(r2);
+                            try
+                            {
+                                reg1value = GetRegister(r1);
+                                reg2value = GetRegister(r2);
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             ConditionCode = CompareWords(reg1value, reg2value);
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {r1},{r2}.");
@@ -899,35 +948,13 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
-                            Word r1value;
                             try
                             {
-                                r1value = GetRegister(r1);
+                                SetRegister(r2, GetRegister(r1));
                             }
                             catch (SICXEException ex)
                             {
                                 throw new IllegalInstructionException((Word)PC, ex);
-                            }
-                            switch ((Register)r2)
-                            {
-                                case Register.A:
-                                    RegisterAWithEvents = r1value;
-                                    break;
-                                case Register.B:
-                                    RegisterBWithEvents = r1value;
-                                    break;
-                                case Register.L:
-                                    RegisterLWithEvents = r1value;
-                                    break;
-                                case Register.S:
-                                    RegisterSWithEvents = r1value;
-                                    break;
-                                case Register.T:
-                                    RegisterTWithEvents = r1value;
-                                    break;
-                                case Register.X:
-                                    RegisterXWithEvents = r1value;
-                                    break;
                             }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
@@ -936,7 +963,14 @@ namespace SICXE
                             ThrowForRead((Word)PC, 1);
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
-                            SetRegister(r1, Word.Zero);
+                            try
+                            {
+                                SetRegister(r1, Word.Zero);
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {Enum.GetName(typeof(Register), r1)}.");
                             break;
@@ -945,7 +979,14 @@ namespace SICXE
                             b2 = memory[PC++];
                             r1 = (b2 & 0xf0) >> 4;
                             ++regX;
-                            ConditionCode = CompareWords(RegisterXWithEvents, GetRegister(r1));
+                            try
+                            {
+                                ConditionCode = CompareWords(RegisterXWithEvents, GetRegister(r1));
+                            }
+                            catch (SICXEException ex)
+                            {
+                                throw new IllegalInstructionException((Word)PC, ex);
+                            }
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {Enum.GetName(typeof(Register), r1)}.");
                             break;
