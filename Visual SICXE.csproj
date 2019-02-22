@@ -44,7 +44,8 @@
     <Reference Include="sicasm">
       <HintPath>..\SICXE\sicdisasm\bin\Debug\sicasm.exe</HintPath>
     </Reference>
-    <Reference Include="sicdisasm">
+    <Reference Include="sicdisasm, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\SICXE\sicdisasm\bin\Debug\sicdisasm.exe</HintPath>
     </Reference>
     <Reference Include="System" />

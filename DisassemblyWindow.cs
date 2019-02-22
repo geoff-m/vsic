@@ -84,6 +84,8 @@ namespace Visual_SICXE
                         return Equals(Code, other.Code);
                     if (Data == null)
                         return other.Data == null;
+                    if (other.Data == null)
+                        return false;
                     return Data.SequenceEqual(other.Data);
                 }
                 return false;
