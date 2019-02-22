@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Devices\FileDevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Devices\IODevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\BreakpointHitException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\DivideByZeroException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\IllegalInstructionException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Exceptions\SICXEException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\StreamExtensions.cs" />

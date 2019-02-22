@@ -21,6 +21,14 @@ namespace Visual_SICXE
         public MainForm()
         {
             InitializeComponent();
+            try
+            {
+                System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+                Icon = (Icon)resources.GetObject("eggen.ico");
+            }
+            catch (Exception) { Debug.WriteLine("MainForm init: Error setting icon."); }
+
+
             ccCB.Items.Add("Less than");
             ccCB.Items.Add("Equal to");
             ccCB.Items.Add("Greater than");
@@ -148,6 +156,7 @@ namespace Visual_SICXE
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            hexDisplay.Font = new Font(FontFamily.GenericMonospace, 12f);
             CreateNewSession();
         }
 
@@ -516,6 +525,7 @@ namespace Visual_SICXE
 
         private void HandleExecutionResult()
         {
+            string pcStr = $"0x{(int)sess.Machine.ProgramCounter:X2}";
             switch (sess.Machine.LastRunResult)
             {
                 case Machine.RunResult.None:
@@ -529,14 +539,20 @@ namespace Visual_SICXE
                     toolStripStatusLabel.Text = "Hit breakpoint";
                     break;
                 case Machine.RunResult.IllegalInstruction:
-                    LogError($"Illegal instruction at address 0x{((int)sess.Machine.ProgramCounter):X2}!");
+                    LogError($"Illegal instruction at address {pcStr}!");
                     toolStripStatusLabel.Text = "Illegal instruction";
                     break;
                 case Machine.RunResult.EndOfMemory:
                     LogError("The program counter has hit the end of memory.");
+                    toolStripStatusLabel.Text = "End of memory";
                     break;
                 case Machine.RunResult.AddressOutOfBounds:
                     LogError("An attempt was made to access an out-of-bounds address.");
+                    toolStripStatusLabel.Text = "Address out of bounds";
+                    break;
+                case Machine.RunResult.DivideByZero:
+                    LogError($"The instruction at {pcStr} attempted to divide by zero!");
+                    toolStripStatusLabel.Text = "Division by zero";
                     break;
                 case Machine.RunResult.CancellationSignalled:
                     toolStripStatusLabel.Text = "";

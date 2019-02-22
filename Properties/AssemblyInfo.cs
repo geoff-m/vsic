@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Visual SIC Simulator")]
-[assembly: AssemblyCopyright("Copyright © 2018 Geoff McQueen")]
+[assembly: AssemblyCopyright("Copyright © 2019 Geoff McQueen")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

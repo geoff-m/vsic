@@ -698,6 +698,8 @@ namespace Visual_SICXE
         bool dragging = false;
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            base.OnMouseDown(e); // calls Focus().
+
             if (e.Button != MouseButtons.Left)
                 return;
 

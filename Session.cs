@@ -17,6 +17,7 @@ namespace Visual_SICXE
         public Session()
         {
             Machine = new Machine();
+            Machine.LogEachInstruction = true;
             Logger = new NullLog();
         }
 
