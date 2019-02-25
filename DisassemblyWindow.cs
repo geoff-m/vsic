@@ -91,7 +91,7 @@ namespace Visual_SICXE
                 return false;
             }
 
-            public static bool operator==(DisassembledUnit x, DisassembledUnit y)
+            public static bool operator ==(DisassembledUnit x, DisassembledUnit y)
             {
                 return x.Equals(y);
             }
@@ -121,6 +121,14 @@ namespace Visual_SICXE
         // For more efficient memory use, this could be replaced with a BST thing.
         DisassembledUnit[] disassembly;
 
+        public Color AddressColor = Color.Black;
+        public Color DataColor = Color.DarkRed;
+        public Color InstructionColor = Color.Blue;
+        public Color OperandColor = Color.DarkOrange;
+
+        public Font RegularFont => rtb.Font;
+        public Font BoldFont => new Font(RegularFont, FontStyle.Bold);
+
         public void UpdateDisassembly(int startAddress, int stopAddress)
         {
             var m = ((MainForm)Owner)?.Machine;
@@ -132,32 +140,36 @@ namespace Visual_SICXE
             if (disassembly == null || disassembly.Length != m.MemorySize)
                 disassembly = new DisassembledUnit[m.MemorySize];
 
-            m.Memory.Seek(startAddress, SeekOrigin.Begin);
+            Debug.WriteLine($"Disassembling from {startAddress:X} to {stopAddress:X}.");
             var res = disasm.DisassembleWithContinue(m.Memory, startAddress, stopAddress - startAddress);
 
             int lineNumber = 0;
             int memAddr = startAddress;
             for (int disasmInstrIdx = 0; disasmInstrIdx < res.Instructions.Count; ++disasmInstrIdx)
             {
-                var instr = res.Instructions[disasmInstrIdx];                
+                var instr = res.Instructions[disasmInstrIdx];
                 var instrAddr = instr.Address.Value;
                 if (instrAddr > memAddr)
                 {
                     // There was some data that failed to disassemble between this instruction and the previous one.
                     // Add it to the display as data.
+                    Debug.WriteLine($"Found data at address {memAddr:X}.");
                     m.Memory.Seek(memAddr, SeekOrigin.Begin);
                     var dataChunks = ChunkStream(m.Memory, instrAddr - memAddr, Word.Size);
                     foreach (var dc in dataChunks)
                     {
                         disassembly[memAddr] = new DisassembledUnit(lineNumber++, dc);
                         var hexBytes = dc.Select(b => b.ToString("X2"));
-                        rtb.AppendText($"0x{memAddr:X} {string.Join(" ", hexBytes)}\n");
+                        rtb.SelectionColor = AddressColor;
+                        rtb.AppendText($"0x{memAddr:X} ");
+                        rtb.SelectionColor = DataColor;
+                        rtb.AppendText($"{string.Join(" ", hexBytes)}\n");
                         memAddr += dc.Length;
                     }
                 }
 
                 disassembly[instrAddr] = new DisassembledUnit(lineNumber++, instr);
-                Debug.WriteLine($"Found instruction {instr} at address {instrAddr}.");
+                Debug.WriteLine($"Found instruction {instr} at address {instrAddr:X}.");
                 switch (instr.Operation)
                 {
                     case Instruction.Mnemonic.J:
@@ -170,8 +182,19 @@ namespace Visual_SICXE
                         break;
                 }
                 memAddr = instrAddr + (int)instr.Format;
-                
-                rtb.AppendText($"0x{instrAddr:X} {disassembly[instrAddr]}\n");
+
+                rtb.SelectionColor = AddressColor;
+                rtb.AppendText($"0x{instrAddr:X} ");
+                rtb.SelectionColor = InstructionColor;
+                rtb.SelectionFont = BoldFont;
+                rtb.AppendText(instr.Operation.ToString());
+                if (instr.Operands.Count > 0)
+                {
+                    rtb.SelectionColor = OperandColor;
+                    rtb.AppendText(" " + string.Join(",", instr.Operands));
+                }
+                rtb.SelectionFont = RegularFont;
+                rtb.AppendText("\n");
             }
 
         }
@@ -189,21 +212,37 @@ namespace Visual_SICXE
             }
 
             // 'address' is now the index of the beginning of a disassembled unit.
-            
+
             // Now we must map this to character index in rtb.
 
-            // Back up existing selection.
-            int selStart = rtb.SelectionStart;
-            int selLength = rtb.SelectionLength;
+            //// Back up existing selection.
+            //int selStart = rtb.SelectionStart;
+            //int selLength = rtb.SelectionLength;
+
+            int scrollLine = (int)(du.LineNumber - CountTextLinesInRTB() * 0.3);
+            if (scrollLine < 0)
+                scrollLine = 0;
+            rtb.SelectionStart = rtb.GetFirstCharIndexFromLine(scrollLine);
+            rtb.ScrollToCaret();
+
 
             int duStartChar = rtb.GetFirstCharIndexFromLine(du.LineNumber);
+            //rtb.SelectionStart = duStartChar;
+            //rtb.ScrollToCaret();
 
-            // ...we want to get (roughly) the position where we are currently scolled to.
-            // This could be very different from the position of the cursor/selection.
-            // Try getting a point in the middle of the control/form and calling GetCharIndexFromPosition on it?
-            
+            rtb.SelectionStart = duStartChar + 3 + address.ToString("x").Length;
 
-            
+            //rtb.SelectionStart = selStart;
+            //rtb.SelectionLength = selLength;
+        }
+
+        /// <summary>
+        /// Computes the number of lines of text that can be displayed in the RTB on screen at the same time.
+        /// </summary>
+        private int CountTextLinesInRTB()
+        {
+            var lineHeight = TextRenderer.MeasureText("M", rtb.Font).Height;
+            return Math.Max(1, rtb.ClientSize.Height / lineHeight);
         }
 
         /// <summary>

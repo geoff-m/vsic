@@ -106,6 +106,7 @@ namespace Visual_SICXE
 #if DEBUG
                 case Keys.F12:
                     sess.Machine.MemoryRainbowTest();
+                    UpdateMachineDisplay();
                     return true;
 #endif
             }
@@ -1069,8 +1070,10 @@ namespace Visual_SICXE
         private DisassemblyWindow disasmForm;
         private void disassemblyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int disasmStart = Math.Max(0, hexDisplay.CursorAddress - 200);
-            int disasmEnd = Math.Min(Machine.MemorySize, hexDisplay.CursorAddress + 200);
+            
+            int disasmStart = Math.Max(0, hexDisplay.CursorAddress - 0x200);
+            int disasmEnd = Math.Min(Machine.MemorySize, hexDisplay.CursorAddress + 0x200);
+            Debug.WriteLine($"Requesting disassembly near {hexDisplay.CursorAddress:X}: [{disasmStart:X}, {disasmEnd:X}]");
             disasmForm.UpdateDisassembly(disasmStart, disasmEnd);
             disasmForm.ScrollToAddress(hexDisplay.CursorAddress);
             disasmForm.Show();
