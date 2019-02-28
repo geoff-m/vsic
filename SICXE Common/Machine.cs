@@ -1001,7 +1001,8 @@ namespace SICXE
                             addr = DecodeLongInstruction(b1, out mode);
                             RegisterL = (Word)PC;
                             PC = DecodeAddress(addr, mode);
-                            Logger.Log($"Executed {op} {addr}.");
+                            if (LogEachInstruction)
+                                Logger.Log($"Executed {op} {addr}.");
                             break;
                         case Mnemonic.RSUB:
                             PC = RegisterLWithEvents;

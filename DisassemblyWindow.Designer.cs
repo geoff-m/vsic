@@ -29,6 +29,12 @@
         private void InitializeComponent()
         {
             this.rtb = new System.Windows.Forms.RichTextBox();
+            this.flPanel = new System.Windows.Forms.Panel();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // rtb
@@ -39,18 +45,48 @@
             this.rtb.Location = new System.Drawing.Point(0, 0);
             this.rtb.Name = "rtb";
             this.rtb.ShortcutsEnabled = false;
-            this.rtb.Size = new System.Drawing.Size(314, 582);
+            this.rtb.Size = new System.Drawing.Size(304, 582);
             this.rtb.TabIndex = 0;
             this.rtb.Text = "";
+            // 
+            // panel1
+            // 
+            this.flPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flPanel.Location = new System.Drawing.Point(0, 0);
+            this.flPanel.Name = "panel1";
+            this.flPanel.Size = new System.Drawing.Size(46, 582);
+            this.flPanel.TabIndex = 1;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.flPanel);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.rtb);
+            this.splitContainer1.Size = new System.Drawing.Size(351, 582);
+            this.splitContainer1.SplitterDistance = 46;
+            this.splitContainer1.SplitterWidth = 1;
+            this.splitContainer1.TabIndex = 2;
             // 
             // DisassemblyWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(314, 582);
-            this.Controls.Add(this.rtb);
+            this.ClientSize = new System.Drawing.Size(351, 582);
+            this.Controls.Add(this.splitContainer1);
             this.Name = "DisassemblyWindow";
             this.Text = "Disassembly";
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -58,5 +94,7 @@
         #endregion
 
         private System.Windows.Forms.RichTextBox rtb;
+        private System.Windows.Forms.Panel flPanel;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
