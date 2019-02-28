@@ -19,7 +19,7 @@ namespace Visual_SICXE.Extensions
         public static void ResumeDrawing(this Control control)
         {
             SendMessage(control.Handle, WM_SETREDRAW, true, 0);
-            control.Refresh();
+            control.Invalidate();
         }
 
         /// <summary>

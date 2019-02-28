@@ -12,6 +12,7 @@ using SICXEAssembler;
 using Word = SICXE.Word;
 using System.Diagnostics;
 using System.IO;
+using Visual_SICXE.Extensions;
 
 namespace Visual_SICXE
 {
@@ -24,6 +25,7 @@ namespace Visual_SICXE
             flowLines = new List<FlowLine>();
             FormClosing += OnClosing;
             rtb.ReadOnly = true;
+            flPanel.DoubleBuffer(true);
             flPanel.Paint += DrawFlowLines;
             rtb.VScroll += OnVerticalScroll;
         }
@@ -145,13 +147,11 @@ namespace Visual_SICXE
             if (m == null)
                 return;
 
-            rtb.Clear();
-
             if (disassembly == null || disassembly.Length != m.MemorySize)
                 disassembly = new DisassembledUnit[m.MemorySize];
             else
                 Array.Clear(disassembly, 0, disassembly.Length);
-
+            flowLines.Clear();
             disassemblyStartAddress = startAddress;
             disassemblyEndAddress = endAddress;
 
@@ -204,7 +204,19 @@ namespace Visual_SICXE
                 }
                 memAddr = instrAddr + (int)instr.Format;
             }
-            DrawDisassembly();
+            WriteDisassemblyText();
+
+            // Now that all lines have been added to the RTB, we can update each FlowLine with its destination line number.
+            var intervalTracker = new Interval(0, rtb.Lines.Length);
+            for (int i = 0; i < flowLines.Count; ++i)
+            {
+                var fl = flowLines[i];
+                fl.DestinationLine = FindDisassembledUnit(fl.DestinationAddress).LineNumber;
+                int trafficCount = intervalTracker.GetMaximum(fl.OriginLine, fl.DestinationLine); // Count how many other FlowLines are next to us, at maximum.
+                fl.HorizontalOffset = 5 + trafficCount * 6;
+                intervalTracker.Increment(fl.OriginLine, fl.DestinationLine); // Increment the number of FlowLines on lines that I span.
+            }
+            Debug.WriteLine("Disassembly update success.");
         }
 
         public Color AddressColor = Color.Black;
@@ -212,8 +224,10 @@ namespace Visual_SICXE
         public Color InstructionColor = Color.Blue;
         public Color OperandColor = Color.DarkOrange;
 
-        private void DrawDisassembly()
+        private void WriteDisassemblyText()
         {
+            rtb.SuspendDrawing();
+            rtb.Clear();
             int addrPadLength = disassemblyEndAddress.ToString("x").Length;
             int opPadLength = 6;
             var regularFont = rtb.Font;
@@ -253,7 +267,6 @@ namespace Visual_SICXE
                     }
 
                     rtb.AppendText(opcodeStr.PadRight(opPadLength));
-
                     if ((instr.Format == InstructionFormat.Format3 || instr.Format == InstructionFormat.Format4)
                         && instr.Operands.Count == 1
                         && instr.Flags.HasValue)
@@ -287,13 +300,17 @@ namespace Visual_SICXE
                     }
                     else
                     {
-                        if (instr.Operation == Instruction.Mnemonic.SHIFTL || instr.Operation == Instruction.Mnemonic.SHIFTR)
+                        if (instr.Operands.Count > 1)
                         {
-                            rtb.AppendText($" {instr.Operands[0]},{instr.Operands[1].Value.Value}");
-                        }
-                        else
-                        {
-                            rtb.AppendText(" " + string.Join(",", instr.Operands));
+                            rtb.SelectionColor = OperandColor;
+                            if (instr.Operation == Instruction.Mnemonic.SHIFTL || instr.Operation == Instruction.Mnemonic.SHIFTR)
+                            {
+                                rtb.AppendText($" {instr.Operands[0]},{instr.Operands[1].Value.Value}");
+                            }
+                            else
+                            {
+                                rtb.AppendText(" " + string.Join(",", instr.Operands));
+                            }
                         }
                     }
                     rtb.SelectionFont = regularFont;
@@ -309,6 +326,7 @@ namespace Visual_SICXE
                     rtb.AppendText($"{string.Join(" ", hexBytes)}\n");
                 }
             }
+            rtb.ResumeDrawing();
         }
 
         private void DrawFlowLines(object sender, PaintEventArgs e)
@@ -327,11 +345,12 @@ namespace Visual_SICXE
             //lineEndPoint.Offset(20, 0);
             //g.DrawLine(Pens.Red, charPoint, lineEndPoint);
 
-            int h = 5; // hack to get lines not to be on top of each other.
-            // replace this with something smarter that will only push things away if they would actually overlap.
-            foreach (var fl in flowLines)
+            // Only push things away if they would actually overlap.
+
+            for (int i = 0; i < flowLines.Count; ++i)
             {
-                DrawFlowLine(g, fl, h += 3);
+                var fl = flowLines[i];
+                DrawFlowLine(g, fl);
             }
         }
 
@@ -353,17 +372,17 @@ namespace Visual_SICXE
             return charPoint.Y + RTBLineHeight / 2;
         }
 
-        private void DrawFlowLine(Graphics g, FlowLine fl, int horizontalOffset)
+        private void DrawFlowLine(Graphics g, FlowLine fl)
         {
-            DrawDestinationArrow(g, fl, horizontalOffset);
-            DrawOrigin(g, fl, horizontalOffset);
-            DrawFlowLineVertical(g, fl, horizontalOffset);
+            DrawDestinationArrow(g, fl);
+            DrawOrigin(g, fl);
+            DrawFlowLineVertical(g, fl);
         }
 
-        private void DrawDestinationArrow(Graphics g, FlowLine fl, int horizontalOffset)
+        private void DrawDestinationArrow(Graphics g, FlowLine fl)
         {
             int lineY = GetAddressY(fl.DestinationAddress);
-            var lineLeftPoint = new Point(flPanel.Right - horizontalOffset, lineY);
+            var lineLeftPoint = new Point(flPanel.Right - fl.HorizontalOffset, lineY);
             var lineRightPoint = new Point(flPanel.Right, lineY);
             g.DrawLine(new Pen(fl.Color), lineLeftPoint, lineRightPoint);
 
@@ -376,22 +395,22 @@ namespace Visual_SICXE
             g.FillPolygon(new SolidBrush(fl.Color), tri);
         }
 
-        private void DrawOrigin(Graphics g, FlowLine fl, int horizontalOffset)
+        private void DrawOrigin(Graphics g, FlowLine fl)
         {
             int lineY = GetLineY(fl.OriginLine);
-            var lineLeftPoint = new Point(flPanel.Right - horizontalOffset, lineY);
+            var lineLeftPoint = new Point(flPanel.Right - fl.HorizontalOffset, lineY);
             var lineRightPoint = new Point(flPanel.Right - 3, lineY);
 
             var pen = new Pen(fl.Color);
             g.DrawLine(pen, lineLeftPoint, lineRightPoint);
         }
 
-        private void DrawFlowLineVertical(Graphics g, FlowLine fl, int horizontalOffset)
+        private void DrawFlowLineVertical(Graphics g, FlowLine fl)
         {
             int originY = GetLineY(fl.OriginLine);
-            var originEnd = new Point(flPanel.Right - horizontalOffset, originY);
+            var originEnd = new Point(flPanel.Right - fl.HorizontalOffset, originY);
             int destY = GetAddressY(fl.DestinationAddress);
-            var destEnd = new Point(flPanel.Right - horizontalOffset, destY);
+            var destEnd = new Point(flPanel.Right - fl.HorizontalOffset, destY);
             g.DrawLine(new Pen(fl.Color), originEnd, destEnd);
         }
 
@@ -472,20 +491,25 @@ namespace Visual_SICXE
 
         List<FlowLine> flowLines;
 
-        struct FlowLine
+        class FlowLine
         {
             public readonly int OriginLine;
             public readonly int DestinationAddress;
+            public int DestinationLine; // Set later by creator.
+            public int HorizontalOffset; // Set later by creator.
             public readonly Color Color;
             public FlowLine(int originLine, int destinationAddress, Color color, DisassembledUnit? origin = null)
             {
                 OriginLine = originLine;
                 DestinationAddress = destinationAddress;
+                DestinationLine = 0;
                 Color = color;
                 Origin = origin;
+                HorizontalOffset = 0;
             }
 
             public DisassembledUnit? Origin; // For debug.
+
         }
 
         private class Interval
@@ -501,12 +525,14 @@ namespace Visual_SICXE
 
             public void Increment(int start, int end)
             {
+                Sort(ref start, ref end);
                 for (int i = start; i < end; ++i)
                     ++data[i - Minimum];
             }
 
             public void Decrement(int start, int end)
             {
+                Sort(ref start, ref end);
                 for (int i = start; i < end; ++i)
                     --data[i - Minimum];
             }
@@ -518,6 +544,7 @@ namespace Visual_SICXE
 
             public void Set(int start, int end, int value)
             {
+                Sort(ref start, ref end);
                 for (int i = start; i < end; ++i)
                     data[i - Minimum] = value;
             }
@@ -532,6 +559,30 @@ namespace Visual_SICXE
                 {
                     data[i - Minimum] = value;
                 }
+            }
+
+            public int GetMaximum(int start, int end)
+            {
+                Sort(ref start, ref end);
+                int ret = 0;
+                for (int i = start; i < end; ++i)
+                {
+                    var t = data[i - Minimum];
+                    if (t > ret)
+                        ret = t;
+                }
+                return ret;
+
+            }
+        }
+
+        static void Sort(ref int x, ref int y)
+        {
+            if (x > y)
+            {
+                int t = x;
+                x = y;
+                y = t;
             }
         }
     }

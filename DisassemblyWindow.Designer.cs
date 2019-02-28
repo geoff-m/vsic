@@ -49,11 +49,11 @@
             this.rtb.TabIndex = 0;
             this.rtb.Text = "";
             // 
-            // panel1
+            // flPanel
             // 
             this.flPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flPanel.Location = new System.Drawing.Point(0, 0);
-            this.flPanel.Name = "panel1";
+            this.flPanel.Name = "flPanel";
             this.flPanel.Size = new System.Drawing.Size(46, 582);
             this.flPanel.TabIndex = 1;
             // 
