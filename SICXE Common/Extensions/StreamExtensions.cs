@@ -20,10 +20,10 @@ namespace SICXE_Common.Extensions
             var ret = new byte[s.Length];
             int bufferSize = amount < BUFFER_SIZE ? amount : BUFFER_SIZE;
             int readSoFar = 0;
-            int remaining = amount - readSoFar;
+            int remaining = Math.Min(bufferSize, amount - readSoFar);
             while (remaining > 0)
             {
-                int justRead = s.Read(ret, readSoFar, Math.Min(remaining, bufferSize));
+                int justRead = s.Read(ret, readSoFar, remaining);
                 readSoFar += justRead;
                 remaining -= justRead;
             }
