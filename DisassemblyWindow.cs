@@ -32,6 +32,7 @@ namespace Visual_SICXE
 
         private void OnVerticalScroll(object sender, EventArgs e)
         {
+            UpdateHorizontalOffsets();
             flPanel.Invalidate();
         }
 
@@ -181,7 +182,7 @@ namespace Visual_SICXE
                 }
 
                 disassembly[instrAddr] = du = new DisassembledUnit(lineNumber++, instr);
-                Debug.WriteLine($"Found instruction {instr} at address {instrAddr:X}.");
+                //Debug.WriteLine($"Found instruction {instr} at address {instrAddr:X}.");
                 int jumpTarget;
                 switch (instr.Operation)
                 {
@@ -206,16 +207,7 @@ namespace Visual_SICXE
             }
             WriteDisassemblyText();
 
-            // Now that all lines have been added to the RTB, we can update each FlowLine with its destination line number.
-            var intervalTracker = new Interval(0, rtb.Lines.Length);
-            for (int i = 0; i < flowLines.Count; ++i)
-            {
-                var fl = flowLines[i];
-                fl.DestinationLine = FindDisassembledUnit(fl.DestinationAddress).LineNumber;
-                int trafficCount = intervalTracker.GetMaximum(fl.OriginLine, fl.DestinationLine); // Count how many other FlowLines are next to us, at maximum.
-                fl.HorizontalOffset = 5 + trafficCount * 6;
-                intervalTracker.Increment(fl.OriginLine, fl.DestinationLine); // Increment the number of FlowLines on lines that I span.
-            }
+
             Debug.WriteLine("Disassembly update success.");
         }
 
@@ -329,6 +321,46 @@ namespace Visual_SICXE
             rtb.ResumeDrawing();
         }
 
+        // Updates each FlowLine with its destination line number.
+        // This should not be called before all lines have been added to the RTB.
+        private void UpdateHorizontalOffsets()
+        {
+            //Debug.WriteLine("\nUpdateHorizontalOffsets()");
+            // Get top line in RTB.
+            var topCharIdx = rtb.GetCharIndexFromPosition(new Point(0, 0));
+            var topLine = rtb.GetLineFromCharIndex(topCharIdx);
+            var bottomCharIdx = rtb.GetCharIndexFromPosition(new Point(0, rtb.Bottom));
+            var bottomLine = rtb.GetLineFromCharIndex(bottomCharIdx);
+
+            var intervalTracker = new IntervalTracker<FlowLine>(0, rtb.Lines.Length);
+            // Get the FlowLines that begin or end on the screen.
+            var beginOrEndOnScreen = new HashSet<FlowLine>();
+            for (int i = 0; i < flowLines.Count; ++i)
+            {
+                var fl = flowLines[i];
+                if (fl.DestinationLine == 0)
+                    fl.DestinationLine = FindDisassembledUnit(fl.DestinationAddress).LineNumber; // Update line number.
+
+                intervalTracker.Increment(fl.OriginLine, fl.DestinationLine, fl); // Register my appearance on the lines that I span.
+                fl.BeginsOrEndsOnScreen = false;
+                if ((fl.OriginLine >= topLine && fl.OriginLine <= bottomLine)
+                    || (fl.DestinationLine >= topLine && fl.DestinationLine <= bottomLine))
+                {
+                    beginOrEndOnScreen.Add(fl);
+                    fl.BeginsOrEndsOnScreen = true;
+                }
+            }
+
+            int ho = 0;
+            var onScreen = beginOrEndOnScreen.ToList();
+            for (int i = 0; i < onScreen.Count; ++i)
+            {
+                var fl = onScreen[i];
+                fl.HorizontalOffset = 5 + (ho++) * 5;
+                //Debug.WriteLine($"FL {i}/{beginOrEndOnScreen.Count} on screen: ho = {fl.HorizontalOffset}");
+            }
+        }
+
         private void DrawFlowLines(object sender, PaintEventArgs e)
         {
             var g = e.Graphics;
@@ -347,9 +379,12 @@ namespace Visual_SICXE
 
             // Only push things away if they would actually overlap.
 
+
             for (int i = 0; i < flowLines.Count; ++i)
             {
                 var fl = flowLines[i];
+                if (!fl.BeginsOrEndsOnScreen)
+                    continue;
                 DrawFlowLine(g, fl);
             }
         }
@@ -374,6 +409,7 @@ namespace Visual_SICXE
 
         private void DrawFlowLine(Graphics g, FlowLine fl)
         {
+            Debug.Assert(fl.HorizontalOffset != 0);
             DrawDestinationArrow(g, fl);
             DrawOrigin(g, fl);
             DrawFlowLineVertical(g, fl);
@@ -498,6 +534,7 @@ namespace Visual_SICXE
             public int DestinationLine; // Set later by creator.
             public int HorizontalOffset; // Set later by creator.
             public readonly Color Color;
+            public bool BeginsOrEndsOnScreen;
             public FlowLine(int originLine, int destinationAddress, Color color, DisassembledUnit? origin = null)
             {
                 OriginLine = originLine;
@@ -512,67 +549,102 @@ namespace Visual_SICXE
 
         }
 
-        private class Interval
+        private class IntervalTracker<T>
         {
-            int[] data;
+            //int[] data;
+            List<T>[] data;
             public readonly int Minimum, Maximum;
-            public Interval(int minimum, int maximum)
+            public IntervalTracker(int minimum, int maximum)
             {
                 Minimum = minimum;
                 Maximum = maximum;
-                data = new int[maximum - minimum];
+                //data = new int[maximum - minimum];
+                data = new List<T>[maximum - minimum];
             }
 
-            public void Increment(int start, int end)
+            public void Increment(int start, int end, T cause)
             {
                 Sort(ref start, ref end);
                 for (int i = start; i < end; ++i)
-                    ++data[i - Minimum];
+                {
+                    //++data[i - Minimum];
+                    var d = data[i - Minimum];
+                    if (d == null)
+                        d = data[i - Minimum] = new List<T>(4);
+                    d.Add(cause);
+                }
             }
 
-            public void Decrement(int start, int end)
+            public void Decrement(int start, int end, T cause)
             {
                 Sort(ref start, ref end);
                 for (int i = start; i < end; ++i)
-                    --data[i - Minimum];
+                {
+                    //++data[i - Minimum];
+                    var d = data[i - Minimum];
+                    if (d == null)
+                        d = data[i - Minimum] = new List<T>(4);
+                    var removeOk = d.Remove(cause);
+                    Debug.Assert(removeOk);
+                }
             }
+
 
             public void Clear()
             {
+                for (int i = 0; i < data.Length; ++i)
+                {
+                    var d = data[i - Minimum];
+                    if (d != null)
+                        d.Clear();
+                }
                 Array.Clear(data, 0, data.Length);
             }
 
-            public void Set(int start, int end, int value)
-            {
-                Sort(ref start, ref end);
-                for (int i = start; i < end; ++i)
-                    data[i - Minimum] = value;
-            }
-
-            public int this[int i]
+            public IList<T> this[int i]
             {
                 get
                 {
                     return data[i - Minimum];
                 }
-                set
-                {
-                    data[i - Minimum] = value;
-                }
             }
 
+            /// <summary>
+            /// Gets a set containing all the items that occurr at least once in the specified range.
+            /// </summary>
+            /// <param name="start"></param>
+            /// <param name="end"></param>
+            /// <returns></returns>
+            public ISet<T> GetInRange(int start, int end)
+            {
+                Sort(ref start, ref end);
+                var ret = new HashSet<T>();
+                for (int i = start; i < end; ++i)
+                {
+                    var t = data[i - Minimum];
+                    if (t != null)
+                        ret.UnionWith(t);
+                }
+                return ret;
+            }
+
+            /// <summary>
+            /// Gets the maximum number of items that occur at any single index in the specified range.
+            /// </summary>
+            /// <param name="start"></param>
+            /// <param name="end"></param>
+            /// <returns></returns>
             public int GetMaximum(int start, int end)
             {
                 Sort(ref start, ref end);
                 int ret = 0;
                 for (int i = start; i < end; ++i)
                 {
-                    var t = data[i - Minimum];
+                    var t = data[i - Minimum]?.Count ?? 0;
                     if (t > ret)
                         ret = t;
                 }
                 return ret;
-
             }
         }
 
