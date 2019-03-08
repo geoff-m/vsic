@@ -147,6 +147,8 @@ namespace SICXE_VM_CLI
                     return "An instruction referenced an out-of-bounds address!";
                 case Machine.RunResult.EndOfMemory:
                     return "The program counter has reached the end of memory.";
+                case Machine.RunResult.DivideByZero:
+                    return $"The instruction at {m.ProgramCounter} tried to divide by zero!";
             }
             Debug.Fail("Unknown run result!");
             return "";
