@@ -249,10 +249,10 @@ namespace Visual_SICXE
                     bool operandPositive = true;
                     int fmt34operand = 0;
                     var opcodeStr = instr.Operation.ToString();
-                    Instruction.Flag flags = 0;
-                    if (instr.Flags.HasValue)
+                    InstructionFlags flags = 0;
+                    if (instr.Flags != 0)
                     {
-                        flags = instr.Flags.Value;
+                        flags = instr.Flags;
                         if (instr.Format == InstructionFormat.Format4)
                         {
                             opcodeStr = "+" + opcodeStr;
@@ -269,13 +269,13 @@ namespace Visual_SICXE
                     rtb.AppendText(opcodeStr.PadRight(opPadLength));
                     if ((instr.Format == InstructionFormat.Format3 || instr.Format == InstructionFormat.Format4)
                         && instr.Operands.Count == 1
-                        && instr.Flags.HasValue)
+                        && instr.Flags != 0)
                     {
                         rtb.SelectionColor = OperandColor;
-                        var indirStr = flags.HasFlag(Instruction.Flag.N) && !flags.HasFlag(Instruction.Flag.I) ? "@" : "";
-                        var immStr = !flags.HasFlag(Instruction.Flag.N) && flags.HasFlag(Instruction.Flag.I) ? "#" : "";
+                        var indirStr = flags.HasFlag(InstructionFlags.N) && !flags.HasFlag(InstructionFlags.I) ? "@" : "";
+                        var immStr = !flags.HasFlag(InstructionFlags.N) && flags.HasFlag(InstructionFlags.I) ? "#" : "";
                         bool printed = false;
-                        if (flags.HasFlag(Instruction.Flag.P))
+                        if (flags.HasFlag(InstructionFlags.P))
                         {
                             if (operandPositive)
                                 rtb.AppendText($" P+{indirStr}{immStr}{fmt34operand}");
@@ -283,7 +283,7 @@ namespace Visual_SICXE
                                 rtb.AppendText($" P-{indirStr}{immStr}{fmt34operand}");
                             printed = true;
                         }
-                        else if (flags.HasFlag(Instruction.Flag.B))
+                        else if (flags.HasFlag(InstructionFlags.B))
                         {
                             if (operandPositive)
                                 rtb.AppendText($" B+{indirStr}{immStr}{fmt34operand}");
@@ -295,7 +295,7 @@ namespace Visual_SICXE
                         {
                             rtb.AppendText($" {indirStr}{immStr}{fmt34operand}");
                         }
-                        if (flags.HasFlag(Instruction.Flag.X))
+                        if (flags.HasFlag(InstructionFlags.X))
                             rtb.AppendText(",X");
                     }
                     else
@@ -311,6 +311,9 @@ namespace Visual_SICXE
                             {
                                 rtb.AppendText(" " + string.Join(",", instr.Operands));
                             }
+                        } else if (instr.Operands.Count == 1)
+                        {
+                            rtb.AppendText(" " + instr.Operands[0]);
                         }
                     }
                     rtb.SelectionFont = regularFont;
