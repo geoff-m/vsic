@@ -45,7 +45,7 @@
             this.rtb.Location = new System.Drawing.Point(0, 0);
             this.rtb.Name = "rtb";
             this.rtb.ShortcutsEnabled = false;
-            this.rtb.Size = new System.Drawing.Size(304, 582);
+            this.rtb.Size = new System.Drawing.Size(275, 582);
             this.rtb.TabIndex = 0;
             this.rtb.Text = "";
             // 
@@ -54,7 +54,7 @@
             this.flPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flPanel.Location = new System.Drawing.Point(0, 0);
             this.flPanel.Name = "flPanel";
-            this.flPanel.Size = new System.Drawing.Size(46, 582);
+            this.flPanel.Size = new System.Drawing.Size(75, 582);
             this.flPanel.TabIndex = 1;
             // 
             // splitContainer1
@@ -71,7 +71,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.rtb);
             this.splitContainer1.Size = new System.Drawing.Size(351, 582);
-            this.splitContainer1.SplitterDistance = 46;
+            this.splitContainer1.SplitterDistance = 75;
             this.splitContainer1.SplitterWidth = 1;
             this.splitContainer1.TabIndex = 2;
             // 
