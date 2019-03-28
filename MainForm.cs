@@ -622,7 +622,6 @@ namespace Visual_SICXE
                     }
 
                     break;
-
                 case (char)Keys.Enter:
                     string newText = tb.Text;
                     if (newText.Length == 0) // If textbox is empty, replace in it whatever was last entered.

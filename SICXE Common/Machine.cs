@@ -972,35 +972,50 @@ namespace SICXE
                         // Flow control ---------------------------------------------------
                         case Mnemonic.J:
                             addr = DecodeLongInstruction(b1, out mode);
-                            PC = DecodeAddress(addr, mode);
+                            if (mode == AddressingMode.Immediate)
+                                PC = addr;
+                            else
+                                PC = DecodeAddress(addr, mode);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
                         case Mnemonic.JEQ:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.EqualTo)
-                                PC = DecodeAddress(addr, mode);
+                                if (mode == AddressingMode.Immediate)
+                                    PC = addr;
+                                else
+                                    PC = DecodeAddress(addr, mode);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
                         case Mnemonic.JGT:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.GreaterThan)
-                                PC = DecodeAddress(addr, mode);
+                                if (mode == AddressingMode.Immediate)
+                                    PC = addr;
+                                else
+                                    PC = DecodeAddress(addr, mode);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
                         case Mnemonic.JLT:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.LessThan)
-                                PC = DecodeAddress(addr, mode);
+                                if (mode == AddressingMode.Immediate)
+                                    PC = addr;
+                                else
+                                    PC = DecodeAddress(addr, mode);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
                         case Mnemonic.JSUB:
                             addr = DecodeLongInstruction(b1, out mode);
                             RegisterL = (Word)PC;
-                            PC = DecodeAddress(addr, mode);
+                            if (mode == AddressingMode.Immediate)
+                                PC = addr;
+                            else
+                                PC = DecodeAddress(addr, mode);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
