@@ -809,7 +809,7 @@ namespace SICXE
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
                             reg1value = GetRegister(r1);
-                            SetRegister(r1, (Word)(reg1value << (r2 + 1)));
+                            SetRegister(r1, (Word)(reg1value << r2));
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {r1},{r2}.");
                             break;
@@ -819,7 +819,7 @@ namespace SICXE
                             r1 = (b2 & 0xf0) >> 4;
                             r2 = b2 & 0xf;
                             reg1value = GetRegister(r1);
-                            SetRegister(r1, (Word)(reg1value >> (r2 + 1)));
+                            SetRegister(r1, (Word)(reg1value >> r2));
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {r1},{r2}.");
                             break;
