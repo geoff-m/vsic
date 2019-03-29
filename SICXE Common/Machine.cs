@@ -161,7 +161,8 @@ namespace SICXE
                 try
                 {
                     newDev = IODevice.Deserialize(stream);
-                } catch (InvalidDataException ide)
+                }
+                catch (InvalidDataException ide)
                 {
                     Logger.LogError($"Failed to create an I/O device: {GetInnermost(ide).Message}");
                 }
@@ -574,7 +575,7 @@ namespace SICXE
         private bool running;
         public bool IsRunning
         {
-            get { return running;}
+            get { return running; }
             private set
             {
                 if (running != value)
@@ -715,6 +716,7 @@ namespace SICXE
                     AddressingMode mode;
                     byte deviceID;
                     IODevice dev;
+                    bool jumpTaken = false;
 
                     switch (op)
                     {
@@ -734,7 +736,7 @@ namespace SICXE
                             reg2value = GetRegister(r2);
                             SetRegister(r2, reg1value + reg2value);
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {r1},{r2}.");
+                                Logger.Log($"Executed {op} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                             break;
                         case Mnemonic.SUB:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -749,9 +751,9 @@ namespace SICXE
                             r2 = b2 & 0xf;
                             reg1value = GetRegister(r1);
                             reg2value = GetRegister(r2);
-                            SetRegister(r2, reg1value + reg2value);
+                            SetRegister(r2, reg2value - reg1value);
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {r1},{r2}.");
+                                Logger.Log($"Executed {op} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                             break;
                         case Mnemonic.MUL:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -768,7 +770,7 @@ namespace SICXE
                             reg2value = GetRegister(r2);
                             SetRegister(r2, (Word)(reg1value * reg2value));
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {r1},{r2}.");
+                                Logger.Log($"Executed {op} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                             break;
                         case Mnemonic.DIV:
                             addr = DecodeLongInstruction(b1, out mode);
@@ -788,7 +790,7 @@ namespace SICXE
                             reg2value = GetRegister(r2);
                             SetRegister(r2, (Word)(reg1value / reg2value));
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {r1},{r2}.");
+                                Logger.Log($"Executed {op} {Enum.GetName(typeof(Register), r1)},{Enum.GetName(typeof(Register), r2)}.");
                             break;
                         // Bitwise ---------------------------------------------------------
                         case Mnemonic.AND:
@@ -968,8 +970,9 @@ namespace SICXE
                                 Logger.Log($"Executed {op} {addr}.");
                             break;
                         case Mnemonic.STCH:
-                            // This instruction operates on a single byte, not a word.
+                            // This instruciton operates on a single byte, not a word.
                             addr = DecodeLongInstruction(b1, out mode);
+                            addr = DecodeAddress(addr, mode);
                             ThrowForWrite(addr, 1);
                             memory[addr] = (byte)(RegisterAWithEvents & 0xff);
                             if (LogEachInstruction)
@@ -988,32 +991,50 @@ namespace SICXE
                         case Mnemonic.JEQ:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.EqualTo)
+                            {
+                                jumpTaken = true;
                                 if (mode == AddressingMode.Immediate)
                                     PC = addr;
                                 else
                                     PC = DecodeAddress(addr, mode);
+                            }
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {addr}.");
+                                if (jumpTaken)
+                                    Logger.Log($"Executed {op} {addr} (Jump taken).");
+                                else
+                                    Logger.Log($"Executed {op} {addr} (Jump not taken).");
                             break;
                         case Mnemonic.JGT:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.GreaterThan)
+                            {
+                                jumpTaken = true;
                                 if (mode == AddressingMode.Immediate)
                                     PC = addr;
                                 else
                                     PC = DecodeAddress(addr, mode);
+                            }
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {addr}.");
+                                if (jumpTaken)
+                                    Logger.Log($"Executed {op} {addr} (Jump taken).");
+                                else
+                                    Logger.Log($"Executed {op} {addr} (Jump not taken).");
                             break;
                         case Mnemonic.JLT:
                             addr = DecodeLongInstruction(b1, out mode);
                             if (ConditionCode == ConditionCode.LessThan)
+                            {
+                                jumpTaken = true;
                                 if (mode == AddressingMode.Immediate)
                                     PC = addr;
                                 else
                                     PC = DecodeAddress(addr, mode);
+                            }
                             if (LogEachInstruction)
-                                Logger.Log($"Executed {op} {addr}.");
+                                if (jumpTaken)
+                                    Logger.Log($"Executed {op} {addr} (Jump taken).");
+                                else
+                                    Logger.Log($"Executed {op} {addr} (Jump not taken).");
                             break;
                         case Mnemonic.JSUB:
                             addr = DecodeLongInstruction(b1, out mode);
