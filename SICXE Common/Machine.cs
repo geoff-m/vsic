@@ -958,6 +958,7 @@ namespace SICXE
                             addr = DecodeLongInstruction(b1, out mode);
                             regA = (Word)(regA & ~0xff); // Zero out lowest byte.
                             addr = DecodeAddress(addr, mode);
+                            ThrowForRead(addr, 1);
                             RegisterAWithEvents = (Word)(regA | memory[addr] & 0xff); // Or in lowest byte from memory.
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
@@ -965,6 +966,7 @@ namespace SICXE
                         case Mnemonic.STCH:
                             // This instruction operates on a single byte, not a word.
                             addr = DecodeLongInstruction(b1, out mode);
+                            ThrowForWrite(addr, 1);
                             memory[addr] = (byte)(RegisterAWithEvents & 0xff);
                             if (LogEachInstruction)
                                 Logger.Log($"Executed {op} {addr}.");
