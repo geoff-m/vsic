@@ -21,11 +21,7 @@ namespace Visual_SICXE
         public HexDisplay()
         {
             InitializeComponent();
-            Initialize();
-        }
-
-        private void Initialize()
-        {
+            Font = new Font(FontFamily.GenericMonospace, 12);
             DoubleBuffered = true;
             Enter += OnFocus;
             Leave += OnBlur;
@@ -62,10 +58,7 @@ namespace Visual_SICXE
         private int addressDigits = 6;
         public int AddressDigits
         {
-            get
-            {
-                return addressDigits;
-            }
+            get { return addressDigits; }
             set
             {
                 addressDigits = value;

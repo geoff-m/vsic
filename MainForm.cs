@@ -62,7 +62,6 @@ namespace Visual_SICXE
         private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
         private readonly Color PC_MARKER_COLOR = Color.FromArgb(200, Color.Yellow);
         private readonly Color REGISTER_READ_COLOR = Color.Pink;
-
         private readonly Color REGISTER_WRITTEN_COLOR = Color.LightGreen;
 
         private readonly ConsoleWindow conWindow;

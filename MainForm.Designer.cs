@@ -85,9 +85,7 @@
             this.gotoTB = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.utf8RB = new System.Windows.Forms.RadioButton();
-            this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.rawRB = new System.Windows.Forms.RadioButton();
             this.openOBJdialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -132,9 +130,8 @@
             this.hexDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.hexDisplay.CursorAddress = 0;
             this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4);
             this.hexDisplay.Name = "hexDisplay";
             this.hexDisplay.Size = new System.Drawing.Size(688, 553);
             this.hexDisplay.StartAddress = 0;
@@ -494,7 +491,7 @@
             this.bpGB.Controls.Add(this.bpWriteCB);
             this.bpGB.Controls.Add(this.bpReadCB);
             this.bpGB.Controls.Add(this.bpButton);
-            this.bpGB.Location = new System.Drawing.Point(10, 128);
+            this.bpGB.Location = new System.Drawing.Point(10, 76);
             this.bpGB.Name = "bpGB";
             this.bpGB.Size = new System.Drawing.Size(145, 139);
             this.bpGB.TabIndex = 0;
@@ -579,7 +576,7 @@
             // loadOBJToolStripMenuItem
             // 
             this.loadOBJToolStripMenuItem.Name = "loadOBJToolStripMenuItem";
-            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadOBJToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadOBJToolStripMenuItem.Text = "Load Obj...";
             this.loadOBJToolStripMenuItem.Click += new System.EventHandler(this.loadOBJToolStripMenuItem_Click);
             // 
@@ -587,27 +584,27 @@
             // 
             this.loadLstToolStripMenuItem.Enabled = false;
             this.loadLstToolStripMenuItem.Name = "loadLstToolStripMenuItem";
-            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadLstToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadLstToolStripMenuItem.Text = "Load Lst...";
             // 
             // loadMemoryToolStripMenuItem
             // 
             this.loadMemoryToolStripMenuItem.Name = "loadMemoryToolStripMenuItem";
-            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.loadMemoryToolStripMenuItem.Text = "Load Memory at 0...";
             this.loadMemoryToolStripMenuItem.Click += new System.EventHandler(this.OnClickLoadMemoryToolStripMenuItem);
             // 
             // saveMemoryToolStripMenuItem
             // 
             this.saveMemoryToolStripMenuItem.Name = "saveMemoryToolStripMenuItem";
-            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveMemoryToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.saveMemoryToolStripMenuItem.Text = "Save All Memory...";
             this.saveMemoryToolStripMenuItem.Click += new System.EventHandler(this.saveMemoryToolStripMenuItem_Click);
             // 
             // manageDevicesToolStripMenuItem
             // 
             this.manageDevicesToolStripMenuItem.Name = "manageDevicesToolStripMenuItem";
-            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manageDevicesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.manageDevicesToolStripMenuItem.Text = "Manage Devices...";
             this.manageDevicesToolStripMenuItem.Click += new System.EventHandler(this.manageDevicesToolStripMenuItem_Click);
             // 
@@ -625,7 +622,7 @@
             // 
             this.watchesToolStripMenuItem.Enabled = false;
             this.watchesToolStripMenuItem.Name = "watchesToolStripMenuItem";
-            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.watchesToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.watchesToolStripMenuItem.Text = "Watches";
             this.watchesToolStripMenuItem.Click += new System.EventHandler(this.watchesToolStripMenuItem_Click);
             // 
@@ -633,13 +630,13 @@
             // 
             this.breakpointsToolStripMenuItem.Enabled = false;
             this.breakpointsToolStripMenuItem.Name = "breakpointsToolStripMenuItem";
-            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.breakpointsToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.breakpointsToolStripMenuItem.Text = "Breakpoints";
             // 
             // disassemblyToolStripMenuItem
             // 
             this.disassemblyToolStripMenuItem.Name = "disassemblyToolStripMenuItem";
-            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.disassemblyToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.disassemblyToolStripMenuItem.Text = "Disassembly";
             this.disassemblyToolStripMenuItem.Click += new System.EventHandler(this.disassemblyToolStripMenuItem_Click);
             // 
@@ -667,51 +664,25 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.radioButton3);
             this.groupBox4.Controls.Add(this.utf8RB);
-            this.groupBox4.Controls.Add(this.radioButton4);
             this.groupBox4.Controls.Add(this.rawRB);
             this.groupBox4.Location = new System.Drawing.Point(10, 6);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(145, 116);
+            this.groupBox4.Size = new System.Drawing.Size(145, 64);
             this.groupBox4.TabIndex = 8;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Decoding";
             // 
-            // radioButton3
-            // 
-            this.radioButton3.AutoSize = true;
-            this.radioButton3.Enabled = false;
-            this.radioButton3.Location = new System.Drawing.Point(9, 66);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(111, 17);
-            this.radioButton3.TabIndex = 2;
-            this.radioButton3.Text = "Decimal Unsigned";
-            this.radioButton3.UseVisualStyleBackColor = true;
-            this.radioButton3.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
-            // 
             // utf8RB
             // 
             this.utf8RB.AutoSize = true;
-            this.utf8RB.Location = new System.Drawing.Point(9, 90);
+            this.utf8RB.Location = new System.Drawing.Point(9, 43);
             this.utf8RB.Name = "utf8RB";
-            this.utf8RB.Size = new System.Drawing.Size(85, 17);
+            this.utf8RB.Size = new System.Drawing.Size(82, 17);
             this.utf8RB.TabIndex = 1;
-            this.utf8RB.Text = "Text (UTF-8)";
+            this.utf8RB.Text = "Text (ASCII)";
             this.utf8RB.UseVisualStyleBackColor = true;
             this.utf8RB.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
-            // 
-            // radioButton4
-            // 
-            this.radioButton4.AutoSize = true;
-            this.radioButton4.Enabled = false;
-            this.radioButton4.Location = new System.Drawing.Point(9, 43);
-            this.radioButton4.Name = "radioButton4";
-            this.radioButton4.Size = new System.Drawing.Size(99, 17);
-            this.radioButton4.TabIndex = 3;
-            this.radioButton4.Text = "Decimal Signed";
-            this.radioButton4.UseVisualStyleBackColor = true;
-            this.radioButton4.CheckedChanged += new System.EventHandler(this.OnChangedEncodingSelection);
             // 
             // rawRB
             // 
@@ -760,7 +731,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.devLB);
-            this.groupBox2.Location = new System.Drawing.Point(10, 277);
+            this.groupBox2.Location = new System.Drawing.Point(10, 221);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(145, 147);
             this.groupBox2.TabIndex = 9;
@@ -888,8 +859,6 @@
         private System.Windows.Forms.TextBox gotoTB;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.RadioButton radioButton4;
-        private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton utf8RB;
         private System.Windows.Forms.RadioButton rawRB;
         private System.Windows.Forms.OpenFileDialog openOBJdialog;
