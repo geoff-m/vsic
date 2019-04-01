@@ -30,36 +30,36 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.memGB = new System.Windows.Forms.GroupBox();
-            this.hexDisplay = new Visual_SICXE.HexDisplay();
             this.regGB = new System.Windows.Forms.GroupBox();
             this.ccCB = new System.Windows.Forms.ComboBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
+            this.ccLabel = new System.Windows.Forms.Label();
+            this.regBlb = new System.Windows.Forms.Label();
             this.regSTB = new System.Windows.Forms.TextBox();
             this.regLTB = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.regATB = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
+            this.regAlb = new System.Windows.Forms.Label();
+            this.regLlb = new System.Windows.Forms.Label();
+            this.regTlb = new System.Windows.Forms.Label();
+            this.regSlb = new System.Windows.Forms.Label();
+            this.regFlb = new System.Windows.Forms.Label();
             this.regTTB = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.regXTB = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
+            this.regXlb = new System.Windows.Forms.Label();
             this.regFTB = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.regBTB = new System.Windows.Forms.TextBox();
+            this.pcTB = new System.Windows.Forms.TextBox();
             this.pcGB = new System.Windows.Forms.GroupBox();
             this.PCfromCursorLabel = new System.Windows.Forms.Label();
             this.bpDisableOverrideCB = new System.Windows.Forms.CheckBox();
             this.runButton = new System.Windows.Forms.Button();
             this.stepButton = new System.Windows.Forms.Button();
-            this.pcTB = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.pcLabel = new System.Windows.Forms.Label();
             this.logBox = new System.Windows.Forms.RichTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.cursorPositionLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.selectedBytesLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.zoomOutButton = new System.Windows.Forms.ToolStripSplitButton();
+            this.zoomInButton = new System.Windows.Forms.ToolStripSplitButton();
             this.bpEnabledCB = new System.Windows.Forms.CheckBox();
             this.bpWriteCB = new System.Windows.Forms.CheckBox();
             this.bpReadCB = new System.Windows.Forms.CheckBox();
@@ -85,7 +85,7 @@
             this.disassemblyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gotoTB = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.decodingGB = new System.Windows.Forms.GroupBox();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.utf8RB = new System.Windows.Forms.RadioButton();
             this.radioButton4 = new System.Windows.Forms.RadioButton();
@@ -98,13 +98,15 @@
             this.openSessionDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSessionDialog = new System.Windows.Forms.SaveFileDialog();
             this.saveMemoryDialog = new System.Windows.Forms.SaveFileDialog();
+            this.regATB = new System.Windows.Forms.TextBox();
+            this.hexDisplay = new Visual_SICXE.HexDisplay();
             this.memGB.SuspendLayout();
             this.regGB.SuspendLayout();
             this.pcGB.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.bpGB.SuspendLayout();
             this.menuStrip.SuspendLayout();
-            this.groupBox4.SuspendLayout();
+            this.decodingGB.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -119,51 +121,29 @@
             this.memGB.Controls.Add(this.hexDisplay);
             this.memGB.Location = new System.Drawing.Point(159, 6);
             this.memGB.Name = "memGB";
-            this.memGB.Size = new System.Drawing.Size(698, 572);
+            this.memGB.Size = new System.Drawing.Size(698, 580);
             this.memGB.TabIndex = 0;
             this.memGB.TabStop = false;
             this.memGB.Text = "Memory";
             // 
-            // hexDisplay
-            // 
-            this.hexDisplay.AddressDigits = 6;
-            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.hexDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.hexDisplay.CursorAddress = 0;
-            this.hexDisplay.Data = null;
-            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
-            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.hexDisplay.Name = "hexDisplay";
-            this.hexDisplay.Size = new System.Drawing.Size(688, 553);
-            this.hexDisplay.StartAddress = 0;
-            this.hexDisplay.TabIndex = 1;
-            this.hexDisplay.WordDigits = 6;
-            this.hexDisplay.WordEncoding = Visual_SICXE.HexDisplay.Encoding.Raw;
-            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
-            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
-            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
-            // 
             // regGB
             // 
             this.regGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.regGB.Controls.Add(this.regATB);
             this.regGB.Controls.Add(this.ccCB);
-            this.regGB.Controls.Add(this.label10);
-            this.regGB.Controls.Add(this.label8);
+            this.regGB.Controls.Add(this.ccLabel);
+            this.regGB.Controls.Add(this.regBlb);
             this.regGB.Controls.Add(this.regSTB);
             this.regGB.Controls.Add(this.regLTB);
-            this.regGB.Controls.Add(this.label1);
-            this.regGB.Controls.Add(this.label7);
-            this.regGB.Controls.Add(this.regATB);
-            this.regGB.Controls.Add(this.label6);
+            this.regGB.Controls.Add(this.regAlb);
+            this.regGB.Controls.Add(this.regLlb);
+            this.regGB.Controls.Add(this.regTlb);
+            this.regGB.Controls.Add(this.regSlb);
+            this.regGB.Controls.Add(this.regFlb);
             this.regGB.Controls.Add(this.regTTB);
-            this.regGB.Controls.Add(this.label5);
             this.regGB.Controls.Add(this.regXTB);
-            this.regGB.Controls.Add(this.label4);
+            this.regGB.Controls.Add(this.regXlb);
             this.regGB.Controls.Add(this.regFTB);
-            this.regGB.Controls.Add(this.label3);
             this.regGB.Controls.Add(this.regBTB);
             this.regGB.Location = new System.Drawing.Point(863, 6);
             this.regGB.Name = "regGB";
@@ -174,34 +154,35 @@
             // 
             // ccCB
             // 
+            this.ccCB.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ccCB.FormattingEnabled = true;
             this.ccCB.Location = new System.Drawing.Point(32, 201);
             this.ccCB.Name = "ccCB";
             this.ccCB.Size = new System.Drawing.Size(90, 21);
             this.ccCB.TabIndex = 0;
             // 
-            // label10
+            // ccLabel
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 204);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(21, 13);
-            this.label10.TabIndex = 17;
-            this.label10.Text = "CC";
+            this.ccLabel.AutoSize = true;
+            this.ccLabel.Location = new System.Drawing.Point(6, 204);
+            this.ccLabel.Name = "ccLabel";
+            this.ccLabel.Size = new System.Drawing.Size(21, 13);
+            this.ccLabel.TabIndex = 17;
+            this.ccLabel.Text = "CC";
             // 
-            // label8
+            // regBlb
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(9, 102);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(14, 13);
-            this.label8.TabIndex = 16;
-            this.label8.Text = "B";
+            this.regBlb.AutoSize = true;
+            this.regBlb.Location = new System.Drawing.Point(9, 128);
+            this.regBlb.Name = "regBlb";
+            this.regBlb.Size = new System.Drawing.Size(14, 13);
+            this.regBlb.TabIndex = 16;
+            this.regBlb.Text = "B";
             // 
             // regSTB
             // 
             this.regSTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.regSTB.Location = new System.Drawing.Point(32, 123);
+            this.regSTB.Location = new System.Drawing.Point(32, 71);
             this.regSTB.MaxLength = 6;
             this.regSTB.Name = "regSTB";
             this.regSTB.Size = new System.Drawing.Size(71, 24);
@@ -218,62 +199,61 @@
             this.regLTB.TabIndex = 15;
             this.regLTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
-            // label1
+            // regAlb
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 24);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(14, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "A";
+            this.regAlb.AutoSize = true;
+            this.regAlb.Location = new System.Drawing.Point(9, 24);
+            this.regAlb.Name = "regAlb";
+            this.regAlb.Size = new System.Drawing.Size(14, 13);
+            this.regAlb.TabIndex = 2;
+            this.regAlb.Text = "A";
             // 
-            // label7
+            // regLlb
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(10, 154);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(13, 13);
-            this.label7.TabIndex = 14;
-            this.label7.Text = "L";
+            this.regLlb.AutoSize = true;
+            this.regLlb.Location = new System.Drawing.Point(10, 154);
+            this.regLlb.Name = "regLlb";
+            this.regLlb.Size = new System.Drawing.Size(13, 13);
+            this.regLlb.TabIndex = 14;
+            this.regLlb.Text = "L";
             // 
-            // regATB
+            // regTlb
             // 
-            this.regATB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.regATB.Location = new System.Drawing.Point(32, 19);
-            this.regATB.MaxLength = 6;
-            this.regATB.Name = "regATB";
-            this.regATB.Size = new System.Drawing.Size(71, 24);
-            this.regATB.TabIndex = 4;
-            this.regATB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
+            this.regTlb.AutoSize = true;
+            this.regTlb.Location = new System.Drawing.Point(9, 103);
+            this.regTlb.Name = "regTlb";
+            this.regTlb.Size = new System.Drawing.Size(14, 13);
+            this.regTlb.TabIndex = 10;
+            this.regTlb.Text = "T";
             // 
-            // label6
+            // regSlb
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(9, 128);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(14, 13);
-            this.label6.TabIndex = 13;
-            this.label6.Text = "S";
+            this.regSlb.AutoSize = true;
+            this.regSlb.Location = new System.Drawing.Point(9, 76);
+            this.regSlb.Name = "regSlb";
+            this.regSlb.Size = new System.Drawing.Size(14, 13);
+            this.regSlb.TabIndex = 13;
+            this.regSlb.Text = "S";
+            // 
+            // regFlb
+            // 
+            this.regFlb.AutoSize = true;
+            this.regFlb.Enabled = false;
+            this.regFlb.Location = new System.Drawing.Point(10, 180);
+            this.regFlb.Name = "regFlb";
+            this.regFlb.Size = new System.Drawing.Size(13, 13);
+            this.regFlb.TabIndex = 12;
+            this.regFlb.Text = "F";
             // 
             // regTTB
             // 
             this.regTTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.regTTB.Location = new System.Drawing.Point(32, 71);
+            this.regTTB.Location = new System.Drawing.Point(32, 97);
             this.regTTB.MaxLength = 6;
             this.regTTB.Name = "regTTB";
             this.regTTB.Size = new System.Drawing.Size(71, 24);
             this.regTTB.TabIndex = 5;
             this.regTTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Enabled = false;
-            this.label5.Location = new System.Drawing.Point(10, 180);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(13, 13);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "F";
             // 
             // regXTB
             // 
@@ -285,14 +265,14 @@
             this.regXTB.TabIndex = 6;
             this.regXTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
-            // label4
+            // regXlb
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(9, 51);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(14, 13);
-            this.label4.TabIndex = 11;
-            this.label4.Text = "X";
+            this.regXlb.AutoSize = true;
+            this.regXlb.Location = new System.Drawing.Point(9, 51);
+            this.regXlb.Name = "regXlb";
+            this.regXlb.Size = new System.Drawing.Size(14, 13);
+            this.regXlb.TabIndex = 11;
+            this.regXlb.Text = "X";
             // 
             // regFTB
             // 
@@ -300,27 +280,29 @@
             this.regFTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.regFTB.Location = new System.Drawing.Point(32, 175);
             this.regFTB.Name = "regFTB";
-            this.regFTB.Size = new System.Drawing.Size(91, 24);
+            this.regFTB.Size = new System.Drawing.Size(98, 24);
             this.regFTB.TabIndex = 7;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 78);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(14, 13);
-            this.label3.TabIndex = 10;
-            this.label3.Text = "T";
+            this.regFTB.Text = "FFFFFFFFFF";
             // 
             // regBTB
             // 
             this.regBTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.regBTB.Location = new System.Drawing.Point(32, 97);
+            this.regBTB.Location = new System.Drawing.Point(32, 123);
             this.regBTB.MaxLength = 6;
             this.regBTB.Name = "regBTB";
             this.regBTB.Size = new System.Drawing.Size(71, 24);
             this.regBTB.TabIndex = 8;
             this.regBTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
+            // 
+            // pcTB
+            // 
+            this.pcTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.pcTB.Location = new System.Drawing.Point(30, 16);
+            this.pcTB.MaxLength = 6;
+            this.pcTB.Name = "pcTB";
+            this.pcTB.Size = new System.Drawing.Size(71, 24);
+            this.pcTB.TabIndex = 17;
+            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
             // 
             // pcGB
             // 
@@ -330,8 +312,8 @@
             this.pcGB.Controls.Add(this.runButton);
             this.pcGB.Controls.Add(this.stepButton);
             this.pcGB.Controls.Add(this.pcTB);
-            this.pcGB.Controls.Add(this.label2);
-            this.pcGB.Location = new System.Drawing.Point(863, 256);
+            this.pcGB.Controls.Add(this.pcLabel);
+            this.pcGB.Location = new System.Drawing.Point(863, 250);
             this.pcGB.Name = "pcGB";
             this.pcGB.Size = new System.Drawing.Size(151, 144);
             this.pcGB.TabIndex = 3;
@@ -380,24 +362,14 @@
             this.stepButton.UseVisualStyleBackColor = true;
             this.stepButton.Click += new System.EventHandler(this.OnClickStepButton);
             // 
-            // pcTB
+            // pcLabel
             // 
-            this.pcTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.pcTB.Location = new System.Drawing.Point(30, 16);
-            this.pcTB.MaxLength = 6;
-            this.pcTB.Name = "pcTB";
-            this.pcTB.Size = new System.Drawing.Size(71, 24);
-            this.pcTB.TabIndex = 17;
-            this.pcTB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 21);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(21, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "PC";
+            this.pcLabel.AutoSize = true;
+            this.pcLabel.Location = new System.Drawing.Point(6, 21);
+            this.pcLabel.Name = "pcLabel";
+            this.pcLabel.Size = new System.Drawing.Size(21, 13);
+            this.pcLabel.TabIndex = 0;
+            this.pcLabel.Text = "PC";
             // 
             // logBox
             // 
@@ -415,7 +387,9 @@
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel,
             this.cursorPositionLabel,
-            this.selectedBytesLabel});
+            this.selectedBytesLabel,
+            this.zoomOutButton,
+            this.zoomInButton});
             this.statusStrip.Location = new System.Drawing.Point(0, 739);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1026, 22);
@@ -424,7 +398,7 @@
             // toolStripStatusLabel
             // 
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(897, 17);
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(860, 17);
             this.toolStripStatusLabel.Spring = true;
             this.toolStripStatusLabel.Text = "Loading...";
             this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -442,6 +416,28 @@
             this.selectedBytesLabel.Size = new System.Drawing.Size(90, 17);
             this.selectedBytesLabel.Text = "0 bytes selected";
             this.selectedBytesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // zoomOutButton
+            // 
+            this.zoomOutButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.zoomOutButton.DropDownButtonWidth = 0;
+            this.zoomOutButton.Image = ((System.Drawing.Image)(resources.GetObject("zoomOutButton.Image")));
+            this.zoomOutButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.zoomOutButton.Name = "zoomOutButton";
+            this.zoomOutButton.Size = new System.Drawing.Size(17, 20);
+            this.zoomOutButton.Text = "-";
+            this.zoomOutButton.ButtonClick += new System.EventHandler(this.zoomOutButton_ButtonClick);
+            // 
+            // zoomInButton
+            // 
+            this.zoomInButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.zoomInButton.DropDownButtonWidth = 0;
+            this.zoomInButton.Image = ((System.Drawing.Image)(resources.GetObject("zoomInButton.Image")));
+            this.zoomInButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.zoomInButton.Name = "zoomInButton";
+            this.zoomInButton.Size = new System.Drawing.Size(20, 20);
+            this.zoomInButton.Text = "+";
+            this.zoomInButton.ButtonClick += new System.EventHandler(this.zoomInButton_ButtonClick);
             // 
             // bpEnabledCB
             // 
@@ -648,7 +644,7 @@
             // 
             this.gotoTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.gotoTB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gotoTB.Location = new System.Drawing.Point(946, 546);
+            this.gotoTB.Location = new System.Drawing.Point(946, 554);
             this.gotoTB.MaxLength = 6;
             this.gotoTB.Name = "gotoTB";
             this.gotoTB.Size = new System.Drawing.Size(68, 24);
@@ -660,24 +656,24 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(867, 551);
+            this.label9.Location = new System.Drawing.Point(867, 559);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(73, 13);
             this.label9.TabIndex = 0;
             this.label9.Text = "Go to address";
             // 
-            // groupBox4
+            // decodingGB
             // 
-            this.groupBox4.Controls.Add(this.radioButton3);
-            this.groupBox4.Controls.Add(this.utf8RB);
-            this.groupBox4.Controls.Add(this.radioButton4);
-            this.groupBox4.Controls.Add(this.rawRB);
-            this.groupBox4.Location = new System.Drawing.Point(10, 6);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(145, 116);
-            this.groupBox4.TabIndex = 8;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Decoding";
+            this.decodingGB.Controls.Add(this.radioButton3);
+            this.decodingGB.Controls.Add(this.utf8RB);
+            this.decodingGB.Controls.Add(this.radioButton4);
+            this.decodingGB.Controls.Add(this.rawRB);
+            this.decodingGB.Location = new System.Drawing.Point(10, 6);
+            this.decodingGB.Name = "decodingGB";
+            this.decodingGB.Size = new System.Drawing.Size(145, 116);
+            this.decodingGB.TabIndex = 8;
+            this.decodingGB.TabStop = false;
+            this.decodingGB.Text = "Decoding";
             // 
             // radioButton3
             // 
@@ -745,7 +741,7 @@
             this.splitContainer1.Panel1.Controls.Add(this.groupBox2);
             this.splitContainer1.Panel1.Controls.Add(this.label9);
             this.splitContainer1.Panel1.Controls.Add(this.regGB);
-            this.splitContainer1.Panel1.Controls.Add(this.groupBox4);
+            this.splitContainer1.Panel1.Controls.Add(this.decodingGB);
             this.splitContainer1.Panel1.Controls.Add(this.memGB);
             this.splitContainer1.Panel1.Controls.Add(this.pcGB);
             this.splitContainer1.Panel1.Controls.Add(this.bpGB);
@@ -798,6 +794,37 @@
             // 
             this.saveMemoryDialog.SupportMultiDottedExtensions = true;
             // 
+            // regATB
+            // 
+            this.regATB.Font = new System.Drawing.Font("Courier New", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.regATB.Location = new System.Drawing.Point(32, 19);
+            this.regATB.Name = "regATB";
+            this.regATB.Size = new System.Drawing.Size(71, 24);
+            this.regATB.TabIndex = 18;
+            this.regATB.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.onRegisterTBKeyPress);
+            // 
+            // hexDisplay
+            // 
+            this.hexDisplay.AddressDigits = 6;
+            this.hexDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.hexDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.hexDisplay.CursorAddress = 0;
+            this.hexDisplay.Data = null;
+            this.hexDisplay.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexDisplay.Location = new System.Drawing.Point(3, 16);
+            this.hexDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.hexDisplay.Name = "hexDisplay";
+            this.hexDisplay.Size = new System.Drawing.Size(688, 561);
+            this.hexDisplay.StartAddress = 0;
+            this.hexDisplay.TabIndex = 1;
+            this.hexDisplay.WordDigits = 6;
+            this.hexDisplay.WordEncoding = Visual_SICXE.HexDisplay.Encoding.Raw;
+            this.hexDisplay.CursorAddressChanged += new System.EventHandler(this.OnHexDisplayCursorMove);
+            this.hexDisplay.Enter += new System.EventHandler(this.onHexDisplayFocus);
+            this.hexDisplay.Leave += new System.EventHandler(this.onHexDisplayBlur);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -826,8 +853,8 @@
             this.bpGB.PerformLayout();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
+            this.decodingGB.ResumeLayout(false);
+            this.decodingGB.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -843,25 +870,24 @@
 
         private System.Windows.Forms.GroupBox memGB;
         private System.Windows.Forms.GroupBox regGB;
-        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label regBlb;
         private System.Windows.Forms.TextBox regSTB;
         private System.Windows.Forms.TextBox regLTB;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox regATB;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label regAlb;
+        private System.Windows.Forms.Label regLlb;
+        private System.Windows.Forms.Label regSlb;
         private System.Windows.Forms.TextBox regTTB;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label regFlb;
         private System.Windows.Forms.TextBox regXTB;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label regXlb;
         private System.Windows.Forms.TextBox regFTB;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label regTlb;
         private System.Windows.Forms.TextBox regBTB;
         private System.Windows.Forms.GroupBox pcGB;
         private System.Windows.Forms.Button runButton;
         private System.Windows.Forms.Button stepButton;
         private System.Windows.Forms.TextBox pcTB;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label pcLabel;
         private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
@@ -889,14 +915,14 @@
         private System.Windows.Forms.ToolStripStatusLabel selectedBytesLabel;
         private System.Windows.Forms.TextBox gotoTB;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.GroupBox decodingGB;
         private System.Windows.Forms.RadioButton radioButton4;
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton utf8RB;
         private System.Windows.Forms.RadioButton rawRB;
         private System.Windows.Forms.OpenFileDialog openOBJdialog;
         private System.Windows.Forms.ComboBox ccCB;
-        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label ccLabel;
         private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem watchesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem breakpointsToolStripMenuItem;
@@ -910,6 +936,9 @@
         private System.Windows.Forms.OpenFileDialog openSessionDialog;
         private System.Windows.Forms.SaveFileDialog saveSessionDialog;
         private System.Windows.Forms.SaveFileDialog saveMemoryDialog;
+        private System.Windows.Forms.ToolStripSplitButton zoomOutButton;
+        private System.Windows.Forms.ToolStripSplitButton zoomInButton;
+        private System.Windows.Forms.TextBox regATB;
     }
 }
 

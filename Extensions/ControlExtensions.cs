@@ -32,5 +32,12 @@ namespace Visual_SICXE.Extensions
             var pi = control.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
             pi.SetValue(control, enable, null);
         }
+
+        public static void SetFontSize(this Control control, float emSize)
+        {
+            control.Font = new System.Drawing.Font(control.Font.FontFamily, emSize);
+        }
+
+        
     }
 }

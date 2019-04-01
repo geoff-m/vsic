@@ -18,6 +18,11 @@ namespace Visual_SICXE
 {
     public partial class MainForm : Form, ILogSink
     {
+        private class TextBoxState
+        {
+            public string LastText;
+            public Label Label;
+        }
         public MainForm()
         {
             InitializeComponent();
@@ -63,7 +68,6 @@ namespace Visual_SICXE
 
         private const int PC_MARKER_ID = -1;
         private readonly Color MEMORY_READ_COLOR = Color.FromArgb(64, Color.Red);
-
         private readonly Color MEMORY_WRITTEN_COLOR = Color.FromArgb(127, Color.Lime);
         private readonly Color PC_MARKER_COLOR = Color.FromArgb(200, Color.Yellow);
         private readonly Color REGISTER_READ_COLOR = Color.Pink;
@@ -87,9 +91,18 @@ namespace Visual_SICXE
 
         private readonly WatchForm watchForm = new WatchForm();
 
+        private TextBox[] regTBs;
         private void FormLoaded(object sender, EventArgs e)
         {
-            foreach (TextBox tb in new[] { regATB, regBTB, regLTB, regSTB, regTTB, regXTB, regFTB }) tb.Tag = tb.Text;
+            regTBs = new TextBox[] { regATB, regXTB, regSTB, regTTB, regBTB, regLTB, regFTB };
+            regATB.Tag = new TextBoxState() { Label = regAlb, LastText = regATB.Text };
+            regBTB.Tag = new TextBoxState() { Label = regBlb, LastText = regBTB.Text };
+            regLTB.Tag = new TextBoxState() { Label = regLlb, LastText = regLTB.Text };
+            regSTB.Tag = new TextBoxState() { Label = regSlb, LastText = regSTB.Text };
+            regTTB.Tag = new TextBoxState() { Label = regTlb, LastText = regTTB.Text };
+            regXTB.Tag = new TextBoxState() { Label = regXlb, LastText = regXTB.Text };
+            regFTB.Tag = new TextBoxState() { Label = regFlb, LastText = regFTB.Text };
+            pcTB.Tag = new TextBoxState() { Label = pcLabel, LastText = pcTB.Text };
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -623,15 +636,15 @@ namespace Visual_SICXE
                         tb.SelectionLength = 1;
                         tb.SelectedText = char.ToUpper(c).ToString();
                     }
-
                     break;
 
                 case (char)Keys.Enter:
                     string newText = tb.Text;
                     if (newText.Length == 0) // If textbox is empty, replace in it whatever was last entered.
                     {
-                        // todo: set each textbox's tag as its current text on text changed event, unless it is not the first such event since the last time the user pressed enter.
-                        tb.Text = (string)tb.Tag;
+                        // Each textbox's tag is set as its current text on text changed event,
+                        // unless it is not the first such event since the last time the user pressed enter.
+                        tb.Text = ((TextBoxState)tb.Tag).LastText;
                         break;
                     }
 
@@ -645,7 +658,8 @@ namespace Visual_SICXE
                             tb.BackColor = SystemColors.Window;
                             hexDisplay.CursorAddress = newValue;
                             UpdateMachineDisplay();
-                            tb.Tag = tb.Text;
+                            //tb.Tag = tb.Text;
+                            ((TextBoxState)tb.Tag).LastText = tb.Text;
                         }
                         else
                         {
@@ -663,7 +677,8 @@ namespace Visual_SICXE
                             tb.BackColor = SystemColors.Window;
                             sess.Machine.ProgramCounter = newValue;
                             UpdateMachineDisplay();
-                            tb.Tag = tb.Text;
+                            //tb.Tag = tb.Text;
+                            ((TextBoxState)tb.Tag).LastText = tb.Text;
                         }
                         else
                         {
@@ -1068,6 +1083,66 @@ namespace Visual_SICXE
                 sess.SaveMemory(path, Word.Zero, sess.Machine.MemorySize);
 
             Log("Saved session to {0}.", path);
+        }
+
+        private void zoomOutButton_ButtonClick(object sender, EventArgs e)
+        {
+            float hdFontSize = hexDisplay.Font.Size;
+            if (hdFontSize <= 8)
+                return;
+            ChangeFontSizes(hdFontSize - 1);
+        }
+
+        private void zoomInButton_ButtonClick(object sender, EventArgs e)
+        {
+            float hdFontSize = hexDisplay.Font.Size;
+            if (hdFontSize >= 20)
+                return;
+            ChangeFontSizes(hdFontSize + 1);
+        }
+
+        private void ChangeFontSizes(float newSize)
+        {
+            hexDisplay.SetFontSize(newSize);
+            foreach (var regtb in regTBs)
+            {
+                regtb.SetFontSize(newSize);
+                ((TextBoxState)regtb.Tag).Label.SetFontSize(newSize);
+            }
+            ccCB.SetFontSize(newSize);
+            ccLabel.SetFontSize(newSize);
+            ReflowRegisterTextBoxes();
+        }
+
+        private void ReflowRegisterTextBoxes()
+        {
+            const int VERTICAL_GAP = 2; // pixels between RTBs.
+            int top = regTBs[0].Location.Y + regTBs[0].Height;
+            for (int i = 0; i < regTBs.Length; ++i)
+            {
+                var current = regTBs[i];
+                if (i > 0)
+                {
+                    current.Location = new Point(current.Location.X, top + VERTICAL_GAP);
+                    top += VERTICAL_GAP + current.Height;
+                }
+                current.Width = current.PreferredSize.Width;
+                var label = ((TextBoxState)current.Tag).Label;
+                label.Location = new Point(label.Location.X,
+                    current.Location.Y + current.Height / 2 - label.Height / 2);
+            }
+            ccCB.Width = TextRenderer.MeasureText(ccCB.Text, ccCB.Font).Width + 20;
+            ccCB.Location = new Point(ccCB.Location.X, top + VERTICAL_GAP);
+            ccLabel.Location = new Point(ccLabel.Location.X, ccCB.Location.Y + ccCB.Height / 2 - ccLabel.Height / 2);
+            regGB.Size = regGB.PreferredSize;
+            pcGB.Location = new Point(pcGB.Location.X, regGB.Location.Y + regGB.Height);
+
+            // update location of regGB
+            regGB.Location = new Point(this.ClientSize.Width - 12 - regGB.Width, regGB.Location.Y);
+
+            // update size of memGB
+            memGB.Size = new Size(regGB.Location.X - regGB.Padding.Left - (decodingGB.Location.X + decodingGB.Width + decodingGB.Padding.Right),
+                                    memGB.Height);
         }
     }
 }
