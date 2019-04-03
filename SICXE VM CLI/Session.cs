@@ -147,6 +147,8 @@ namespace SICXE_VM_CLI
                     return "An instruction referenced an out-of-bounds address!";
                 case Machine.RunResult.EndOfMemory:
                     return "The program counter has reached the end of memory.";
+                case Machine.RunResult.DivideByZero:
+                    return $"The instruction at {m.ProgramCounter} tried to divide by zero!";
             }
             Debug.Fail("Unknown run result!");
             return "";
@@ -211,8 +213,7 @@ namespace SICXE_VM_CLI
             }
         }
 
-        public int MemorySize
-        { get { return m.MemorySize; } }
+        public int MemorySize => m.MemorySize;
 
         public void PrintMemory(int start, int stop)
         {
@@ -247,6 +248,7 @@ namespace SICXE_VM_CLI
         public void PrintRegisters()
         {
             Console.WriteLine($"PC: {m.ProgramCounter}");
+            Console.WriteLine($"CC: {m.ConditionCode}");
             Console.WriteLine($"A:  {m.RegisterA}  B:  {m.RegisterB}");
             Console.WriteLine($"X:  {m.RegisterX}  L:  {m.RegisterL}");
             Console.WriteLine($"S:  {m.RegisterS}  T:  {m.RegisterT}");

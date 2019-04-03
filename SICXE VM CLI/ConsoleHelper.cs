@@ -46,6 +46,13 @@ namespace SICXE_VM_CLI
             Console.Write(str);
         }
 
+        private static void PrintStreamReader(System.IO.StreamReader s)
+        {
+            string line;
+            while ((line = s.ReadLine()) != null)
+                Console.WriteLine(line);
+        }
+
         public static void ExecuteDirectoryListing(string args)
         {
             var proc = new Process();
@@ -70,12 +77,16 @@ namespace SICXE_VM_CLI
             try
             {
                 proc.Start();
-                Console.WriteLine(proc.StandardOutput.ReadToEnd());
+                PrintStreamReader(proc.StandardOutput);
                 proc.WaitForExit();
             }
             catch (Exception ex) when (ex is InvalidOperationException || ex is Win32Exception || ex is ObjectDisposedException || ex is PlatformNotSupportedException)
             {
                 Console.WriteLine($"Error listing directory: {ex.Message}");
+            }
+            finally
+            {
+                proc.Dispose();
             }
         }
 

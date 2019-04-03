@@ -190,39 +190,43 @@ namespace SICXE_VM_CLI
         static bool HandleDump(string line)
         {
             var tokens = line.Split(' ').ToArray();
-            if (tokens.Length == 1)
+            switch (tokens.Length)
             {
-                return false;
-            }
-
-            if (tokens.Length == 3)
-            {
-                if (int.TryParse(tokens[1], System.Globalization.NumberStyles.HexNumber, null, out int startAddress))
-                {
-                    if (int.TryParse(tokens[2], System.Globalization.NumberStyles.Integer, null, out int length))
+                case 2:
+                    if (tokens[1].Length == 1)
                     {
-                        int stop = Math.Min(startAddress + length, sess.MemorySize);
-                        sess.PrintMemory(startAddress, stop);
+                        switch (char.ToLower(tokens[1][0]))
+                        {
+                            case 'a':
+                                break;
+                        }   
+                    }
+                    if (tokens[1].EqualsAnyIgnoreCase("r", "reg", "regs", "registers", "reigster"))
+                    {
+                        sess.PrintRegisters();
                         return true;
+                    }
+                    break;
+                case 3:
+                    if (tokens[1].TryParseAsSuffixedInt(out int startAddress))
+                    {
+                        if (tokens[2].TryParseAsSuffixedInt(out int length))
+                        {
+                            int stop = Math.Min(startAddress + length, sess.MemorySize);
+                            sess.PrintMemory(startAddress, stop);
+                            return true;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Error: Could not parse as length \"{tokens[2]}\"");
+                            return false;
+                        }
                     }
                     else
                     {
-                        Console.WriteLine($"Error: Could not parse as length \"{tokens[2]}\"");
+                        Console.WriteLine($"Error: Could not parse as address \"{tokens[1]}\"");
                         return false;
                     }
-                }
-                else
-                {
-                    Console.WriteLine($"Error: Could not parse as address \"{tokens[1]}\"");
-                    return false;
-                }
-            }
-
-            string[] REGISTER_STRINGS = new string[] { "r", "reg", "register", "registers" };
-            if (REGISTER_STRINGS.Any(s => s.Equals(tokens[1], StringComparison.OrdinalIgnoreCase)))
-            {
-                sess.PrintRegisters();
-                return true;
             }
 
             return false;
@@ -242,7 +246,7 @@ namespace SICXE_VM_CLI
 
         static bool HandleVersion(string line)
         {
-            Console.WriteLine($"Version: {_VERSION}");
+            Console.WriteLine($"{_PROGRAM_NAME} Version: {_VERSION}");
             Console.WriteLine($"Build date: {_BUILD_DATE}");
             return true;
         }
@@ -265,6 +269,7 @@ namespace SICXE_VM_CLI
                     Console.WriteLine("Loads an OBJ into the machine. Expects 1 argument: path to OBJ file");
                     return true;
                 case "dump":
+                case "d":
                     Console.WriteLine("Displays memory contents. Expects one or two arguments. Alias 'd'.");
                     Console.WriteLine("\tdump [start address] [length]");
                     Console.WriteLine("This will display the first [length] bytes that occur beginning at [start address].");
