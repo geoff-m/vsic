@@ -1069,7 +1069,8 @@ namespace SICXE
                             addr = DecodeLongInstruction(b1, out mode);
                             RegisterL = (Word)PC;
                             PC = DecodeAddress(addr, mode);
-                            LogInstruction(originalPC, $"{op} {addr}.");
+                            if (LogEachInstruction)
+                                LogInstruction(originalPC, $"{op} {addr}.");
                             break;
                         case Mnemonic.RSUB:
                             PC = RegisterLWithEvents;

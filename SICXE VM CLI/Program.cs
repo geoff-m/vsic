@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SICXE;
+using System.IO;
 
 namespace SICXE_VM_CLI
 {
@@ -94,7 +95,7 @@ namespace SICXE_VM_CLI
         static bool HandleDevice(string line)
         {
             var tokens = line.Split(' ');
-            
+
 
 
             return true;
@@ -118,7 +119,14 @@ namespace SICXE_VM_CLI
                 line = line.Substring(firstSpaceIdx + 1);
             else
                 line = "";
-            ConsoleHelper.ChangeDirectory(line);
+            try
+            {
+                ConsoleHelper.ChangeDirectory(line);
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             return true;
         }
 
@@ -199,7 +207,7 @@ namespace SICXE_VM_CLI
                         {
                             case 'a':
                                 break;
-                        }   
+                        }
                     }
                     if (tokens[1].EqualsAnyIgnoreCase("r", "reg", "regs", "registers", "reigster"))
                     {
