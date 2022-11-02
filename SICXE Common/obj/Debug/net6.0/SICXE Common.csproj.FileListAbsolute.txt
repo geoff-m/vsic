@@ -1,0 +1,24 @@
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\bin\Debug\net6.0\SICXE Common.deps.json
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\bin\Debug\net6.0\SICXE Common.dll
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\bin\Debug\net6.0\SICXE Common.pdb
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.csproj.AssemblyReference.cache
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.AssemblyInfoInputs.cache
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.AssemblyInfo.cs
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.csproj.CoreCompileInputs.cache
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.dll
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\refint\SICXE Common.dll
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\SICXE Common.pdb
+C:\Users\Geoff\source\repos\Visual SICXE\SICXE Common\obj\Debug\net6.0\ref\SICXE Common.dll
+C:\Users\Geoff\source\repos\vsic\SICXE Common\bin\Debug\net6.0\SICXE Common.deps.json
+C:\Users\Geoff\source\repos\vsic\SICXE Common\bin\Debug\net6.0\SICXE Common.dll
+C:\Users\Geoff\source\repos\vsic\SICXE Common\bin\Debug\net6.0\SICXE Common.pdb
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.csproj.AssemblyReference.cache
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.AssemblyInfoInputs.cache
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.AssemblyInfo.cs
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.csproj.CoreCompileInputs.cache
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.dll
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\refint\SICXE Common.dll
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\SICXE Common.pdb
+C:\Users\Geoff\source\repos\vsic\SICXE Common\obj\Debug\net6.0\ref\SICXE Common.dll

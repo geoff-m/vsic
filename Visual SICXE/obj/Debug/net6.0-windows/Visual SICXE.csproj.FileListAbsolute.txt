@@ -1,0 +1,52 @@
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.AssemblyReference.cache
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.ConsoleWindow.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.DeviceManager.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.Disassembly.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.FileDeviceCreationDialog.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.HexDisplay.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.MainForm.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.WatchForm.resources
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.GenerateResource.cache
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.AssemblyInfoInputs.cache
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.AssemblyInfo.cs
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.CoreCompileInputs.cache
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.exe
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.deps.json
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.runtimeconfig.json
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.dll
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.pdb
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\SICXE Common.dll
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\bin\Debug\net6.0-windows\SICXE Common.pdb
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.CopyComplete
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.dll
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\refint\Visual SICXE.dll
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.pdb
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.genruntimeconfig.cache
+C:\Users\Geoff\source\repos\Visual SICXE\Visual SICXE\obj\Debug\net6.0-windows\ref\Visual SICXE.dll
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.exe
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.deps.json
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.runtimeconfig.json
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.dll
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\Visual SICXE.pdb
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\SICXE Common.dll
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\bin\Debug\net6.0-windows\SICXE Common.pdb
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.AssemblyReference.cache
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.ConsoleWindow.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.DeviceManager.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.Disassembly.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.FileDeviceCreationDialog.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.HexDisplay.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.MainForm.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual_SICXE.WatchForm.resources
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.GenerateResource.cache
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.AssemblyInfoInputs.cache
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.AssemblyInfo.cs
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.CoreCompileInputs.cache
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.csproj.CopyComplete
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.dll
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\refint\Visual SICXE.dll
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.pdb
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\Visual SICXE.genruntimeconfig.cache
+C:\Users\Geoff\source\repos\vsic\Visual SICXE\obj\Debug\net6.0-windows\ref\Visual SICXE.dll

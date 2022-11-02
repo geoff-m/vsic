@@ -3,7 +3,7 @@
     /// <summary>
     /// An implementation of ILogSink that does nothing.
     /// </summary>
-    internal class NullLog : ILogSink
+    public class NullLog : ILogSink
     {
         public void Log(string str, params object[] args)
         {

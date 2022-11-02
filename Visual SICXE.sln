@@ -3,46 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Visual SICXE", "Visual SICXE.csproj", "{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Visual SICXE", "Visual SICXE\Visual SICXE.csproj", "{30A18F5F-4475-46EB-9C3B-92E344449DA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SICXE VM CLI", "SICXE VM CLI\SICXE VM CLI.csproj", "{6621AB24-FDCC-4C8A-8249-332C4203DFE1}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SICXE Common", "SICXE Common\SICXE Common.shproj", "{00FB54CB-62CA-4FC1-A9FC-980452F14492}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SICXE Common", "SICXE Common\SICXE Common.csproj", "{3184C8DB-9F61-419E-9372-27946317C28A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Debug|x86.Build.0 = Debug|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Release|x86.ActiveCfg = Release|Any CPU
-		{753F65D6-6EF8-4A7E-8EB1-35C538E566E5}.Release|x86.Build.0 = Release|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Debug|x86.Build.0 = Debug|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Release|x86.ActiveCfg = Release|Any CPU
-		{6621AB24-FDCC-4C8A-8249-332C4203DFE1}.Release|x86.Build.0 = Release|Any CPU
+		{30A18F5F-4475-46EB-9C3B-92E344449DA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30A18F5F-4475-46EB-9C3B-92E344449DA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30A18F5F-4475-46EB-9C3B-92E344449DA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30A18F5F-4475-46EB-9C3B-92E344449DA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3184C8DB-9F61-419E-9372-27946317C28A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3184C8DB-9F61-419E-9372-27946317C28A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3184C8DB-9F61-419E-9372-27946317C28A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3184C8DB-9F61-419E-9372-27946317C28A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {94FA3956-8F31-43B4-B77F-60D0E6FAFFD6}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		SICXE Common\SICXE Common.projitems*{00fb54cb-62ca-4fc1-a9fc-980452f14492}*SharedItemsImports = 13
-		SICXE Common\SICXE Common.projitems*{6621ab24-fdcc-4c8a-8249-332c4203dfe1}*SharedItemsImports = 4
-		SICXE Common\SICXE Common.projitems*{753f65d6-6ef8-4a7e-8eb1-35c538e566e5}*SharedItemsImports = 5
+		SolutionGuid = {5108AEBD-2DD7-44B5-ABF0-FDDCEFA0F492}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,33 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Visual SICXE/1.0.0": {
+        "runtime": {
+          "Visual SICXE.dll": {}
+        }
+      },
+      "SICXE Common/1.0.0": {
+        "runtime": {
+          "SICXE Common.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Visual SICXE/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SICXE Common/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
