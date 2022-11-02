@@ -745,7 +745,7 @@ namespace SICXE
                             {
                                 reg1value = GetRegister(r1);
                                 reg2value = GetRegister(r2);
-                                SetRegister(r2, reg1value + reg2value);
+                                SetRegister(r2, reg2value - reg1value);
                             }
                             catch (SICXEException ex)
                             {
@@ -993,9 +993,8 @@ namespace SICXE
                         case Mnemonic.LDCH:
                             // This instruciton operates on a single byte, not a word.
                             addr = DecodeLongInstruction(b1, out mode);
-                            //regA = (Word)(regA | ~0xff); // Zero out lowest byte.
                             addr = DecodeAddress(addr, mode);
-                            RegisterAWithEvents = (Word)((regA & ~0xff) | memory[addr]); // Or in lowest byte from memory.
+                            RegisterAWithEvents = (Word)((regA & 0xffff00) | memory[addr]); // Or in lowest byte from memory.
                             ThrowForRead(addr, 1);
                             if (LogEachInstruction)
                                 LogInstruction(originalPC, $"{op} {addr}.");
@@ -1514,13 +1513,13 @@ namespace SICXE
             switch (mode)
             {
                 case AddressingMode.Immediate:
-                    throw new ArgumentException("Addressing mode is immediate and should not be decoded!");
+                    throw new SICXEException("Immediate addressing mode is not allowed here");
                 case AddressingMode.Simple:
                     return address;
                 case AddressingMode.Indirect:
                     return ReadWord(address, AddressingMode.Simple);
                 default:
-                    throw new ArgumentException("Illegal or unsupported addressing mode.");
+                    throw new SICXEException("Illegal or unsupported addressing mode");
             }
         }
 

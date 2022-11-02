@@ -12,6 +12,7 @@ namespace Visual_SICXE
         private static void Main()
         {
             Application.EnableVisualStyles();
+            Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
         }
